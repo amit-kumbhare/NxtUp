@@ -1,5 +1,8 @@
-# CF-Tracker
-Its A2OJ Codeforces Ladder but with better UI, user Statistics that lack in A2OJ's website
+# NxtUp
+Building a personalized problem recommender for competitive programmers 
+— analyzes Codeforces/LeetCode problems using sentence-transformer embeddings and tag-based difficulty modeling to match problems to a user's current skill gap.
+"Bridge Curriculum" -> detects WA/TLE patterns and auto-generates a targeted 3-problem sequence to close knowledge gaps; 
+Integrated live Codeforces API for submission tracking and rating updates.
 
 ## Glimpes
 ### 1. Profile Page with your Codeforces Information
