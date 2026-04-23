@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CF Tracker — Welcome Tour</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════ TOKENS ═══════════════ */
+:root {
+  --bg:          #f5f5f0;
+  --surface:     #ffffff;
+  --surface2:    #f0ede8;
+  --surface3:    #e8e4de;
+  --border:      #e2ddd8;
+  --text:        #1a1a1a;
+  --text-muted:  #7a7570;
+  --accent:      #e8531e;
+  --accent-soft: #fdf0eb;
+  --blue:        #3b6ef0;
+  --blue-soft:   #eff3fe;
+  --green:       #22c55e;
+  --green-soft:  #f0fdf4;
+  --medium:      #f59e0b;
+  --hard:        #ef4444;
+  --purple:      #8b5cf6;
+  --purple-soft: #f5f3ff;
+  --shadow:      0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.10), 0 32px 64px rgba(0,0,0,0.07);
+  --radius:      14px;
+}
+[data-theme="dark"] {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --surface3:    #333;
+  --border:      #333;
+  --text:        #f0ede8;
+  --text-muted:  #888;
+  --accent:      #ff6b35;
+  --accent-soft: #2a1a12;
+  --blue-soft:   #0f1a3a;
+  --green-soft:  #0d1f14;
+  --shadow:      0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.5), 0 32px 64px rgba(0,0,0,0.4);
+}
+
+/* ═══════════════ RESET ══════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg); color: var(--text);
+  user-select: none;
+}
+
+/* ═══════════════════════════════════════════════
+   STORY SHELL
+   ═══════════════════════════════════════════════ */
+.story-shell {
+  width: 100%; height: 100vh;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+
+/* ── PROGRESS BARS ── */
+.progress-bar-row {
+  display: flex; align-items: center; gap: 4px;
+  padding: 14px 20px 10px;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+  pointer-events: none;
+}
+.progress-seg {
+  flex: 1; height: 3px; border-radius: 99px;
+  background: rgba(0,0,0,0.12);
+  overflow: hidden; position: relative;
+}
+[data-theme="dark"] .progress-seg { background: rgba(255,255,255,0.15); }
+.progress-fill {
+  height: 100%; width: 0%; border-radius: 99px;
+  background: var(--accent);
+  transition: width 0s linear;
+}
+.progress-seg.done .progress-fill { width: 100%; }
+.progress-seg.active .progress-fill {
+  animation: fillSeg var(--seg-dur, 6s) linear forwards;
+}
+@keyframes fillSeg { from{width:0%} to{width:100%} }
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 44px 20px 8px;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 40;
+  pointer-events: none;
+}
+.top-bar-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 700; color: var(--accent);
+  letter-spacing: -.5px; pointer-events: all;
+}
+.top-bar-right {
+  display: flex; align-items: center; gap: 10px; pointer-events: all;
+}
+.skip-btn {
+  padding: 6px 14px; border-radius: 8px;
+  font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+  color: var(--text-muted); background: var(--surface);
+  border: 1px solid var(--border); cursor: pointer; transition: all .2s;
+}
+.skip-btn:hover { background: var(--surface2); color: var(--text); }
+.theme-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text); transition: all .2s;
+}
+.theme-btn:hover { background: var(--surface2); }
+
+/* ── SLIDE CONTAINER ── */
+.slides-wrap {
+  width: 100%; height: 100%;
+  position: relative;
+}
+
+/* ── SLIDE ── */
+.slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .0s;
+}
+.slide.entering  { animation: slideIn  .4s cubic-bezier(.4,0,.2,1) both; }
+.slide.leaving   { animation: slideOut .4s cubic-bezier(.4,0,.2,1) both; }
+.slide.active    { opacity: 1; pointer-events: all; }
+
+@keyframes slideIn  {
+  from { opacity:0; transform:translateX(40px) scale(.97); }
+  to   { opacity:1; transform:translateX(0)    scale(1);   }
+}
+@keyframes slideOut {
+  from { opacity:1; transform:translateX(0)     scale(1);   }
+  to   { opacity:0; transform:translateX(-40px) scale(.97); }
+}
+@keyframes slideInBack {
+  from { opacity:0; transform:translateX(-40px) scale(.97); }
+  to   { opacity:1; transform:translateX(0)     scale(1);   }
+}
+@keyframes slideOutForward {
+  from { opacity:1; transform:translateX(0)    scale(1);   }
+  to   { opacity:0; transform:translateX(40px) scale(.97); }
+}
+
+/* ── TAP ZONES ── */
+.tap-zone {
+  position: absolute; top: 0; bottom: 0; z-index: 30;
+  width: 38%; cursor: pointer; display: flex; align-items: center;
+}
+.tap-zone.left  { left: 0; justify-content: flex-start; padding-left: 16px; }
+.tap-zone.right { right: 0; justify-content: flex-end;  padding-right: 16px; }
+.tap-arrow {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+  box-shadow: var(--shadow);
+}
+.tap-zone:hover .tap-arrow { opacity: 1; }
+.tap-arrow svg { width: 16px; height: 16px; color: var(--text-muted); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px 28px;
+  pointer-events: none;
+}
+.slide-dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.slide-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border); transition: all .25s;
+  pointer-events: all; cursor: pointer;
+}
+.slide-dot.active {
+  background: var(--accent); width: 20px; border-radius: 4px;
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 22px; border-radius: 10px;
+  font-family: 'Sora', sans-serif; font-size: 13.5px; font-weight: 600;
+  border: none; cursor: pointer; transition: all .2s;
+  pointer-events: all;
+}
+.btn-prev {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.btn-prev:hover { background: var(--surface2); color: var(--text); }
+.btn-next {
+  background: var(--accent); color: white;
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.btn-next:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--accent) 45%, transparent);
+  transform: translateY(-1px);
+}
+.btn-next:active { transform: translateY(0); }
+.btn-next svg, .btn-prev svg { width: 14px; height: 14px; }
+
+/* ═══════════════════════════════════════════════
+   SLIDE INNER CONTENT
+   ═══════════════════════════════════════════════ */
+.slide-inner {
+  width: 100%; max-width: 860px; padding: 80px 40px 100px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0; text-align: center; height: 100%;
+  justify-content: center;
+}
+
+/* EYEBROW */
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
+
+/* TITLE */
+.slide-title {
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 800; letter-spacing: -1.8px; line-height: 1.08;
+  margin-bottom: 14px;
+}
+.slide-title .orange { color: var(--accent); }
+.slide-title .muted  { color: var(--text-muted); font-weight: 400; font-size: .72em; display:block; margin-top: 4px; }
+
+/* SUBTITLE */
+.slide-sub {
+  font-size: clamp(14px, 2vw, 17px); color: var(--text-muted);
+  max-width: 540px; line-height: 1.7; margin-bottom: 32px;
+}
+#notes-slide {
+  font-size: clamp(12px, 1.5vw, 15px); 
+  line-height: 1.5; /* Slightly tighter line spacing for smaller text */
+  color: var(--text-muted);
+  max-width: 540px; 
+  margin-bottom: 32px;
+}
+
+
+.slide-sub strong { color: var(--text); font-weight: 600; }
+
+/* STAT PILLS */
+.stat-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 32px;
+}
+.stat-pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--shadow); font-size: 13.5px;
+}
+.stat-pill .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; font-weight: 700;
+}
+.stat-pill .num.orange { color: var(--accent); }
+.stat-pill .num.green  { color: var(--green); }
+.stat-pill .num.blue   { color: var(--blue); }
+.stat-pill .num.purple { color: var(--purple); }
+.stat-pill .lbl { font-size: 12.5px; color: var(--text-muted); }
+
+/* ── COVER SLIDE ── */
+.cover-logo {
+  width: 72px; height: 72px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--accent), #f0a020);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px; font-weight: 700; color: white;
+  margin: 0 auto 28px;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 35%, transparent);
+  animation: popIn .6s .1s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn {
+  from { transform:scale(.6); opacity:0; }
+  to   { transform:scale(1);  opacity:1; }
+}
+.cover-sync-note {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 13px; color: var(--text-muted); box-shadow: var(--shadow);
+  margin-top: 8px;
+}
+.cover-sync-note svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
+.cover-sync-note span { color: var(--accent); font-weight: 600; }
+
+/* ── MINI MOCKUP BASE ── */
+.mockup-wrap {
+  width: 100%; max-width: 700px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+}
+.mockup-titlebar {
+  height: 38px; background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 14px; gap: 6px;
+}
+.mkdot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.mkdot.r { background: #ff5f57; }
+.mkdot.y { background: #febc2e; }
+.mkdot.g { background: #28c840; }
+.mockup-url {
+  flex: 1; margin: 0 14px;
+  background: var(--surface3); border-radius: 5px; height: 22px;
+  display: flex; align-items: center; padding: 0 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ── BLIND ORDER MOCKUP ── */
+.bo-nav {
+  height: 42px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 10px;
+}
+.bo-nav-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+}
+.tab-pill {
+  padding: 4px 12px; border-radius: 7px;
+  font-size: 11px; font-weight: 500; color: var(--text-muted);
+}
+.tab-pill.active {
+  background: var(--accent-soft); color: var(--accent);
+}
+.bo-body { padding: 12px 14px; }
+.bo-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.bo-title {
+  font-size: 13px; font-weight: 700;
+}
+.bo-chips { display: flex; gap: 6px; }
+.bo-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 7px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 10.5px;
+}
+.bo-chip .cdot { width: 6px; height: 6px; border-radius: 50%; }
+.bo-chip b { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+.prog-track { height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+.prog-fill  { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--green), #16a34a); }
+.tbl-head {
+  display: grid; grid-template-columns: 32px 40px 1fr 100px 42px 60px;
+  gap: 6px; padding: 5px 8px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--text-muted);
+  background: var(--surface2); border-radius: 7px; margin-bottom: 4px;
+}
+.tbl-row {
+  display: grid; grid-template-columns: 32px 40px 1fr 100px 42px 60px;
+  gap: 6px; padding: 7px 8px; border-radius: 7px;
+  align-items: center; border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.tbl-row:last-child { border-bottom: none; }
+.tbl-row.solved { background: #f0fdf4; }
+[data-theme="dark"] .tbl-row.solved { background: #0d1f14; }
+.mini-cb {
+  width: 13px; height: 13px; border-radius: 3px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+}
+.mini-cb.chk { background: var(--green); border-color: var(--green); }
+.mini-cb.chk::after { content: '✓'; font-size: 8px; color: white; font-weight: 700; }
+.mini-code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
+.mini-name { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.solved .mini-name { text-decoration: line-through; color: var(--text-muted); }
+.mini-dtag {
+  font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+  width: fit-content;
+}
+.mini-dtag.easy   { background: #dcfce7; color: #15803d; }
+.mini-dtag.medium { background: #fef9c3; color: #854d0e; }
+.mini-dtag.hard   { background: #fee2e2; color: #991b1b; }
+[data-theme="dark"] .mini-dtag.easy   { background: #14532d; color: #4ade80; }
+[data-theme="dark"] .mini-dtag.medium { background: #422006; color: #fbbf24; }
+[data-theme="dark"] .mini-dtag.hard   { background: #450a0a; color: #f87171; }
+.mini-star { font-size: 12px; text-align: center; }
+.mini-note-btn {
+  font-size: 9px; padding: 2px 7px; border-radius: 4px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); width: fit-content;
+}
+.mini-note-btn.has { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+
+/* ── TOPIC WISE MOCKUP ── */
+.tw-layout { display: grid; grid-template-columns: 130px 1fr; }
+.tw-sidebar-m {
+  border-right: 1px solid var(--border); padding: 10px 8px;
+  background: var(--surface);
+}
+.tw-sidebar-title {
+  font-size: 8.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .7px; color: var(--text-muted); margin-bottom: 8px; padding: 0 4px;
+}
+.tw-tag-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 7px; border-radius: 6px; font-size: 10.5px;
+  color: var(--text-muted); margin-bottom: 2px; cursor: default;
+}
+.tw-tag-item.active-tw {
+  background: var(--blue-soft); color: var(--blue);
+  font-weight: 700;
+  border: 1px solid color-mix(in srgb, var(--blue) 22%, transparent);
+}
+.tw-tag-count {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+  background: var(--surface2); padding: 0 5px; border-radius: 4px;
+}
+.tw-active .tw-tag-count { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }
+.tw-main { padding: 10px 12px; }
+.tw-main-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--blue); margin-bottom: 8px;
+}
+.tw-tbl-row {
+  display: grid; grid-template-columns: 28px 36px 1fr 90px 36px 60px;
+  gap: 5px; padding: 6px 7px; border-radius: 6px;
+  align-items: center; border-bottom: 1px solid var(--border);
+  font-size: 10.5px;
+}
+.tw-tbl-row:last-child { border-bottom: none; }
+.tw-tag-pills { display: flex; gap: 3px; flex-wrap: wrap; }
+.tw-pill {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  background: var(--surface2); color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.tw-pill.hl { background: var(--blue-soft); color: var(--blue); border-color: color-mix(in srgb, var(--blue) 25%, transparent); }
+
+/* ── RECOMMENDATION MOCKUP ── */
+.rec-mockup-body { padding: 12px 14px; }
+.rec-skill-section { margin-bottom: 10px; }
+.rec-skill-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--text-muted); margin-bottom: 6px;
+}
+.rec-skill-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.rec-bar-row { }
+.rec-bar-label {
+  display: flex; justify-content: space-between;
+  font-size: 9.5px; color: var(--text-muted); margin-bottom: 3px;
+}
+.rec-bar-track { height: 3px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+.rec-bar-fill { height: 100%; border-radius: 99px; }
+.rec-bar-fill.strong { background: var(--green); }
+.rec-bar-fill.weak   { background: var(--hard); }
+
+.bridge-mini {
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 9px; padding: 8px 10px; margin-bottom: 8px;
+}
+.bridge-mini-title {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--accent); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 5px;
+}
+.bridge-mini-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.bridge-mini-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 8px;
+}
+.bridge-card-type-label {
+  font-size: 8px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .3px; margin-bottom: 3px;
+}
+.bridge-card-type-label.warmup  { color: var(--green); }
+.bridge-card-type-label.bridge  { color: var(--accent); }
+.bridge-card-type-label.stretch { color: var(--purple); }
+.bridge-card-name { font-size: 10px; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bridge-card-rating { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); }
+
+.rec-picks-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+.rec-pick-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; padding: 7px 9px;
+}
+.rec-pick-reason { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: var(--blue); margin-bottom: 3px; }
+.rec-pick-name   { font-size: 10.5px; font-weight: 700; margin-bottom: 2px; }
+.rec-pick-rating { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); }
+
+.retry-mini-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  margin-bottom: 4px; font-size: 10.5px;
+}
+.retry-mini-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 1px 5px; border-radius: 3px; font-weight: 700; flex-shrink: 0;
+}
+.retry-mini-badge.wa  { background: #fee2e2; color: #991b1b; }
+.retry-mini-badge.tle { background: #fef9c3; color: #854d0e; }
+[data-theme="dark"] .retry-mini-badge.wa  { background: #450a0a; color: #f87171; }
+[data-theme="dark"] .retry-mini-badge.tle { background: #422006; color: #fbbf24; }
+.retry-mini-name { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.retry-mini-days { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); flex-shrink: 0; }
+
+/* ── NOTES MOCKUP ── */
+.notes-mockup-layout { display: grid; grid-template-columns: 110px 1fr; }
+.notes-sidebar-m {
+  border-right: 1px solid var(--border); padding: 10px 8px;
+  background: var(--surface);
+}
+.notes-topic-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 7px; border-radius: 5px; font-size: 10px;
+  color: var(--text-muted); margin-bottom: 2px;
+}
+.notes-topic-btn.active-n {
+  background: var(--accent-soft); color: var(--accent); font-weight: 700;
+}
+.notes-topic-count {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  background: var(--surface2); padding: 0 4px; border-radius: 3px;
+}
+.notes-main { padding: 10px 12px; }
+.note-mini-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 11px; margin-bottom: 7px;
+}
+.note-mini-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px;
+}
+.note-mini-code { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--accent); font-weight: 700; }
+.note-mini-name { font-size: 11px; font-weight: 700; margin-bottom: 5px; }
+.note-mini-text { font-size: 10px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.note-mini-meta { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+.note-mini-tag {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  background: var(--surface); color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.note-solved-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+/* FEATURE PILLS */
+.feature-list {
+  display: flex; flex-direction: column; gap: 6px;
+  width: 100%; max-width: 420px; text-align: left;
+}
+.feature-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-radius: 9px;
+  background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--shadow); font-size: 13px;
+}
+.feature-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.feature-item-title { font-weight: 600; font-size: 13px; }
+.feature-item-desc  { font-size: 12px; color: var(--text-muted); margin-top: 1px; line-height: 1.4; }
+
+/* FINISH BUTTON */
+.finish-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 32px; border-radius: 12px;
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+  background: var(--accent); color: white; border: none; cursor: pointer;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: all .2s; text-decoration: none;
+}
+.finish-btn:hover {
+  filter: brightness(1.08); transform: translateY(-2px);
+  box-shadow: 0 6px 28px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.finish-btn svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+
+<div class="story-shell">
+
+  <!-- PROGRESS BARS -->
+  <div class="progress-bar-row" id="progressRow">
+    <div class="progress-seg" id="seg-0"><div class="progress-fill" id="fill-0"></div></div>
+    <div class="progress-seg" id="seg-1"><div class="progress-fill" id="fill-1"></div></div>
+    <div class="progress-seg" id="seg-2"><div class="progress-fill" id="fill-2"></div></div>
+    <div class="progress-seg" id="seg-3"><div class="progress-fill" id="fill-3"></div></div>
+    <div class="progress-seg" id="seg-4"><div class="progress-fill" id="fill-4"></div></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <span class="top-bar-logo">cf/tracker</span>
+    <div class="top-bar-right">
+      <button class="theme-btn" id="themeBtn">☀</button>
+      <button class="skip-btn" onclick="goTo(4)">Skip tour</button>
+    </div>
+  </div>
+
+  <!-- SLIDES -->
+  <div class="slides-wrap">
+
+    <!-- TAP ZONES -->
+    <div class="tap-zone left" onclick="prev()">
+      <div class="tap-arrow">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+      </div>
+    </div>
+    <div class="tap-zone right" onclick="next()">
+      <div class="tap-arrow">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+      </div>
+    </div>
+
+    <!-- ═══════ SLIDE 0: COVER ═══════ -->
+    <div class="slide active" id="slide-0">
+      <div class="slide-inner">
+        <div class="cover-logo">cf</div>
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Welcome to NxtUp
+        </div>
+
+        <h1 class="slide-title">
+          Your CF grind,<br>
+          <span class="orange">finally organized</span>
+          <span class="muted">Setting up your account while you read this</span>
+        </h1>
+
+        <p class="slide-sub">
+          We're fetching your <strong>Codeforces submission history</strong> in the background.
+          This takes about 30–60 seconds. Meanwhile, here's a quick look at everything you get.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-pill">
+            <span class="num orange">9,400+</span>
+            <span class="lbl">CF problems</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num green">240+</span>
+            <span class="lbl">topic tags</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num blue">5</span>
+            <span class="lbl">features</span>
+          </div>
+        </div>
+
+        <div class="cover-sync-note">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 4.2 1.7M14 8a6 6 0 0 1-6 6 6 6 0 0 1-4.2-1.7"/><path d="M12 2v4h-4M4 14v-4h4"/></svg>
+          <span>Syncing</span> your CF handle data in the background…
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ SLIDE 1: BLIND ORDER ═══════ -->
+    <div class="slide" id="slide-1">
+      <div class="slide-inner">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Feature 1 of 4
+        </div>
+
+        <h1 class="slide-title">
+          Blind Order Sheet
+          <span class="muted">A2OJ ladders, but with a real UI</span>
+        </h1>
+
+        <p class="slide-sub">
+          <strong>30 curated problems</strong> in recommended solve order.
+          Check a problem off here and it syncs across your whole account — no manual work.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-pill">
+            <span class="num orange">30</span>
+            <span class="lbl">curated problems</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num green">Auto</span>
+            <span class="lbl">synced from CF</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num blue">3</span>
+            <span class="lbl">difficulty levels</span>
+          </div>
+        </div>
+
+        <!-- BLIND ORDER MINI MOCKUP -->
+        <div class="mockup-wrap">
+          <div class="mockup-titlebar">
+            <span class="mkdot r"></span><span class="mkdot y"></span><span class="mkdot g"></span>
+            <div class="mockup-url">nxtup.app/sheets</div>
+          </div>
+          <div class="bo-nav">
+            <span class="bo-nav-logo">NxtUp</span>
+            <span class="tab-pill active">Blind Order</span>
+            <span class="tab-pill">Topic Wise</span>
+          </div>
+          <div class="bo-body">
+            <div class="bo-header-row">
+              <span class="bo-title">Blind Order Sheet</span>
+              <div class="bo-chips">
+                <div class="bo-chip"><span class="cdot" style="background:var(--green)"></span>Solved <b>7</b></div>
+                <div class="bo-chip"><span class="cdot" style="background:var(--border)"></span>Left <b>23</b></div>
+                <div class="bo-chip"><span class="cdot" style="background:var(--medium)"></span>Starred <b>2</b></div>
+              </div>
+            </div>
+            <div class="prog-track"><div class="prog-fill" style="width:23%"></div></div>
+            <div class="tbl-head"><div></div><div>#</div><div>Problem</div><div>Difficulty</div><div>★</div><div>Notes</div></div>
+            <div class="tbl-row solved">
+              <div class="mini-cb chk"></div><div class="mini-code">4A</div>
+              <div class="mini-name">Watermelon</div>
+              <div class="mini-dtag easy">Easy · 800</div>
+              <div class="mini-star">⭐</div>
+              <div class="mini-note-btn has">View</div>
+            </div>
+            <div class="tbl-row solved">
+              <div class="mini-cb chk"></div><div class="mini-code">1A</div>
+              <div class="mini-name">Theatre Square</div>
+              <div class="mini-dtag easy">Easy · 1000</div>
+              <div class="mini-star">☆</div>
+              <div class="mini-note-btn">Add</div>
+            </div>
+            <div class="tbl-row">
+              <div class="mini-cb"></div><div class="mini-code">476C</div>
+              <div class="mini-name">Dreamoon and Sums</div>
+              <div class="mini-dtag medium">Med · 1400</div>
+              <div class="mini-star">⭐</div>
+              <div class="mini-note-btn has">View</div>
+            </div>
+            <div class="tbl-row">
+              <div class="mini-cb"></div><div class="mini-code">750E</div>
+              <div class="mini-name">New Year &amp; Santa Claus</div>
+              <div class="mini-dtag hard">Hard · 1700</div>
+              <div class="mini-star">☆</div>
+              <div class="mini-note-btn">Add</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════ SLIDE 2: TOPIC WISE ═══════ -->
+    <div class="slide" id="slide-2">
+      <div class="slide-inner">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Feature 2 of 4
+        </div>
+
+        <h1 class="slide-title">
+          Topic Wise Sheet
+          <span class="muted">Filter by any of 240+ topic tags</span>
+        </h1>
+
+        <p class="slide-sub">
+          Same problems, different lens. Browse by tag — <strong>dp, graph, binary search</strong> and 237 more.
+          Click any tag pill on a row to instantly filter to that topic. Fully synced with Blind Order.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-pill">
+            <span class="num purple">240+</span>
+            <span class="lbl">topic tags</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num green">Synced</span>
+            <span class="lbl">with Blind Order</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num orange">Instant</span>
+            <span class="lbl">tag filtering</span>
+          </div>
+        </div>
+
+        <!-- TOPIC WISE MINI MOCKUP -->
+        <div class="mockup-wrap">
+          <div class="mockup-titlebar">
+            <span class="mkdot r"></span><span class="mkdot y"></span><span class="mkdot g"></span>
+            <div class="mockup-url">NxtUp.app/sheets · Topic Wise</div>
+          </div>
+          <div class="tw-layout">
+            <!-- sidebar -->
+            <div class="tw-sidebar-m">
+              <div class="tw-sidebar-title">Filter by Tag</div>
+              <div class="tw-tag-item"><span>adhoc</span><span class="tw-tag-count">12</span></div>
+              <div class="tw-tag-item active-tw"><span>dp</span><span class="tw-tag-count tw-active" style="background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue)">38</span></div>
+              <div class="tw-tag-item"><span>graph</span><span class="tw-tag-count">24</span></div>
+              <div class="tw-tag-item"><span>greedy</span><span class="tw-tag-count">19</span></div>
+              <div class="tw-tag-item"><span>binary search</span><span class="tw-tag-count">15</span></div>
+              <div class="tw-tag-item"><span>math</span><span class="tw-tag-count">22</span></div>
+              <div class="tw-tag-item"><span>strings</span><span class="tw-tag-count">8</span></div>
+            </div>
+            <!-- main -->
+            <div class="tw-main">
+              <div class="tw-main-title">Showing: dp · 38 problems</div>
+              <div class="tw-tbl-row" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);background:var(--surface2);border-radius:6px;margin-bottom:4px">
+                <div></div><div>#</div><div>Problem</div><div>Tags</div><div>★</div><div>Notes</div>
+              </div>
+              <div class="tw-tbl-row">
+                <div class="mini-cb chk"></div><div class="mini-code" style="font-size:9.5px">476C</div>
+                <div style="font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Dreamoon and Sums</div>
+                <div class="tw-tag-pills"><span class="tw-pill hl">dp</span><span class="tw-pill">math</span></div>
+                <div class="mini-star" style="font-size:11px">⭐</div>
+                <div class="mini-note-btn has" style="font-size:9px;padding:2px 6px">View</div>
+              </div>
+              <div class="tw-tbl-row">
+                <div class="mini-cb"></div><div class="mini-code" style="font-size:9.5px">1092F</div>
+                <div style="font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Tree with Max Cost</div>
+                <div class="tw-tag-pills"><span class="tw-pill hl">dp</span><span class="tw-pill">tree</span></div>
+                <div class="mini-star" style="font-size:11px">☆</div>
+                <div class="mini-note-btn" style="font-size:9px;padding:2px 6px">Add</div>
+              </div>
+              <div class="tw-tbl-row">
+                <div class="mini-cb"></div><div class="mini-code" style="font-size:9.5px">750E</div>
+                <div style="font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">New Year &amp; Santa</div>
+                <div class="tw-tag-pills"><span class="tw-pill hl">dp</span><span class="tw-pill">bitmask</span></div>
+                <div class="mini-star" style="font-size:11px">☆</div>
+                <div class="mini-note-btn" style="font-size:9px;padding:2px 6px">Add</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════ SLIDE 3: RECOMMENDATIONS ═══════ -->
+    <div class="slide" id="slide-3">
+      <div class="slide-inner">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Feature 3 of 4
+        </div>
+
+        <h1 class="slide-title">
+          Recommendations
+          <span class="muted">The engine that knows your weak spots</span>
+        </h1>
+
+        <p class="slide-sub">
+          Analyzes your <strong>WA and TLE patterns</strong> to find your exact skill gap.
+          Then generates a personalized session — every time.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-pill">
+            <span class="num orange">3</span>
+            <span class="lbl">Bridge problems</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num blue">6</span>
+            <span class="lbl">Personalized picks</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num green">WA/TLE</span>
+            <span class="lbl">pattern analysis</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num purple">Spaced</span>
+            <span class="lbl">repetition</span>
+          </div>
+        </div>
+
+        <!-- REC MINI MOCKUP -->
+        <div class="mockup-wrap">
+          <div class="mockup-titlebar">
+            <span class="mkdot r"></span><span class="mkdot y"></span><span class="mkdot g"></span>
+            <div class="mockup-url">nxtup.app/recommendations</div>
+          </div>
+          <div class="rec-mockup-body">
+            <!-- skill bars -->
+            <div class="rec-skill-section">
+              <div class="rec-skill-label">Skill Map — success rate per tag</div>
+              <div class="rec-skill-bars">
+                <div class="rec-bar-row">
+                  <div class="rec-bar-label"><span>greedy</span><span style="color:var(--green)">74%</span></div>
+                  <div class="rec-bar-track"><div class="rec-bar-fill strong" style="width:74%"></div></div>
+                </div>
+                <div class="rec-bar-row">
+                  <div class="rec-bar-label"><span>binary search</span><span style="color:var(--green)">68%</span></div>
+                  <div class="rec-bar-track"><div class="rec-bar-fill strong" style="width:68%"></div></div>
+                </div>
+                <div class="rec-bar-row">
+                  <div class="rec-bar-label"><span>dp on trees</span><span style="color:var(--hard)">28%</span></div>
+                  <div class="rec-bar-track"><div class="rec-bar-fill weak" style="width:28%"></div></div>
+                </div>
+                <div class="rec-bar-row">
+                  <div class="rec-bar-label"><span>segment tree</span><span style="color:var(--hard)">12%</span></div>
+                  <div class="rec-bar-track"><div class="rec-bar-fill weak" style="width:12%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- bridge -->
+            <div class="bridge-mini">
+              <div class="bridge-mini-title">
+                <span style="width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block"></span>
+                Bridge Curriculum — closes dp transitions gap
+              </div>
+              <div class="bridge-mini-cards">
+                <div class="bridge-mini-card">
+                  <div class="bridge-card-type-label warmup">↑ Warm-up</div>
+                  <div class="bridge-card-name">Dreamoon &amp; Sums</div>
+                  <div class="bridge-card-rating">1400 · math · binary search</div>
+                </div>
+                <div class="bridge-mini-card" style="border-color:color-mix(in srgb,var(--accent) 35%,transparent)">
+                  <div class="bridge-card-type-label bridge">⟳ Bridge</div>
+                  <div class="bridge-card-name">Tree w/ Max Cost</div>
+                  <div class="bridge-card-rating">1900 · dp on trees</div>
+                </div>
+                <div class="bridge-mini-card" style="border-color:color-mix(in srgb,var(--purple) 30%,transparent)">
+                  <div class="bridge-card-type-label stretch">↓ Stretch</div>
+                  <div class="bridge-card-name">Orac and Medians</div>
+                  <div class="bridge-card-rating">1800 · greedy · dp</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- picks + retry row -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div>
+                <div class="rec-skill-label" style="margin-bottom:5px">Personalized picks</div>
+                <div class="rec-picks-row">
+                  <div class="rec-pick-card">
+                    <div class="rec-pick-reason">Gap Fill</div>
+                    <div class="rec-pick-name">Skyscrapers</div>
+                    <div class="rec-pick-rating">1500 · dp</div>
+                  </div>
+                  <div class="rec-pick-card">
+                    <div class="rec-pick-reason">At Rating</div>
+                    <div class="rec-pick-name">Ternary String</div>
+                    <div class="rec-pick-rating">1900 · strings</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="rec-skill-label" style="margin-bottom:5px">Retry — WA/TLE history</div>
+                <div class="retry-mini-row">
+                  <span class="retry-mini-badge wa">WA×6</span>
+                  <span class="retry-mini-name">Tree with Max Cost</span>
+                  <span class="retry-mini-days">14d</span>
+                </div>
+                <div class="retry-mini-row">
+                  <span class="retry-mini-badge tle">TLE×3</span>
+                  <span class="retry-mini-name">New Year &amp; Santa</span>
+                  <span class="retry-mini-days">21d</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════ SLIDE 4: NOTES ═══════ -->
+    <div class="slide" id="slide-4">
+      <div class="slide-inner">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Feature 4 of 4
+        </div>
+
+        <h1 class="slide-title">
+          Unified Notes
+          <span class="muted">Every insight in one searchable place</span>
+        </h1>
+
+        <p class="slide-sub" id="notes-slide">
+          Write your approach, edge cases, and "why I got WA" for every problem.
+          Filter by <strong>dp, graph, binary search</strong> and 14 other topic groups.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-pill">
+            <span class="num orange">14+</span>
+            <span class="lbl">topic filters</span>
+          </div>
+          <div class="stat-pill">
+            <span class="num green">Synced</span>
+            <span class="lbl">across all sheets</span>
+          </div>
+        </div>
+
+        <!-- NOTES MINI MOCKUP + finish -->
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;width:100%;max-width:700px;align-items:start">
+
+          <div class="mockup-wrap" style="max-width:none">
+            <div class="mockup-titlebar">
+              <span class="mkdot r"></span><span class="mkdot y"></span><span class="mkdot g"></span>
+              <div class="mockup-url">nxtup.app/notes</div>
+            </div>
+            <div class="notes-mockup-layout">
+              <!-- sidebar -->
+              <div class="notes-sidebar-m">
+                <div style="font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);margin-bottom:7px;padding:0 4px">Filter by Topic</div>
+                <div class="notes-topic-btn active-n">All Notes <span class="notes-topic-count">12</span></div>
+                <div class="notes-topic-btn">dp <span class="notes-topic-count">4</span></div>
+                <div class="notes-topic-btn">graph <span class="notes-topic-count">3</span></div>
+                <div class="notes-topic-btn">greedy <span class="notes-topic-count">2</span></div>
+                <div class="notes-topic-btn">math <span class="notes-topic-count">2</span></div>
+                <div class="notes-topic-btn">strings <span class="notes-topic-count">1</span></div>
+                <div style="height:1px;background:var(--border);margin:8px 4px"></div>
+                <div style="font-size:8.5px;color:var(--text-muted);padding:4px">📄 Export MD<br>📑 Export PDF</div>
+              </div>
+              <!-- main -->
+              <div class="notes-main">
+                <div class="note-mini-card">
+                  <div class="note-mini-top">
+                    <span class="note-mini-code">476C</span>
+                    <span class="note-solved-dot"></span>
+                  </div>
+                  <div class="note-mini-name">Dreamoon and Sums</div>
+                  <div class="note-mini-text">Binary search on k. For fixed k, x must be in range [k·d, (k+1)·d - 1]. WA reason: forgot to check floor(b/k) == k explicitly.</div>
+                  <div class="note-mini-meta">
+                    <span class="note-mini-tag">math</span>
+                    <span class="note-mini-tag">binary search</span>
+                    <span class="note-mini-tag">dp</span>
+                  </div>
+                </div>
+                <div class="note-mini-card">
+                  <div class="note-mini-top">
+                    <span class="note-mini-code">1092F</span>
+                    <span style="font-size:9px;color:var(--text-muted)">unsolved</span>
+                  </div>
+                  <div class="note-mini-name">Tree with Maximum Cost</div>
+                  <div class="note-mini-text">Rerooting DP. When moving root from p to c: new_dp[c] = dp[p] + total_sum - 2 × subtree_sum[c].</div>
+                  <div class="note-mini-meta">
+                    <span class="note-mini-tag">dp on trees</span>
+                    <span class="note-mini-tag">dfs</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA panel -->
+          <div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">
+            <div style="font-size:14px;font-weight:700;letter-spacing:-.2px">You're all set.</div>
+            <div style="font-size:12.5px;color:var(--text-muted);line-height:1.6">
+              Your CF data will finish syncing any moment now. Your dashboard will be ready and all your previously solved problems will already be marked.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+              <div class="feature-item" style="padding:8px 12px">
+                <div class="feature-icon" style="background:var(--green-soft)">✓</div>
+                <div><div class="feature-item-title" style="font-size:12px">Blind Order Sheet</div></div>
+              </div>
+              <div class="feature-item" style="padding:8px 12px">
+                <div class="feature-icon" style="background:var(--blue-soft)">🏷</div>
+                <div><div class="feature-item-title" style="font-size:12px">Topic Wise Sheet</div></div>
+              </div>
+              <div class="feature-item" style="padding:8px 12px">
+                <div class="feature-icon" style="background:var(--accent-soft)">⚡</div>
+                <div><div class="feature-item-title" style="font-size:12px">Recommendations</div></div>
+              </div>
+              <div class="feature-item" style="padding:8px 12px">
+                <div class="feature-icon" style="background:var(--purple-soft)">📝</div>
+                <div><div class="feature-item-title" style="font-size:12px">Unified Notes</div></div>
+              </div>
+            </div>
+            <a href="sheets.html" class="finish-btn" style="margin-top:8px;font-size:13px;padding:11px 20px">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+              Go to Dashboard
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /slides-wrap -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn btn-prev" id="prevBtn" onclick="prev()" style="visibility:hidden">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+      Back
+    </button>
+
+    <div class="slide-dots">
+      <div class="slide-dot active" onclick="goTo(0)"></div>
+      <div class="slide-dot" onclick="goTo(1)"></div>
+      <div class="slide-dot" onclick="goTo(2)"></div>
+      <div class="slide-dot" onclick="goTo(3)"></div>
+      <div class="slide-dot" onclick="goTo(4)"></div>
+    </div>
+
+    <button class="nav-btn btn-next" id="nextBtn" onclick="next()">
+      Next
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+    </button>
+  </div>
+
+</div><!-- /story-shell -->
+
+<script>
+/* ════════════════════════════════════════
+   SLIDE ENGINE
+   ════════════════════════════════════════ */
+const TOTAL  = 5;
+const SEG_DUR = 7; // seconds per slide auto-advance
+let current  = 0;
+let autoTimer = null;
+let segTimer  = null;
+let goingBack = false;
+
+function goTo(n, back = false) {
+  if (n < 0 || n >= TOTAL) return;
+  goingBack = back;
+
+  // Update slides
+  const prevSlide = document.getElementById('slide-' + current);
+  const nextSlide = document.getElementById('slide-' + n);
+
+  prevSlide.classList.remove('active', 'entering', 'leaving');
+  if (back) {
+    prevSlide.style.animation = 'slideOutForward .4s cubic-bezier(.4,0,.2,1) both';
+    nextSlide.style.animation = 'slideInBack .4s cubic-bezier(.4,0,.2,1) both';
+  } else {
+    prevSlide.classList.add('leaving');
+    nextSlide.classList.add('entering');
+  }
+  nextSlide.classList.add('active');
+
+  setTimeout(() => {
+    prevSlide.style.animation = '';
+    prevSlide.classList.remove('leaving');
+    nextSlide.style.animation = '';
+    nextSlide.classList.remove('entering');
+  }, 420);
+
+  current = n;
+  updateProgress();
+  updateNav();
+  startAuto();
+}
+
+function next() { if (current < TOTAL - 1) goTo(current + 1, false); }
+function prev() { if (current > 0) goTo(current - 1, true); }
+
+/* PROGRESS SEGMENTS */
+function updateProgress() {
+  for (let i = 0; i < TOTAL; i++) {
+    const seg  = document.getElementById('seg-' + i);
+    const fill = document.getElementById('fill-' + i);
+    seg.classList.remove('done', 'active');
+    fill.style.animation = 'none';
+    fill.style.width = '0%';
+
+    if (i < current) {
+      seg.classList.add('done');
+      fill.style.width = '100%';
+    } else if (i === current) {
+      seg.classList.add('active');
+      seg.style.setProperty('--seg-dur', SEG_DUR + 's');
+      // force reflow then start animation
+      void fill.offsetWidth;
+      fill.style.animation = `fillSeg ${SEG_DUR}s linear forwards`;
+    }
+  }
+}
+
+/* NAV BUTTONS + DOTS */
+function updateNav() {
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dots    = document.querySelectorAll('.slide-dot');
+
+  prevBtn.style.visibility = current === 0 ? 'hidden' : 'visible';
+  nextBtn.textContent = '';
+
+  if (current === TOTAL - 1) {
+    nextBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg> Done`;
+    nextBtn.onclick = () => window.location.href = 'sheet/blind_order';
+  } else {
+    nextBtn.innerHTML = `Next <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>`;
+    nextBtn.onclick = next;
+  }
+
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+}
+
+/* AUTO ADVANCE */
+function startAuto() {
+  clearTimeout(autoTimer);
+  clearTimeout(segTimer);
+  if (current < TOTAL - 1) {
+    autoTimer = setTimeout(() => next(), SEG_DUR * 1000);
+  }
+}
+
+function pauseAuto() { clearTimeout(autoTimer); }
+function resumeAuto() { startAuto(); }
+
+/* KEYBOARD */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft')                   { e.preventDefault(); prev(); }
+  if (e.key === 'Escape') window.location.href = 'sheet/blind_order';
+});
+
+/* SWIPE */
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+}, { passive: true });
+
+/* PAUSE on hover */
+document.querySelector('.slides-wrap').addEventListener('mouseenter', pauseAuto);
+document.querySelector('.slides-wrap').addEventListener('mouseleave', resumeAuto);
+
+/* THEME */
+document.getElementById('themeBtn').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  this.textContent = dark ? '☀' : '☽';
+});
+
+/* INIT */
+updateProgress();
+updateNav();
+startAuto();
+</script>
+</body>
+</html>
