@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CF Tracker — Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f0;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --border: #e2ddd8;
+    --text: #1a1a1a;
+    --text-muted: #7a7570;
+    --accent: #e8531e;
+    --accent-soft: #fdf0eb;
+    --easy: #22c55e;
+    --medium: #f59e0b;
+    --hard: #ef4444;
+    --blue: #3b6ef0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    --radius: 14px;
+  }
+  [data-theme="dark"] {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --surface2: #2a2a2a;
+    --border: #333;
+    --text: #f0ede8;
+    --text-muted: #888;
+    --accent: #ff6b35;
+    --accent-soft: #2a1a12;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(53, 13px);
+  grid-template-rows: repeat(7, 13px);
+  gap: 3px;
+  grid-auto-flow: column;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 8px; }
+  .nav-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--accent);
+    margin-right: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-link {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .nav-link:hover, .nav-link.active {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+
+  .theme-btn {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .theme-btn:hover { background: var(--border); }
+
+  .profile-nav-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .profile-nav-btn:hover { background: var(--border); }
+  .profile-nav-btn img {
+    width: 24px; height: 24px;
+    border-radius: 6px; object-fit: cover;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* LAYER 1 — PROFILE CARD */
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .pfp-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .pfp {
+    width: 90px; height: 90px;
+    border-radius: 18px;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--accent) 0%, #f0a020 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -1px;
+  }
+  .rating-badge {
+    position: absolute;
+    bottom: -6px; right: -6px;
+    background: var(--accent);
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 2px solid var(--surface);
+  }
+
+  .profile-info { flex: 1; }
+  .profile-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .profile-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .meta-chip {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .meta-chip svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  .profile-bio {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 480px;
+    margin-bottom: 12px;
+  }
+
+  .edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-family: 'Sora', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .edit-profile-btn:hover {
+    background: var(--border);
+    color: var(--text);
+    border-color: var(--text-muted);
+  }
+  .edit-profile-btn svg {
+    width: 13px; height: 13px;
+    flex-shrink: 0;
+  }
+
+  .profile-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 140px;
+    text-align: center;
+  }
+  .stat-item {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px 20px;
+  }
+  .stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* LAYER 2 — HEATMAP */
+  .layer2 {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.4s 0.1s ease both;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .heatmap-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .heatmap-summary {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .heatmap-summary b { color: var(--text); }
+
+  .months-row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 4px;
+    padding-left: 24px;
+  }
+  .month-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .heatmap-grid-wrap { display: flex; gap: 6px; }
+  .day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: space-around;
+    padding-top: 2px;
+  }
+  .day-label { font-size: 9px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; height: 12px; line-height: 12px; }
+
+  #heatmap {
+    display: grid;
+    grid-template-columns: repeat(53, 13px);
+    grid-template-rows: repeat(7, 13px);
+    gap: 3px;
+    grid-auto-flow: column;
+  }
+
+  .heat-cell {
+    width: 13px; height: 13px;
+    border-radius: 3px;
+    background: var(--surface2);
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    position: relative;
+  }
+  .heat-cell:hover { transform: scale(1.3); z-index: 2; }
+  .heat-cell[data-v="1"] { background: #bbf7d0; }
+  .heat-cell[data-v="2"] { background: #4ade80; }
+  .heat-cell[data-v="3"] { background: #16a34a; }
+  .heat-cell[data-v="4"] { background: #14532d; }
+  [data-theme="dark"] .heat-cell[data-v="0"] { background: #2a2a2a; }
+  [data-theme="dark"] .heat-cell[data-v="1"] { background: #1a3a26; }
+  [data-theme="dark"] .heat-cell[data-v="2"] { background: #166534; }
+  [data-theme="dark"] .heat-cell[data-v="3"] { background: #15803d; }
+  [data-theme="dark"] .heat-cell[data-v="4"] { background: #4ade80; }
+
+  .heatmap-legend { display: flex; align-items: center; gap: 4px; margin-top: 10px; justify-content: flex-end; font-size: 10px; color: var(--text-muted); }
+  .legend-cell { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* LAYER 3 — PIE + BAR */
+  .layer3 {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    animation: fadeUp 0.4s 0.2s ease both;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+  }
+
+  /* PIE CHART */
+  .pie-wrap {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 12px;
+  }
+  .pie-container { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+  #pieChart { width: 120px; height: 120px; transform: rotate(-90deg); }
+  .pie-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .pie-total { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; }
+  .pie-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .pie-legend { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .pie-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface2);
+  }
+  .pie-row-left { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .pie-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .pie-count { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+  .pie-pct { font-size: 10px; color: var(--text-muted); }
+
+  /* BAR CHART */
+  .bar-chart {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-topic { font-size: 12px; color: var(--text-muted); min-width: 110px; text-align: right; }
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: var(--blue);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0;
+  }
+  .bar-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 28px;
+    color: var(--text-muted);
+  }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: fixed;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 999;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .layer3 { grid-template-columns: 1fr; }
+    .profile-card { flex-wrap: wrap; }
+    nav { padding: 0 16px; }
+    main { padding: 20px 16px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="profile.html" class="nav-logo">NxtUp</a>
+    <a href="blind_order.html" class="nav-link">Blind Order</a>
+    <a href="topic_wise.html" class="nav-link">Topic Wise</a>
+    <a href="recommendations.html" class="nav-link active">Recommendations</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn" title="Toggle theme">☀</button>
+    <a href="#" class="profile-nav-btn">
+      <div class="pfp" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:linear-gradient(135deg,#e8531e,#f0a020)">A</div>
+      ahmedcf
+    </a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- LAYER 1: PROFILE -->
+  <div class="profile-card">
+    <div class="pfp-wrap">
+      <div class="pfp">A</div>
+      <span class="rating-badge">1847</span>
+    </div>
+
+    <div class="profile-info">
+      <div class="profile-name">Amit Kumbhare</div>
+      <div class="profile-handle">Amit.k_52</div>
+      <div class="profile-meta">
+        <span class="meta-chip">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>
+          India
+        </span>
+        <span class="meta-chip">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v3.5l2 2"/></svg>
+          Age 20
+        </span>
+        <span class="meta-chip">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 3V1.5M11 3V1.5M2 7h12"/></svg>
+          CS Ungrad - Yeshwantrao Chavan College of Engineerning
+        </span>
+      </div>
+      <p class="profile-bio">Competitive programmer grinding CF since 2 months. Love graph problems and DP. Currently targeting Pupil -> Specialist.</p>
+      <a href="profile-edit.html" class="edit-profile-btn">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5z"/>
+        </svg>
+        Edit Profile
+      </a>
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-item">
+        <div class="stat-val" style="color:var(--accent)">1847</div>
+        <div class="stat-label">CF Rating</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">342</div>
+        <div class="stat-label">Solved</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">Expert</div>
+        <div class="stat-label">Rank</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAYER 2: HEATMAP -->
+  <div class="layer2">
+    <div class="heatmap-header">
+      <div class="section-title">SUBMISSION ACTIVITY</div>
+      <div class="heatmap-summary"><b id="totalActive">0</b> active days &nbsp;·&nbsp; <b id="totalSolved">0</b> problems this year</div>
+    </div>
+
+    <div class="months-row" id="monthsRow"></div>
+
+    <div class="heatmap-grid-wrap">
+      <div class="day-labels">
+        <span class="day-label">Mon</span>
+        <span class="day-label"></span>
+        <span class="day-label">Wed</span>
+        <span class="day-label"></span>
+        <span class="day-label">Fri</span>
+        <span class="day-label"></span>
+        <span class="day-label">Sun</span>
+      </div>
+      <div id="heatmap" class="heatmap-grid"></div>
+    </div>
+ 
+    <div class="heatmap-legend">
+      Less
+      <div class="legend-cell" style="background:var(--surface2)"></div>
+      <div class="legend-cell" data-v="1" style="background:#bbf7d0"></div>
+      <div class="legend-cell" data-v="2" style="background:#4ade80"></div>
+      <div class="legend-cell" data-v="3" style="background:#16a34a"></div>
+      <div class="legend-cell" data-v="4" style="background:#14532d"></div>
+      More
+    </div>
+  </div>
+
+    <!-- LAYER 2.5: HEATMAP MAX DIFFICULTY -->
+  <div class="layer2">
+    <div class="heatmap-header">
+      <div class="section-title">Max Difficulty Solved</div>
+      <div class="heatmap-summary"><b id="totalActiveMax">0</b> active days &nbsp;·&nbsp; <b id="totalSolvedMax">0</b> problems this year</div>
+    </div>
+
+    <div class="months-row" id="monthsRowMax"></div>
+
+    <div class="heatmap-grid-wrap">
+      <div class="day-labels">
+        <span class="day-label">Mon</span>
+        <span class="day-label"></span>
+        <span class="day-label">Wed</span>
+        <span class="day-label"></span>
+        <span class="day-label">Fri</span>
+        <span class="day-label"></span>
+        <span class="day-label">Sun</span>
+      </div>
+      <div id="heatmapMax" class="heatmap-grid"></div>
+    </div>
+
+    <div class="heatmap-legend">
+      Less
+      <div class="legend-cell" style="background:var(--surface2)"></div>
+      <div class="legend-cell" data-v="1" style="background:#f7bbbb"></div>
+      <div class="legend-cell" data-v="2" style="background:#de4a4a"></div>
+      <div class="legend-cell" data-v="3" style="background:#a31616"></div>
+      <div class="legend-cell" data-v="4" style="background:#531414"></div>
+      More
+    </div>
+  </div>
+
+  <!-- LAYER 3: PIE + BAR -->
+  <div class="layer3">
+
+    <!-- PIE CHART -->
+    <div class="card">
+      <div class="section-title">Problems Solved</div>
+      <div class="pie-wrap">
+        <div class="pie-container">
+          <svg id="pieChart" viewBox="0 0 120 120">
+            <circle id="pc-bg" cx="60" cy="60" r="44" fill="none" stroke="var(--surface2)" stroke-width="18"/>
+            <circle id="pc-hard" cx="60" cy="60" r="44" fill="none" stroke="#ef4444" stroke-width="18" stroke-dasharray="0 276.46"/>
+            <circle id="pc-medium" cx="60" cy="60" r="44" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="0 276.46"/>
+            <circle id="pc-easy" cx="60" cy="60" r="44" fill="none" stroke="#22c55e" stroke-width="18" stroke-dasharray="0 276.46"/>
+          </svg>
+          <div class="pie-center">
+            <div class="pie-total">342</div>
+            <div class="pie-label">total</div>
+          </div>
+        </div>
+        <div class="pie-legend">
+          <div class="pie-row">
+            <span class="pie-row-left"><span class="pie-dot" style="background:#22c55e"></span>Easy</span>
+            <div>
+              <span class="pie-count">168</span>
+              <span class="pie-pct"> / 49%</span>
+            </div>
+          </div>
+          <div class="pie-row">
+            <span class="pie-row-left"><span class="pie-dot" style="background:#f59e0b"></span>Medium</span>
+            <div>
+              <span class="pie-count">132</span>
+              <span class="pie-pct"> / 39%</span>
+            </div>
+          </div>
+          <div class="pie-row">
+            <span class="pie-row-left"><span class="pie-dot" style="background:#ef4444"></span>Hard</span>
+            <div>
+              <span class="pie-count">42</span>
+              <span class="pie-pct"> / 12%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BAR CHART -->
+    <div class="card">
+      <div class="section-title">Topic Wise Solved</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+// Theme
+const themeBtn = document.getElementById('themeBtn');
+const html = document.documentElement;
+let dark = false;
+themeBtn.addEventListener('click', () => {
+  dark = !dark;
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  themeBtn.textContent = dark ? '☽' : '☀';
+  updateLegend();
+});
+
+function updateLegend() {
+  const cells = document.querySelectorAll('.heatmap-legend .legend-cell');
+  // They use inline style so handled by CSS data-theme vars automatically
+}
+
+// HEATMAP
+const heatmap = document.getElementById('heatmap');
+const tooltip = document.getElementById('tooltip');
+
+// Generate 365 days of data starting from a Monday
+const today = new Date(2024, 11, 29); // end date
+const startDate = new Date(today);
+startDate.setDate(startDate.getDate() - 364);
+// align to Monday
+while (startDate.getDay() !== 1) startDate.setDate(startDate.getDate() - 1);
+
+const data = [];
+let totalActive = 0, totalSolved = 0;
+
+for (let i = 0; i < 53 * 7; i++) {
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + i);
+  let v = 0;
+  if (d <= today && Math.random() > 0.55) {
+    v = Math.ceil(Math.random() * 4);
+    totalActive++;
+    totalSolved += v * 2;
+  }
+  data.push({ date: d, v });
+}
+
+document.getElementById('totalActive').textContent = totalActive;
+document.getElementById('totalSolved').textContent = totalSolved;
+
+
+
+// Month labels
+const monthsRow = document.getElementById('monthsRow');
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let lastMonth = -1;
+for (let col = 0; col < 53; col++) {
+  const cellDate = data[col * 7]?.date;
+  const label = document.createElement('div');
+  label.className = 'month-label';
+  label.style.width = '16px';
+  if (cellDate && cellDate.getMonth() !== lastMonth) {
+    label.textContent = months[cellDate.getMonth()];
+    lastMonth = cellDate.getMonth();
+  }
+  monthsRow.appendChild(label);
+}
+
+// Cells
+data.forEach((d, i) => {
+  const cell = document.createElement('div');
+  cell.className = 'heat-cell';
+  cell.setAttribute('data-v', d.v);
+  if (d.date > today) cell.style.opacity = '0';
+
+  cell.addEventListener('mousemove', e => {
+    const ds = d.date.toDateString();
+    tooltip.textContent = d.v > 0 ? `${d.v * 2} solved — ${ds}` : `No activity — ${ds}`;
+    tooltip.style.opacity = '1';
+    tooltip.style.left = (e.clientX + 10) + 'px';
+    tooltip.style.top = (e.clientY - 28) + 'px';
+  });
+  cell.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+
+  heatmap.appendChild(cell);
+});
+
+// FROM HERE
+const heatmapMax = document.getElementById('heatmapMax');
+const monthsRowMax = document.getElementById('monthsRowMax');
+
+let totalActiveMax = 0;
+let totalSolvedMax = 0;
+
+const dataMax = [];
+
+for (let i = 0; i < 53 * 7; i++) {
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + i);
+  
+  let v = 0;
+  if (d <= today && Math.random() > 0.6) {
+    v = Math.ceil(Math.random() * 4);
+    totalActiveMax++;
+    totalSolvedMax += v;
+  }
+  
+  dataMax.push({ date: d, v });
+}
+
+document.getElementById('totalActiveMax').textContent = totalActiveMax;
+document.getElementById('totalSolvedMax').textContent = totalSolvedMax;
+
+// Month labels
+let lastMonthMax = -1;
+
+for (let col = 0; col < 53; col++) {
+  const cellDate = dataMax[col * 7]?.date;
+  const label = document.createElement('div');
+  label.className = 'month-label';
+  label.style.width = '16px';
+
+  if (cellDate && cellDate.getMonth() !== lastMonthMax) {
+    label.textContent = months[cellDate.getMonth()];
+    lastMonthMax = cellDate.getMonth();
+  }
+
+  monthsRowMax.appendChild(label);
+}
+
+// Cells
+dataMax.forEach((d) => {
+  const cell = document.createElement('div');
+  cell.className = 'heat-cell';
+  cell.setAttribute('data-v', d.v);
+
+  heatmapMax.appendChild(cell);
+});
+
+// PIE CHART
+const circ = 2 * Math.PI * 44; // 276.46
+const easy = 168, medium = 132, hard = 42, total = 342;
+const easyArc = (easy / total) * circ;
+const medArc = (medium / total) * circ;
+const hardArc = (hard / total) * circ;
+
+function animatePie() {
+  const easyEl = document.getElementById('pc-easy');
+  const medEl = document.getElementById('pc-medium');
+  const hardEl = document.getElementById('pc-hard');
+
+  easyEl.style.transition = 'stroke-dasharray 1s ease';
+  easyEl.setAttribute('stroke-dasharray', `${easyArc} ${circ - easyArc}`);
+  easyEl.setAttribute('stroke-dashoffset', '0');
+
+  medEl.style.transition = 'stroke-dasharray 1s 0.3s ease';
+  medEl.setAttribute('stroke-dasharray', `${medArc} ${circ - medArc}`);
+  medEl.setAttribute('stroke-dashoffset', `-${easyArc}`);
+
+  hardEl.style.transition = 'stroke-dasharray 1s 0.6s ease';
+  hardEl.setAttribute('stroke-dasharray', `${hardArc} ${circ - hardArc}`);
+  hardEl.setAttribute('stroke-dashoffset', `-${easyArc + medArc}`);
+}
+
+// BAR CHART
+const topics = [
+  { name: 'Graph Theory', solved: 68, max: 80 },
+  { name: 'Dynamic Prog.', solved: 55, max: 80 },
+  { name: 'Greedy', solved: 47, max: 80 },
+  { name: 'Binary Search', solved: 42, max: 80 },
+  { name: 'Data Structures', solved: 38, max: 80 },
+  { name: 'Math', solved: 35, max: 80 },
+  { name: 'String', solved: 28, max: 80 },
+  { name: 'Brute Force', solved: 22, max: 80 },
+];
+
+const barChart = document.getElementById('barChart');
+topics.forEach(t => {
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.innerHTML = `
+    <span class="bar-topic">${t.name}</span>
+    <div class="bar-track">
+      <div class="bar-fill" style="width:0%" data-pct="${(t.solved/t.max*100).toFixed(0)}"></div>
+    </div>
+    <span class="bar-val">${t.solved}</span>
+  `;
+  barChart.appendChild(row);
+});
+
+// Animate on load
+setTimeout(() => {
+  document.querySelectorAll('.bar-fill').forEach(el => {
+    el.style.width = el.dataset.pct + '%';
+  });
+  animatePie();
+}, 300);
+</script>
+</body>
+</html>

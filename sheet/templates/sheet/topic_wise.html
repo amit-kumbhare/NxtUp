@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CF Tracker — Topic Wise</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f0;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --border: #e2ddd8;
+    --text: #1a1a1a;
+    --text-muted: #7a7570;
+    --accent: #e8531e;
+    --accent-soft: #fdf0eb;
+    --blue: #3b6ef0;
+    --blue-soft: #eff3fe;
+    --solved-bg: #f0fdf4;
+    --solved-border: #bbf7d0;
+    --medium: #f59e0b;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    --radius: 14px;
+    --sidebar-w: 230px;
+  }
+  [data-theme="dark"] {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --surface2: #2a2a2a;
+    --border: #333;
+    --text: #f0ede8;
+    --text-muted: #888;
+    --accent: #ff6b35;
+    --accent-soft: #2a1a12;
+    --blue-soft: #0f1a3a;
+    --solved-bg: #0d1f14;
+    --solved-border: #166534;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px; height: 58px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+  .nav-left { display: flex; align-items: center; gap: 8px; }
+  .nav-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500; font-size: 15px; color: var(--accent);
+    margin-right: 16px; letter-spacing: -0.5px; text-decoration: none;
+  }
+  .nav-link {
+    padding: 6px 14px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 500;
+    color: var(--text-muted); text-decoration: none; transition: all 0.2s;
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--text); }
+  .nav-link.active { background: var(--accent-soft); color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .theme-btn {
+    width: 36px; height: 36px; border-radius: 9px;
+    border: 1px solid var(--border); background: var(--surface2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; transition: all 0.2s; color: var(--text);
+  }
+  .theme-btn:hover { background: var(--border); }
+  .profile-nav-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 6px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface2);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    text-decoration: none; color: var(--text); transition: all 0.2s;
+  }
+  .profile-nav-btn:hover { background: var(--border); }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    position: sticky;
+    top: 78px;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    padding: 20px 0 40px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-title {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.9px;
+    color: var(--text-muted); margin-bottom: 10px; padding: 0 4px;
+  }
+
+  .sidebar-search-wrap { position: relative; margin-bottom: 10px; }
+  .sidebar-search-wrap svg {
+    position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+    width: 12px; height: 12px; color: var(--text-muted); pointer-events: none;
+  }
+  .sidebar-search {
+    width: 100%; padding: 7px 10px 7px 28px;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    font-family: 'Sora', sans-serif; font-size: 12px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .sidebar-search:focus { border-color: var(--accent); }
+  .sidebar-search::placeholder { color: var(--text-muted); opacity: 0.5; }
+
+  .tag-list { display: flex; flex-direction: column; gap: 2px; }
+
+  .tag-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 9px; border-radius: 8px;
+    font-size: 12.5px; color: var(--text-muted);
+    cursor: pointer; transition: all 0.15s;
+    border: 1px solid transparent;
+    user-select: none;
+  }
+  .tag-item:hover { background: var(--surface2); color: var(--text); }
+  .tag-item.active {
+    background: var(--blue-soft); color: var(--blue);
+    border-color: color-mix(in srgb, var(--blue) 25%, transparent);
+    font-weight: 600;
+  }
+  .tag-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; color: var(--text-muted);
+    background: var(--surface2); padding: 1px 6px;
+    border-radius: 5px; flex-shrink: 0;
+  }
+  .tag-item.active .tag-count { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }
+
+  .clear-tag-btn {
+    width: 100%; padding: 7px; border-radius: 8px;
+    border: 1px dashed var(--border); background: transparent;
+    font-family: 'Sora', sans-serif; font-size: 12px;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+    margin-bottom: 10px;
+  }
+  .clear-tag-btn:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* ── MAIN CONTENT ── */
+  .content {
+    flex: 1;
+    min-width: 0;
+    padding: 20px 0 60px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* PAGE HEADER */
+  .content-header {
+    margin-bottom: 16px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .header-top {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 14px;
+  }
+  .page-title { font-size: 21px; font-weight: 700; letter-spacing: -0.4px; }
+  .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+  .stats-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .stat-chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .stat-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .stat-chip b { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+  /* FILTERS */
+  .filters-row {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 180px; }
+  .search-wrap svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; color: var(--text-muted); pointer-events: none;
+  }
+  .search-input {
+    width: 100%; padding: 8px 12px 8px 34px;
+    border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    font-family: 'Sora', sans-serif; font-size: 13px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .search-input::placeholder { color: var(--text-muted); opacity: 0.55; }
+
+  .filter-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 13px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: 'Sora', sans-serif; font-size: 12.5px; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { background: var(--surface2); color: var(--text); }
+  .filter-btn.active-filter { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .filter-btn svg { width: 13px; height: 13px; }
+
+  /* ACTIVE TAG PILL */
+  .active-tag-banner {
+    display: none; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 9px;
+    background: var(--blue-soft);
+    border: 1px solid color-mix(in srgb, var(--blue) 25%, transparent);
+    font-size: 13px; color: var(--blue); margin-bottom: 10px;
+    animation: fadeUp 0.2s ease;
+  }
+  .active-tag-banner.show { display: flex; }
+  .active-tag-banner svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .clear-banner-btn {
+    margin-left: auto; background: none; border: none;
+    cursor: pointer; color: var(--blue); opacity: 0.7;
+    font-size: 18px; line-height: 1; padding: 0 2px;
+    transition: opacity 0.15s;
+  }
+  .clear-banner-btn:hover { opacity: 1; }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 5px;
+  }
+  .progress-label span:last-child { font-family: 'JetBrains Mono', monospace; }
+  .progress-track { height: 5px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* TABLE */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeUp 0.3s 0.06s ease both;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead { background: var(--surface2); border-bottom: 1px solid var(--border); }
+  th {
+    padding: 10px 14px;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.7px;
+    color: var(--text-muted); text-align: left; white-space: nowrap;
+  }
+  th.center { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody tr.solved { background: var(--solved-bg); }
+  tbody tr.solved:hover { filter: brightness(0.97); }
+
+  td { padding: 11px 14px; font-size: 13.5px; vertical-align: middle; }
+  td.center { text-align: center; }
+
+  /* CHECKBOX */
+  .cb-wrap { display: flex; align-items: center; justify-content: center; }
+  .cb {
+    width: 17px; height: 17px; border-radius: 5px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    cursor: pointer; appearance: none; -webkit-appearance: none;
+    display: grid; place-items: center; transition: all 0.18s;
+  }
+  .cb:hover { border-color: #22c55e; }
+  .cb:checked { background: #22c55e; border-color: #22c55e; }
+  .cb:checked::after {
+    content: ''; width: 9px; height: 5px;
+    border-left: 2px solid white; border-bottom: 2px solid white;
+    transform: rotate(-45deg) translate(0,-1px); display: block;
+  }
+
+  /* SERIAL */
+  .serial {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--text-muted);
+  }
+  tr.solved .serial { color: #16a34a; }
+  [data-theme="dark"] tr.solved .serial { color: #4ade80; }
+
+  /* PROBLEM TITLE */
+  .q-title {
+    font-weight: 500; font-size: 13.5px;
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  }
+  tr.solved .q-title > span:first-child { text-decoration: line-through; color: var(--text-muted); }
+
+  .rating-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; color: var(--text-muted);
+    background: var(--surface2); padding: 2px 6px; border-radius: 5px; flex-shrink: 0;
+  }
+
+  /* SOLVE LINK */
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 7px;
+    font-size: 12px; font-weight: 500; text-decoration: none;
+    border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+    color: var(--blue); background: transparent; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .link-btn:hover { background: color-mix(in srgb, var(--blue) 10%, transparent); }
+  .link-btn svg { width: 11px; height: 11px; }
+
+  /* TAGS CELL */
+  .tags-cell { display: flex; gap: 5px; flex-wrap: wrap; max-width: 300px; }
+  .tag-pill {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 8px; border-radius: 5px;
+    background: var(--surface2); color: var(--text-muted);
+    border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .tag-pill:hover { background: var(--blue-soft); color: var(--blue); border-color: color-mix(in srgb, var(--blue) 25%, transparent); }
+  .tag-pill.active-tag { background: var(--blue-soft); color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, transparent); font-weight: 600; }
+  .tag-more {
+    font-size: 11px; color: var(--text-muted);
+    background: var(--surface2); padding: 3px 7px;
+    border-radius: 5px; border: 1px dashed var(--border);
+    cursor: default;
+  }
+
+  /* STAR */
+  .star-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 4px; border-radius: 6px; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--border);
+  }
+  .star-btn:hover { background: var(--surface2); color: var(--medium); }
+  .star-btn.starred { color: var(--medium); }
+  .star-btn svg { width: 16px; height: 16px; }
+
+  /* NOTES BUTTON */
+  .notes-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 7px; cursor: pointer; padding: 5px 9px;
+    display: flex; align-items: center; gap: 5px;
+    font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500;
+    color: var(--text-muted); transition: all 0.15s; white-space: nowrap;
+  }
+  .notes-btn:hover { background: var(--surface2); color: var(--text); }
+  .notes-btn.has-note { border-color: var(--blue); color: var(--blue); background: color-mix(in srgb, var(--blue) 8%, transparent); }
+  .notes-btn svg { width: 12px; height: 12px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 56px 24px;
+    color: var(--text-muted); font-size: 14px;
+  }
+  .empty-state svg { width: 38px; height: 38px; margin: 0 auto 12px; display: block; opacity: 0.3; }
+  .empty-state p { margin-top: 6px; font-size: 12px; }
+
+  /* SYNC INDICATOR */
+  .sync-dot {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11.5px; color: var(--text-muted);
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .sync-dot::before {
+    content: ''; width: 7px; height: 7px;
+    border-radius: 50%; background: #22c55e;
+    box-shadow: 0 0 0 2px color-mix(in srgb, #22c55e 25%, transparent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.38);
+    backdrop-filter: blur(3px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; width: 100%; max-width: 460px;
+    padding: 26px 28px; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    transform: translateY(14px) scale(0.98); opacity: 0;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s;
+    margin: 16px;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); opacity: 1; }
+
+  .modal-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .modal-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .modal-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .modal-close {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); transition: all 0.15s; flex-shrink: 0;
+  }
+  .modal-close:hover { background: var(--border); color: var(--text); }
+  .modal-close svg { width: 13px; height: 13px; }
+  .modal-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  .note-textarea {
+    width: 100%; min-height: 130px;
+    padding: 11px 13px; border-radius: 9px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); font-family: 'Sora', sans-serif;
+    font-size: 13.5px; line-height: 1.65; resize: vertical;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .note-textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 15%, transparent);
+    background: var(--surface);
+  }
+  .note-textarea::placeholder { color: var(--text-muted); opacity: 0.45; }
+
+  .modal-hint { font-size: 11px; color: var(--text-muted); margin-top: 7px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 18px; border-radius: 8px;
+    font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.18s; border: none;
+  }
+  .btn svg { width: 13px; height: 13px; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--text); color: var(--bg);
+    padding: 11px 16px; border-radius: 10px;
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    transform: translateY(16px); opacity: 0;
+    transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 999; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast-icon { width: 16px; height: 16px; color: #22c55e; flex-shrink: 0; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    nav { padding: 0 16px; }
+    .layout { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="profile.html" class="nav-logo">NxtUp</a>
+    <a href="blind_order.html" class="nav-link">Blind Order</a>
+    <a href="topicwise.html" class="nav-link">Topic Wise</a>
+    <a href="recommendations.html" class="nav-link active">Recommendations</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn">☀</button>
+    <a href="profile.html" class="profile-nav-btn">
+      <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#e8531e,#f0a020);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;">A</div>
+      ahmedcf
+    </a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">Filter by Tag</div>
+    <div class="sidebar-search-wrap">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+      <input class="sidebar-search" id="tagSearch" placeholder="Search tags…">
+    </div>
+    <button class="clear-tag-btn" id="clearTagBtn" onclick="clearTagFilter()">✕ Clear filter</button>
+    <div class="tag-list" id="tagList"></div>
+  </aside>
+
+  <!-- ── CONTENT ── -->
+  <div class="content">
+
+    <!-- HEADER -->
+    <div class="content-header">
+      <div class="header-top">
+        <div>
+          <div class="page-title">Topic Wise Sheet</div>
+          <div class="page-subtitle">Browse and filter problems by topic tag</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="sync-dot">Synced with Blind Order</span>
+          <div class="stats-chips">
+            <div class="stat-chip"><span class="dot" style="background:#22c55e"></span> Solved <b id="solvedCount">0</b></div>
+            <div class="stat-chip"><span class="dot" style="background:#e2ddd8"></span> Total <b id="totalCount">0</b></div>
+            <div class="stat-chip"><span class="dot" style="background:#f59e0b"></span> Starred <b id="starCount">0</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="active-tag-banner" id="activeTagBanner">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 4h10l2 4-2 4H2l2-4-2-4z"/>
+        </svg>
+        Showing: <strong id="activeTagLabel"></strong>
+        <button class="clear-banner-btn" onclick="clearTagFilter()">×</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Progress</span><span id="progressLabel">0 / 0</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="filters-row">
+        <div class="search-wrap">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search problems…">
+        </div>
+        <button class="filter-btn active-filter" id="filterAll" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" id="filterSolved" onclick="setFilter('solved')">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+          Solved
+        </button>
+        <button class="filter-btn" id="filterUnsolved" onclick="setFilter('unsolved')">Unsolved</button>
+        <button class="filter-btn" id="filterStarred" onclick="setFilter('starred')">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          Starred
+        </button>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th class="center" style="width:44px">Done</th>
+            <th style="width:60px">No.</th>
+            <th>Problem</th>
+            <th style="width:95px">Link</th>
+            <th>Tags</th>
+            <th class="center" style="width:46px">Star</th>
+            <th class="center" style="width:80px">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        No problems match your filter.
+        <p>Try a different tag or search term.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Problem Notes</div>
+        <div class="modal-subtitle" id="modalSubtitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="modal-divider"></div>
+    <textarea class="note-textarea" id="noteTextarea" placeholder="Write your notes, approach, or observations…&#10;&#10;e.g. Use BFS with visited set. Watch for edge case n=0."></textarea>
+    <div class="modal-hint">Ctrl+Enter to save · Esc to close · Synced across all pages</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNote()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+        Save Note
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg class="toast-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+  <span id="toastMsg">Saved</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// SHARED STATE — In production, replace localStorage calls with
+// Django API endpoints: /api/problems/<id>/toggle-solved/
+//                       /api/problems/<id>/toggle-star/
+//                       /api/problems/<id>/note/
+// All three pages read/write the same keys so they stay in sync.
+// ═══════════════════════════════════════════════════════════════════
+
+const STORAGE_KEYS = {
+  solved:  'cft_solved',   // Set<id>  → JSON array
+  starred: 'cft_starred',  // Set<id>  → JSON array
+  notes:   'cft_notes',    // {id: str} → JSON object
+};
+
+function loadState() {
+  try {
+    return {
+      solved:  new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.solved)  || '[1,2,3,4,5,6,7]')),
+      starred: new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.starred) || '[3,8,15]')),
+      notes:   JSON.parse(localStorage.getItem(STORAGE_KEYS.notes) || '{"3":"Use BFS. Edge case when grid is 1x1.","15":"XOR trick."}'),
+    };
+  } catch { return { solved: new Set([1,2,3,4,5,6,7]), starred: new Set([3,8,15]), notes: {3:'Use BFS.',15:'XOR trick.'} }; }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEYS.solved,  JSON.stringify([...state.solved]));
+  localStorage.setItem(STORAGE_KEYS.starred, JSON.stringify([...state.starred]));
+  localStorage.setItem(STORAGE_KEYS.notes,   JSON.stringify(state.notes));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROBLEM DATA — In Django, this comes from the template context:
+// {{ problems|safe }} or via /api/problems/?tag=dp
+// ═══════════════════════════════════════════════════════════════════
+
+const PROBLEMS = [
+  { id:1,  num:"4A",   title:"Watermelon",                     rating:800,  cfId:"4/problem/A",    tags:["adhoc","math","brute force"] },
+  { id:2,  num:"1A",   title:"Theatre Square",                 rating:1000, cfId:"1/problem/A",    tags:["math"] },
+  { id:3,  num:"45A",  title:"Stones on the Table",            rating:900,  cfId:"45/problem/A",   tags:["impl","greedy","simulation"] },
+  { id:4,  num:"339A", title:"Helpful Maths",                  rating:900,  cfId:"339/problem/A",  tags:["sorting","impl","sort"] },
+  { id:5,  num:"121A", title:"Nearly Lucky Number",            rating:900,  cfId:"121/problem/A",  tags:["math","impl"] },
+  { id:6,  num:"31A",  title:"Queue at the School",            rating:1000, cfId:"31/problem/A",   tags:["simulation","impl","string"] },
+  { id:7,  num:"71A",  title:"Way Too Long Words",             rating:1000, cfId:"71/problem/A",   tags:["strings","impl"] },
+  { id:8,  num:"282A", title:"Bit++",                          rating:1000, cfId:"282/problem/A",  tags:["impl"] },
+  { id:9,  num:"432A", title:"Choosing Teams",                 rating:1000, cfId:"432/problem/A",  tags:["impl","greedy"] },
+  { id:10, num:"458A", title:"Next Round",                     rating:1000, cfId:"458/problem/A",  tags:["impl","greedy","simulation"] },
+  { id:11, num:"879A", title:"Even Odds",                      rating:1100, cfId:"879/problem/A",  tags:["math"] },
+  { id:12, num:"236A", title:"Boy or Girl",                    rating:1100, cfId:"236/problem/A",  tags:["impl","string","set"] },
+  { id:13, num:"69A",  title:"Young Physicist",                rating:1000, cfId:"69/problem/A",   tags:["math","impl"] },
+  { id:14, num:"61A",  title:"Ultra-Fast Mathematician",       rating:1000, cfId:"61/problem/A",   tags:["impl","bitwise","xor"] },
+  { id:15, num:"3A",   title:"Shortest Path of the King",      rating:1000, cfId:"3/problem/A",    tags:["greedy","impl","bfs"] },
+  { id:16, num:"1328A",title:"Divisibility Problem",           rating:1000, cfId:"1328/problem/A", tags:["math","divisibility"] },
+  { id:17, num:"734A", title:"Anton and Danik",                rating:1100, cfId:"734/problem/A",  tags:["impl","greedy","simulation"] },
+  { id:18, num:"800B", title:"Gosha is Hunting",               rating:1300, cfId:"800/problem/B",  tags:["binary search","dp"] },
+  { id:19, num:"1602A",title:"Balanced Substring",             rating:1200, cfId:"1602/problem/A", tags:["strings","greedy","sliding window"] },
+  { id:20, num:"476C", title:"Dreamoon and Sums",              rating:1400, cfId:"476/problem/C",  tags:["math","binary search","divisibility"] },
+  { id:21, num:"551E", title:"GukiZ and GukiZiana",            rating:1500, cfId:"551/problem/E",  tags:["binary search","dp","datastructure"] },
+  { id:22, num:"405D", title:"Minimum Spanning Tree",          rating:1500, cfId:"405/problem/D",  tags:["graph","mst","greedy"] },
+  { id:23, num:"366C", title:"Dima and Anya",                  rating:1600, cfId:"366/problem/C",  tags:["graph","constructive","greedy"] },
+  { id:24, num:"750E", title:"New Year and Santa Claus",       rating:1700, cfId:"750/problem/E",  tags:["dp","bitmasks","dp_bitmasks"] },
+  { id:25, num:"1364C",title:"Ehab and Prefix XOR",            rating:1900, cfId:"1364/problem/C", tags:["xor","constructive","greedy"] },
+  { id:26, num:"1529D",title:"Ants and MST",                   rating:2000, cfId:"1529/problem/D", tags:["mst","greedy","graph"] },
+  { id:27, num:"662C", title:"Binary Table",                   rating:1900, cfId:"662/problem/C",  tags:["dp","bitset","math"] },
+  { id:28, num:"1092F",title:"Tree with Maximum Cost",         rating:2100, cfId:"1092/problem/F", tags:["tree","dp","dp_trees"] },
+  { id:29, num:"1515G",title:"Phoenix and Towers",             rating:2200, cfId:"1515/problem/G", tags:["constructive","greedy","graph"] },
+  { id:30, num:"1349B",title:"Orac and Medians",               rating:1800, cfId:"1349/problem/B", tags:["binary search","greedy","sorting"] },
+  { id:31, num:"368E", title:"Sereja and Suffixes",            rating:1800, cfId:"368/problem/E",  tags:["dp","segment tree","suffix array"] },
+  { id:32, num:"940E", title:"Ternary String",                 rating:1900, cfId:"940/problem/E",  tags:["strings","hashing","binary search"] },
+  { id:33, num:"1081G",title:"Merging Rectangles",             rating:2200, cfId:"1081/problem/G", tags:["geometry","sweep","datastructure"] },
+  { id:34, num:"1175E",title:"Minimal Segment Cover",          rating:1800, cfId:"1175/problem/E", tags:["binary search","greedy","prefix sum"] },
+  { id:35, num:"566D", title:"Restructuring Company",          rating:1700, cfId:"566/problem/D",  tags:["dsu","greedy","graph"] },
+  { id:36, num:"429B", title:"Working out",                    rating:1600, cfId:"429/problem/B",  tags:["dp","2d grid","simulation"] },
+  { id:37, num:"508D", title:"Tanya and Password",             rating:1700, cfId:"508/problem/D",  tags:["hashing","dfs","graph"] },
+  { id:38, num:"1313C",title:"Skyscrapers",                    rating:1500, cfId:"1313/problem/C", tags:["stack","dp","greedy"] },
+  { id:39, num:"295B", title:"Greg and Graph",                 rating:1700, cfId:"295/problem/B",  tags:["graph","floyd","shortest path"] },
+  { id:40, num:"1043F",title:"Make It One",                    rating:2400, cfId:"1043/problem/F", tags:["dp","number theory","inclusion-exclusion"] },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// UI STATE
+// ═══════════════════════════════════════════════════════════════════
+
+const state = {
+  ...loadState(),
+  filter:     'all',
+  search:     '',
+  activeTag:  null,
+  activeNoteId: null,
+};
+
+// Build tag map: tag → [problem ids]
+const TAG_MAP = {};
+PROBLEMS.forEach(p => {
+  p.tags.forEach(t => {
+    if (!TAG_MAP[t]) TAG_MAP[t] = [];
+    TAG_MAP[t].push(p.id);
+  });
+});
+const ALL_TAGS = Object.keys(TAG_MAP).sort();
+
+// ═══════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════════════
+
+function buildSidebar(filter='') {
+  const list = document.getElementById('tagList');
+  list.innerHTML = '';
+  const q = filter.toLowerCase();
+  ALL_TAGS.filter(t => !q || t.includes(q)).forEach(tag => {
+    const div = document.createElement('div');
+    div.className = 'tag-item' + (state.activeTag === tag ? ' active' : '');
+    div.innerHTML = `<span>${tag}</span><span class="tag-count">${TAG_MAP[tag].length}</span>`;
+    div.onclick = () => setTagFilter(tag);
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('tagSearch').addEventListener('input', e => buildSidebar(e.target.value));
+
+function setTagFilter(tag) {
+  state.activeTag = state.activeTag === tag ? null : tag;
+  buildSidebar(document.getElementById('tagSearch').value);
+  const banner = document.getElementById('activeTagBanner');
+  if (state.activeTag) {
+    banner.classList.add('show');
+    document.getElementById('activeTagLabel').textContent = state.activeTag;
+  } else {
+    banner.classList.remove('show');
+  }
+  render();
+}
+
+function clearTagFilter() {
+  state.activeTag = null;
+  buildSidebar(document.getElementById('tagSearch').value);
+  document.getElementById('activeTagBanner').classList.remove('show');
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER TABLE
+// ═══════════════════════════════════════════════════════════════════
+
+function render() {
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+  const search = state.search.toLowerCase();
+
+  const filtered = PROBLEMS.filter(p => {
+    if (state.activeTag && !p.tags.includes(state.activeTag)) return false;
+    const matchSearch = !search || p.title.toLowerCase().includes(search) || p.num.toLowerCase().includes(search) || p.tags.some(t => t.includes(search));
+    if (!matchSearch) return false;
+    if (state.filter === 'solved')   return state.solved.has(p.id);
+    if (state.filter === 'unsolved') return !state.solved.has(p.id);
+    if (state.filter === 'starred')  return state.starred.has(p.id);
+    return true;
+  });
+
+  tbody.innerHTML = '';
+  empty.style.display = filtered.length === 0 ? 'block' : 'none';
+
+  filtered.forEach(p => {
+    const solved  = state.solved.has(p.id);
+    const starred = state.starred.has(p.id);
+    const hasNote = !!state.notes[p.id];
+    const cfLink  = `https://codeforces.com/problemset/problem/${p.cfId}`;
+
+    const tagPills = p.tags.slice(0, 4).map(t =>
+      `<span class="tag-pill${state.activeTag === t ? ' active-tag' : ''}" onclick="setTagFilter('${t}')">${t}</span>`
+    ).join('');
+    const morePill = p.tags.length > 4 ? `<span class="tag-more">+${p.tags.length - 4}</span>` : '';
+
+    const tr = document.createElement('tr');
+    if (solved) tr.classList.add('solved');
+
+    tr.innerHTML = `
+      <td class="center">
+        <div class="cb-wrap">
+          <input type="checkbox" class="cb" data-id="${p.id}" ${solved ? 'checked' : ''}>
+        </div>
+      </td>
+      <td>
+        <span class="serial">${p.num}</span>
+      </td>
+      <td>
+        <div class="q-title">
+          <span>${p.title}</span>
+          <span class="rating-chip">${p.rating}</span>
+        </div>
+      </td>
+      <td>
+        <a href="${cfLink}" target="_blank" class="link-btn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Solve
+        </a>
+      </td>
+      <td>
+        <div class="tags-cell">${tagPills}${morePill}</div>
+      </td>
+      <td class="center">
+        <button class="star-btn ${starred ? 'starred' : ''}" data-id="${p.id}">
+          <svg viewBox="0 0 16 16" fill="${starred ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/>
+          </svg>
+        </button>
+      </td>
+      <td class="center">
+        <button class="notes-btn ${hasNote ? 'has-note' : ''}" data-id="${p.id}" data-title="${p.title}">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v8H8l-3 2V3z"/></svg>
+          ${hasNote ? 'View' : 'Add'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Bind events
+  tbody.querySelectorAll('.cb').forEach(cb =>
+    cb.addEventListener('change', () => toggleSolved(+cb.dataset.id))
+  );
+  tbody.querySelectorAll('.star-btn').forEach(btn =>
+    btn.addEventListener('click', () => toggleStar(+btn.dataset.id))
+  );
+  tbody.querySelectorAll('.notes-btn').forEach(btn =>
+    btn.addEventListener('click', () => openModal(+btn.dataset.id, btn.dataset.title))
+  );
+
+  updateStats();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ACTIONS — write state, persist, re-render
+// ═══════════════════════════════════════════════════════════════════
+
+function toggleSolved(id) {
+  state.solved.has(id) ? state.solved.delete(id) : state.solved.add(id);
+  saveState();
+  render();
+  showToast(state.solved.has(id) ? '✓ Marked as solved' : 'Marked as unsolved');
+  // Django equivalent: fetch(`/api/problems/${id}/toggle-solved/`, { method:'POST' })
+}
+
+function toggleStar(id) {
+  state.starred.has(id) ? state.starred.delete(id) : state.starred.add(id);
+  saveState();
+  render();
+  // Django equivalent: fetch(`/api/problems/${id}/toggle-star/`, { method:'POST' })
+}
+
+function updateStats() {
+  const total  = PROBLEMS.length;
+  const solved = state.solved.size;
+  document.getElementById('solvedCount').textContent  = solved;
+  document.getElementById('totalCount').textContent   = total;
+  document.getElementById('starCount').textContent    = state.starred.size;
+  document.getElementById('progressLabel').textContent = `${solved} / ${total}`;
+  document.getElementById('progressFill').style.width  = `${(solved/total*100).toFixed(1)}%`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FILTER
+// ═══════════════════════════════════════════════════════════════════
+
+function setFilter(f) {
+  state.filter = f;
+  ['filterAll','filterSolved','filterUnsolved','filterStarred'].forEach(id =>
+    document.getElementById(id).classList.remove('active-filter')
+  );
+  const map = { all:'filterAll', solved:'filterSolved', unsolved:'filterUnsolved', starred:'filterStarred' };
+  document.getElementById(map[f]).classList.add('active-filter');
+  render();
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value;
+  render();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// NOTES MODAL
+// ═══════════════════════════════════════════════════════════════════
+
+function openModal(id, title) {
+  state.activeNoteId = id;
+  document.getElementById('modalSubtitle').textContent = `${PROBLEMS.find(p=>p.id===id)?.num} · ${title}`;
+  document.getElementById('noteTextarea').value = state.notes[id] || '';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('noteTextarea').focus(), 250);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  state.activeNoteId = null;
+}
+
+function saveNote() {
+  const id  = state.activeNoteId;
+  const val = document.getElementById('noteTextarea').value.trim();
+  if (val) state.notes[id] = val;
+  else delete state.notes[id];
+  saveState();
+  closeModal();
+  render();
+  showToast('Note saved');
+  // Django equivalent: fetch(`/api/problems/${id}/note/`, { method:'POST', body: JSON.stringify({note: val}) })
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.activeNoteId !== null) saveNote();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════════
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════════════
+
+document.getElementById('themeBtn').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  this.textContent = dark ? '☀' : '☽';
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+
+buildSidebar();
+setFilter('all');
+render();
+
+// Cross-tab sync: if user opens both pages in different tabs,
+// updates propagate via storage events.
+// In Django production, use WebSockets or simple polling instead.
+window.addEventListener('storage', e => {
+  if (Object.values(STORAGE_KEYS).includes(e.key)) {
+    const fresh = loadState();
+    state.solved  = fresh.solved;
+    state.starred = fresh.starred;
+    state.notes   = fresh.notes;
+    render();
+    updateStats();
+  }
+});
+</script>
+</body>
+</html>

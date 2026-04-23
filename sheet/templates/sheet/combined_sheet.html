@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CF Tracker — Problem Sheets</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════ TOKENS ═══════════════════════════ */
+:root {
+  --bg:           #f5f5f0;
+  --surface:      #ffffff;
+  --surface2:     #f0ede8;
+  --border:       #e2ddd8;
+  --text:         #1a1a1a;
+  --text-muted:   #7a7570;
+  --accent:       #e8531e;
+  --accent-soft:  #fdf0eb;
+  --blue:         #3b6ef0;
+  --blue-soft:    #eff3fe;
+  --solved-bg:    #f0fdf4;
+  --solved-border:#bbf7d0;
+  --green:        #22c55e;
+  --medium:       #f59e0b;
+  --hard:         #ef4444;
+  --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --radius:       14px;
+  --sidebar-w:    226px;
+}
+[data-theme="dark"] {
+  --bg:           #121212;
+  --surface:      #1e1e1e;
+  --surface2:     #2a2a2a;
+  --border:       #333;
+  --text:         #f0ede8;
+  --text-muted:   #888;
+  --accent:       #ff6b35;
+  --accent-soft:  #2a1a12;
+  --blue-soft:    #0f1a3a;
+  --solved-bg:    #0d1f14;
+  --solved-border:#166534;
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+}
+
+/* ═══════════════════════════ RESET ═════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Sora', sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh;
+  transition: background .3s, color .3s;
+}
+
+/* ═══════════════════════════ NAV ═══════════════════════════════ */
+nav {
+  position:sticky; top:0; z-index:200;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  height:58px; padding:0 28px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:var(--shadow);
+}
+.nav-left  { display:flex; align-items:center; gap:6px; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+
+.nav-logo {
+  font-family:'JetBrains Mono', monospace;
+  font-size:15px; font-weight:500;
+  color:var(--accent); letter-spacing:-.5px;
+  text-decoration:none; margin-right:14px;
+}
+
+/* TAB SWITCHER inside nav */
+.tab-switch {
+  display:flex; align-items:center;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px; padding:3px; gap:2px;
+}
+.tab-btn {
+  padding:5px 16px; border-radius:8px;
+  font-family:'Sora', sans-serif;
+  font-size:13px; font-weight:500;
+  color:var(--text-muted); background:transparent;
+  border:none; cursor:pointer;
+  transition:all .2s; white-space:nowrap;
+}
+.tab-btn.active {
+  background:var(--surface);
+  color:var(--text);
+  box-shadow:0 1px 4px rgba(0,0,0,0.1);
+}
+.tab-btn:not(.active):hover { color:var(--text); }
+
+.nav-link {
+  padding:6px 14px; border-radius:8px;
+  font-size:13.5px; font-weight:500;
+  color:var(--text-muted); text-decoration:none; transition:all .2s;
+}
+.nav-link:hover { background:var(--surface2); color:var(--text); }
+
+.theme-btn {
+  width:36px; height:36px; border-radius:9px;
+  border:1px solid var(--border); background:var(--surface2);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:15px; transition:all .2s; color:var(--text);
+}
+.theme-btn:hover { background:var(--border); }
+
+.profile-nav-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:5px 12px 5px 6px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface2);
+  font-size:13px; font-weight:500;
+  text-decoration:none; color:var(--text); transition:all .2s;
+}
+.profile-nav-btn:hover { background:var(--border); }
+.avatar-mini {
+  width:24px; height:24px; border-radius:6px;
+  background:linear-gradient(135deg,#e8531e,#f0a020);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:white; flex-shrink:0;
+}
+
+/* ═══════════════════════════ PAGE PANELS ═══════════════════════ */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* ═══════════════════════════ SHARED COMPONENTS ═════════════════ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.page-wrap {
+  max-width:1180px; margin:0 auto;
+  padding:28px 24px 60px;
+  animation:fadeUp .3s ease both;
+}
+
+.page-header { margin-bottom:18px; }
+.header-top {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  flex-wrap:wrap; gap:12px; margin-bottom:14px;
+}
+.page-title  { font-size:21px; font-weight:700; letter-spacing:-.4px; }
+.page-subtitle { font-size:13px; color:var(--text-muted); margin-top:3px; }
+
+.stats-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.stat-chip {
+  display:flex; align-items:center; gap:6px;
+  padding:6px 12px; border-radius:8px;
+  background:var(--surface); border:1px solid var(--border); font-size:12.5px;
+}
+.stat-chip .dot { width:8px; height:8px; border-radius:50%; }
+.stat-chip b { font-family:'JetBrains Mono', monospace; font-size:13px; }
+
+.progress-wrap { margin-bottom:14px; }
+.progress-label {
+  display:flex; justify-content:space-between;
+  font-size:12px; color:var(--text-muted); margin-bottom:5px;
+}
+.progress-label span:last-child { font-family:'JetBrains Mono', monospace; }
+.progress-track { height:5px; background:var(--surface2); border-radius:99px; overflow:hidden; }
+.progress-fill {
+  height:100%; border-radius:99px;
+  background:linear-gradient(90deg,#22c55e,#16a34a);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+.filters-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.search-wrap { position:relative; flex:1; min-width:180px; }
+.search-wrap svg {
+  position:absolute; left:11px; top:50%; transform:translateY(-50%);
+  width:14px; height:14px; color:var(--text-muted); pointer-events:none;
+}
+.search-input {
+  width:100%; padding:8px 12px 8px 34px;
+  border-radius:9px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text);
+  font-family:'Sora', sans-serif; font-size:13px;
+  outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.search-input:focus {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.search-input::placeholder { color:var(--text-muted); opacity:.55; }
+
+.filter-btn {
+  display:flex; align-items:center; gap:5px;
+  padding:7px 13px; border-radius:8px;
+  border:1px solid var(--border); background:var(--surface);
+  font-family:'Sora', sans-serif; font-size:12.5px; font-weight:500;
+  color:var(--text-muted); cursor:pointer; transition:all .18s; white-space:nowrap;
+}
+.filter-btn:hover { background:var(--surface2); color:var(--text); }
+.filter-btn.active-filter { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+.filter-btn svg { width:13px; height:13px; }
+
+/* ─── TABLE ─── */
+.table-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;
+}
+table { width:100%; border-collapse:collapse; }
+thead { background:var(--surface2); border-bottom:1px solid var(--border); }
+th {
+  padding:10px 14px;
+  font-size:11px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.7px;
+  color:var(--text-muted); text-align:left; white-space:nowrap;
+}
+th.center { text-align:center; }
+tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:var(--surface2); }
+tbody tr.solved { background:var(--solved-bg); }
+tbody tr.solved:hover { filter:brightness(.97); }
+td { padding:11px 14px; font-size:13.5px; vertical-align:middle; }
+td.center { text-align:center; }
+
+/* CHECKBOX */
+.cb-wrap { display:flex; align-items:center; justify-content:center; }
+.cb {
+  width:17px; height:17px; border-radius:5px;
+  border:1.5px solid var(--border); background:var(--surface);
+  cursor:pointer; appearance:none; -webkit-appearance:none;
+  display:grid; place-items:center; transition:all .18s;
+}
+.cb:hover { border-color:var(--green); }
+.cb:checked { background:var(--green); border-color:var(--green); }
+.cb:checked::after {
+  content:''; width:9px; height:5px;
+  border-left:2px solid white; border-bottom:2px solid white;
+  transform:rotate(-45deg) translate(0,-1px); display:block;
+}
+
+/* SERIAL */
+.serial { font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-muted); }
+tr.solved .serial { color:#16a34a; }
+[data-theme="dark"] tr.solved .serial { color:#4ade80; }
+
+/* PROBLEM TITLE */
+.q-title {
+  font-weight:500; font-size:13.5px;
+  display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+}
+tr.solved .q-title > .q-name { text-decoration:line-through; color:var(--text-muted); }
+
+.diff-tag {
+  font-size:10px; font-weight:600; padding:2px 7px;
+  border-radius:5px; letter-spacing:.3px; flex-shrink:0;
+}
+.diff-tag.easy   { background:#dcfce7; color:#15803d; }
+.diff-tag.medium { background:#fef9c3; color:#854d0e; }
+.diff-tag.hard   { background:#fee2e2; color:#991b1b; }
+[data-theme="dark"] .diff-tag.easy   { background:#14532d; color:#4ade80; }
+[data-theme="dark"] .diff-tag.medium { background:#422006; color:#fbbf24; }
+[data-theme="dark"] .diff-tag.hard   { background:#450a0a; color:#f87171; }
+
+.rating-chip {
+  font-family:'JetBrains Mono', monospace; font-size:10.5px;
+  color:var(--text-muted); background:var(--surface2);
+  padding:2px 6px; border-radius:5px; flex-shrink:0;
+}
+
+/* LINKS */
+.link-btn {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px; border-radius:7px;
+  font-size:12px; font-weight:500; text-decoration:none;
+  border:1px solid var(--border); color:var(--text-muted);
+  background:transparent; transition:all .15s; white-space:nowrap;
+}
+.link-btn:hover { background:var(--surface2); color:var(--text); }
+.link-btn.solve    { color:var(--blue); border-color:color-mix(in srgb,var(--blue) 30%,transparent); }
+.link-btn.solve:hover { background:color-mix(in srgb,var(--blue) 10%,transparent); }
+.link-btn.solution { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 30%,transparent); }
+.link-btn.solution:hover { background:var(--accent-soft); }
+.link-btn svg { width:11px; height:11px; }
+.links-cell { display:flex; gap:6px; flex-wrap:nowrap; }
+
+/* TAGS */
+.tags-cell { display:flex; gap:5px; flex-wrap:wrap; max-width:280px; }
+.tag-pill {
+  font-size:11px; font-weight:500; padding:3px 8px; border-radius:5px;
+  background:var(--surface2); color:var(--text-muted);
+  border:1px solid var(--border);
+  cursor:pointer; transition:all .15s; white-space:nowrap;
+}
+.tag-pill:hover { background:var(--blue-soft); color:var(--blue); border-color:color-mix(in srgb,var(--blue) 25%,transparent); }
+.tag-pill.active-tag { background:var(--blue-soft); color:var(--blue); border-color:color-mix(in srgb,var(--blue) 35%,transparent); font-weight:600; }
+.tag-more {
+  font-size:11px; color:var(--text-muted);
+  background:var(--surface2); padding:3px 7px;
+  border-radius:5px; border:1px dashed var(--border);
+}
+
+/* STAR */
+.star-btn {
+  background:none; border:none; cursor:pointer;
+  padding:4px; border-radius:6px; transition:all .15s;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--border);
+}
+.star-btn:hover { background:var(--surface2); color:var(--medium); }
+.star-btn.starred { color:var(--medium); }
+.star-btn svg { width:16px; height:16px; }
+
+/* NOTES */
+.notes-btn {
+  background:none; border:1px solid var(--border);
+  border-radius:7px; cursor:pointer; padding:5px 9px;
+  display:flex; align-items:center; gap:5px;
+  font-family:'Sora', sans-serif; font-size:12px; font-weight:500;
+  color:var(--text-muted); transition:all .15s; white-space:nowrap;
+}
+.notes-btn:hover { background:var(--surface2); color:var(--text); }
+.notes-btn.has-note { border-color:var(--blue); color:var(--blue); background:color-mix(in srgb,var(--blue) 8%,transparent); }
+.notes-btn svg { width:12px; height:12px; }
+
+/* EMPTY */
+.empty-state {
+  text-align:center; padding:56px 24px;
+  color:var(--text-muted); font-size:14px;
+}
+.empty-state svg { width:38px; height:38px; margin:0 auto 12px; display:block; opacity:.3; }
+.empty-state p { margin-top:6px; font-size:12px; }
+
+/* ══════════════ TOPIC WISE LAYOUT (sidebar + content) ══════════ */
+.tw-layout {
+  display:flex; gap:20px; align-items:flex-start;
+}
+.tw-sidebar {
+  width:var(--sidebar-w); flex-shrink:0;
+  position:sticky; top:78px;
+  max-height:calc(100vh - 90px);
+  overflow-y:auto; padding-bottom:40px;
+  scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+.tw-sidebar::-webkit-scrollbar { width:4px; }
+.tw-sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+.sidebar-title {
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.9px; color:var(--text-muted);
+  margin-bottom:10px; padding:0 4px;
+}
+.sidebar-search-wrap { position:relative; margin-bottom:8px; }
+.sidebar-search-wrap svg {
+  position:absolute; left:9px; top:50%; transform:translateY(-50%);
+  width:12px; height:12px; color:var(--text-muted); pointer-events:none;
+}
+.sidebar-search {
+  width:100%; padding:7px 10px 7px 28px;
+  border-radius:8px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text);
+  font-family:'Sora', sans-serif; font-size:12px;
+  outline:none; transition:border-color .2s;
+}
+.sidebar-search:focus { border-color:var(--accent); }
+.sidebar-search::placeholder { color:var(--text-muted); opacity:.5; }
+
+.clear-tag-btn {
+  width:100%; padding:6px; border-radius:8px;
+  border:1px dashed var(--border); background:transparent;
+  font-family:'Sora', sans-serif; font-size:11.5px;
+  color:var(--text-muted); cursor:pointer; transition:all .15s; margin-bottom:8px;
+}
+.clear-tag-btn:hover { border-color:var(--text-muted); color:var(--text); }
+
+.tag-list { display:flex; flex-direction:column; gap:2px; }
+.tag-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 9px; border-radius:8px;
+  font-size:12.5px; color:var(--text-muted);
+  cursor:pointer; transition:all .15s;
+  border:1px solid transparent; user-select:none;
+}
+.tag-item:hover { background:var(--surface2); color:var(--text); }
+.tag-item.active {
+  background:var(--blue-soft); color:var(--blue);
+  border-color:color-mix(in srgb,var(--blue) 25%,transparent); font-weight:600;
+}
+.tag-count {
+  font-family:'JetBrains Mono', monospace; font-size:10.5px;
+  color:var(--text-muted); background:var(--surface2);
+  padding:1px 6px; border-radius:5px; flex-shrink:0;
+}
+.tag-item.active .tag-count { background:color-mix(in srgb,var(--blue) 15%,transparent); color:var(--blue); }
+
+.tw-content { flex:1; min-width:0; }
+
+/* Active tag banner */
+.active-tag-banner {
+  display:none; align-items:center; gap:8px;
+  padding:8px 14px; border-radius:9px;
+  background:var(--blue-soft);
+  border:1px solid color-mix(in srgb,var(--blue) 25%,transparent);
+  font-size:13px; color:var(--blue); margin-bottom:10px;
+}
+.active-tag-banner.show { display:flex; }
+.active-tag-banner svg { width:14px; height:14px; flex-shrink:0; }
+.clear-banner-btn {
+  margin-left:auto; background:none; border:none; cursor:pointer;
+  color:var(--blue); opacity:.7; font-size:18px; line-height:1; padding:0 2px;
+  transition:opacity .15s;
+}
+.clear-banner-btn:hover { opacity:1; }
+
+/* Sync indicator */
+.sync-dot {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11.5px; color:var(--text-muted);
+  padding:4px 10px; border-radius:20px;
+  border:1px solid var(--border); background:var(--surface);
+}
+.sync-dot::before {
+  content:''; width:7px; height:7px; border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 25%,transparent);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ═══════════════════════════ MODAL ═════════════════════════════ */
+.modal-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.38); backdrop-filter:blur(3px);
+  z-index:500; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .22s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; width:100%; max-width:460px;
+  padding:26px 28px; box-shadow:0 8px 40px rgba(0,0,0,0.18);
+  transform:translateY(14px) scale(.98); opacity:0;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), opacity .22s;
+  margin:16px;
+}
+.modal-overlay.open .modal { transform:translateY(0) scale(1); opacity:1; }
+.modal-header {
+  display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px;
+}
+.modal-title   { font-size:15px; font-weight:700; letter-spacing:-.3px; }
+.modal-subtitle { font-size:12px; color:var(--text-muted); margin-top:3px; }
+.modal-close {
+  width:30px; height:30px; border-radius:8px;
+  border:1px solid var(--border); background:var(--surface2);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-muted); transition:all .15s; flex-shrink:0;
+}
+.modal-close:hover { background:var(--border); color:var(--text); }
+.modal-close svg { width:13px; height:13px; }
+.modal-divider { height:1px; background:var(--border); margin:14px 0; }
+.note-textarea {
+  width:100%; min-height:130px; padding:11px 13px; border-radius:9px;
+  border:1px solid var(--border); background:var(--surface2);
+  color:var(--text); font-family:'Sora', sans-serif;
+  font-size:13.5px; line-height:1.65; resize:vertical;
+  outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.note-textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 15%,transparent);
+  background:var(--surface);
+}
+.note-textarea::placeholder { color:var(--text-muted); opacity:.45; }
+.modal-hint { font-size:11px; color:var(--text-muted); margin-top:7px; }
+.modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 18px; border-radius:8px;
+  font-family:'Sora', sans-serif; font-size:13px; font-weight:600;
+  cursor:pointer; transition:all .18s; border:none;
+}
+.btn svg { width:13px; height:13px; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text-muted); }
+.btn-ghost:hover { background:var(--surface2); color:var(--text); }
+.btn-primary { background:var(--blue); color:white; }
+.btn-primary:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.btn-primary:active { transform:translateY(0); }
+
+/* ═══════════════════════════ TOAST ═════════════════════════════ */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:var(--text); color:var(--bg);
+  padding:11px 16px; border-radius:10px;
+  font-size:13px; font-weight:500;
+  display:flex; align-items:center; gap:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.18);
+  transform:translateY(16px); opacity:0;
+  transition:all .28s cubic-bezier(.34,1.56,.64,1);
+  z-index:999; pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+.toast svg { width:15px; height:15px; color:var(--green); flex-shrink:0; }
+
+/* ═══════════════════════════ RESPONSIVE ════════════════════════ */
+@media (max-width:860px) {
+  .tw-sidebar { display:none; }
+  nav { padding:0 16px; }
+  .page-wrap { padding:20px 16px 48px; }
+  .links-cell { flex-wrap:wrap; }
+}
+@media (max-width:600px) {
+  .rating-chip, .diff-tag { display:none; }
+  th, td { padding:9px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+  <div class="nav-left">
+    <a href="profile.html" class="nav-logo">cf/tracker</a>
+    <div class="tab-switch">
+      <button class="tab-btn active" id="tabBlind"    onclick="switchTab('blind')">Blind Order</button>
+      <button class="tab-btn"        id="tabTopicWise" onclick="switchTab('topic')">Topic Wise</button>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn">☀</button>
+    <a href="profile.html" class="profile-nav-btn">
+      <div class="avatar-mini">A</div>
+      ahmedcf
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════ PANEL: BLIND ORDER ═══════════════════════ -->
+<div class="panel active" id="panelBlind">
+  <div class="page-wrap">
+
+    <div class="page-header">
+      <div class="header-top">
+        <div>
+          <div class="page-title">Blind Order Sheet</div>
+          <div class="page-subtitle">Curated Codeforces problems in recommended solve order</div>
+        </div>
+        <div class="stats-chips">
+          <div class="stat-chip"><span class="dot" style="background:var(--green)"></span>Solved <b id="bo-solved">0</b></div>
+          <div class="stat-chip"><span class="dot" style="background:var(--border)"></span>Remaining <b id="bo-remain">0</b></div>
+          <div class="stat-chip"><span class="dot" style="background:var(--medium)"></span>Starred <b id="bo-starred">0</b></div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Progress</span><span id="bo-prog-label">0 / 0</span></div>
+        <div class="progress-track"><div class="progress-fill" id="bo-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="filters-row">
+        <div class="search-wrap">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input type="text" class="search-input" id="bo-search" placeholder="Search problems…">
+        </div>
+        <button class="filter-btn active-filter" id="bo-fAll"      onclick="boSetFilter('all')">All</button>
+        <button class="filter-btn"               id="bo-fSolved"   onclick="boSetFilter('solved')">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>Solved
+        </button>
+        <button class="filter-btn"               id="bo-fUnsolved" onclick="boSetFilter('unsolved')">Unsolved</button>
+        <button class="filter-btn"               id="bo-fStarred"  onclick="boSetFilter('starred')">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>Starred
+        </button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th class="center" style="width:44px">Done</th>
+            <th style="width:52px">#</th>
+            <th>Problem</th>
+            <th style="width:218px">Links</th>
+            <th class="center" style="width:46px">Star</th>
+            <th class="center" style="width:82px">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="bo-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="bo-empty" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        No problems match your filter.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ PANEL: TOPIC WISE ════════════════════════ -->
+<div class="panel" id="panelTopic">
+  <div class="page-wrap" style="padding-top:24px">
+    <div class="tw-layout">
+
+      <!-- SIDEBAR -->
+      <aside class="tw-sidebar">
+        <div class="sidebar-title">Filter by Tag</div>
+        <div class="sidebar-search-wrap">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input class="sidebar-search" id="tw-tagSearch" placeholder="Search tags…">
+        </div>
+        <button class="clear-tag-btn" onclick="twClearTag()">✕ Clear filter</button>
+        <div class="tag-list" id="tw-tagList"></div>
+      </aside>
+
+      <!-- CONTENT -->
+      <div class="tw-content">
+        <div class="page-header">
+          <div class="header-top">
+            <div>
+              <div class="page-title">Topic Wise Sheet</div>
+              <div class="page-subtitle">Browse and filter problems by topic tag</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span class="sync-dot">Synced with Blind Order</span>
+              <div class="stats-chips">
+                <div class="stat-chip"><span class="dot" style="background:var(--green)"></span>Solved <b id="tw-solved">0</b></div>
+                <div class="stat-chip"><span class="dot" style="background:var(--border)"></span>Total <b id="tw-total">0</b></div>
+                <div class="stat-chip"><span class="dot" style="background:var(--medium)"></span>Starred <b id="tw-starred">0</b></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="active-tag-banner" id="tw-tagBanner">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h10l2 4-2 4H2l2-4-2-4z"/></svg>
+            Showing: <strong id="tw-tagLabel"></strong>
+            <button class="clear-banner-btn" onclick="twClearTag()">×</button>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Progress</span><span id="tw-prog-label">0 / 0</span></div>
+            <div class="progress-track"><div class="progress-fill" id="tw-prog-fill" style="width:0%"></div></div>
+          </div>
+
+          <div class="filters-row">
+            <div class="search-wrap">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+              <input type="text" class="search-input" id="tw-search" placeholder="Search problems or tags…">
+            </div>
+            <button class="filter-btn active-filter" id="tw-fAll"      onclick="twSetFilter('all')">All</button>
+            <button class="filter-btn"               id="tw-fSolved"   onclick="twSetFilter('solved')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>Solved
+            </button>
+            <button class="filter-btn"               id="tw-fUnsolved" onclick="twSetFilter('unsolved')">Unsolved</button>
+            <button class="filter-btn"               id="tw-fStarred"  onclick="twSetFilter('starred')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>Starred
+            </button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th class="center" style="width:44px">Done</th>
+                <th style="width:64px">No.</th>
+                <th>Problem</th>
+                <th style="width:96px">Link</th>
+                <th>Tags</th>
+                <th class="center" style="width:46px">Star</th>
+                <th class="center" style="width:82px">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="tw-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="tw-empty" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            No problems match your filter.
+            <p>Try a different tag or search term.</p>
+          </div>
+        </div>
+      </div><!-- /.tw-content -->
+    </div><!-- /.tw-layout -->
+  </div>
+</div>
+
+<!-- ═══════════════════ SHARED MODAL ════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Problem Notes</div>
+        <div class="modal-subtitle" id="modalSubtitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="modal-divider"></div>
+    <textarea class="note-textarea" id="noteTextarea" placeholder="Write your notes, approach, or key observations…&#10;&#10;e.g. Use BFS with visited set. Watch for edge cases where n=0."></textarea>
+    <div class="modal-hint">Ctrl+Enter to save · Esc to close</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNote()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+        Save Note
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+  <span id="toastMsg">Saved</span>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   SHARED PROBLEM DATA
+   IDs are consistent across both sheets — the same ID refers to
+   the same problem. In Django this comes from the DB/template.
+   ════════════════════════════════════════════════════════════════ */
+const BLIND_PROBLEMS = [
+  { id:1,  title:"Watermelon",                       rating:800,  diff:"easy",   code:"4A",    cfId:"4/problem/A"    },
+  { id:2,  title:"Theatre Square",                   rating:1000, diff:"easy",   code:"1A",    cfId:"1/problem/A"    },
+  { id:3,  title:"Stones on the Table",              rating:900,  diff:"easy",   code:"45A",   cfId:"45/problem/A"   },
+  { id:4,  title:"Helpful Maths",                    rating:900,  diff:"easy",   code:"339A",  cfId:"339/problem/A"  },
+  { id:5,  title:"Nearly Lucky Number",              rating:900,  diff:"easy",   code:"121A",  cfId:"121/problem/A"  },
+  { id:6,  title:"Queue at the School",              rating:1000, diff:"easy",   code:"31A",   cfId:"31/problem/A"   },
+  { id:7,  title:"Way Too Long Words",               rating:1000, diff:"easy",   code:"71A",   cfId:"71/problem/A"   },
+  { id:8,  title:"Football Kit",                     rating:1000, diff:"easy",   code:"96A",   cfId:"96/problem/A"   },
+  { id:9,  title:"Bit++",                            rating:1000, diff:"easy",   code:"282A",  cfId:"282/problem/A"  },
+  { id:10, title:"Choosing Teams",                   rating:1000, diff:"easy",   code:"432A",  cfId:"432/problem/A"  },
+  { id:11, title:"Next Round",                       rating:1000, diff:"easy",   code:"458A",  cfId:"458/problem/A"  },
+  { id:12, title:"Even Odds",                        rating:1100, diff:"easy",   code:"879A",  cfId:"879/problem/A"  },
+  { id:13, title:"Boy or Girl",                      rating:1100, diff:"easy",   code:"236A",  cfId:"236/problem/A"  },
+  { id:14, title:"Young Physicist",                  rating:1000, diff:"easy",   code:"69A",   cfId:"69/problem/A"   },
+  { id:15, title:"Ultra-Fast Mathematician",         rating:1000, diff:"easy",   code:"61A",   cfId:"61/problem/A"   },
+  { id:16, title:"Die Roll",                         rating:1000, diff:"easy",   code:"3A",    cfId:"3/problem/A"    },
+  { id:17, title:"Divisibility Problem",             rating:1000, diff:"easy",   code:"1328A", cfId:"1328/problem/A" },
+  { id:18, title:"Anton and Danik",                  rating:1100, diff:"easy",   code:"734A",  cfId:"734/problem/A"  },
+  { id:19, title:"Maximize the Last",                rating:1200, diff:"medium", code:"1602A", cfId:"1602/problem/A" },
+  { id:20, title:"Twins",                            rating:1300, diff:"medium", code:"800B",  cfId:"800/problem/B"  },
+  { id:21, title:"Dreamoon and Sums",                rating:1400, diff:"medium", code:"476C",  cfId:"476/problem/C"  },
+  { id:22, title:"Queue Reconstruction",             rating:1500, diff:"medium", code:"551E",  cfId:"551/problem/E"  },
+  { id:23, title:"Mike and Strings",                 rating:1500, diff:"medium", code:"405D",  cfId:"405/problem/D"  },
+  { id:24, title:"Dima and Anya",                    rating:1600, diff:"medium", code:"366C",  cfId:"366/problem/C"  },
+  { id:25, title:"New Year and Santa Claus",         rating:1700, diff:"hard",   code:"750E",  cfId:"750/problem/E"  },
+  { id:26, title:"Ehab and Another Construction",    rating:1900, diff:"hard",   code:"1364C", cfId:"1364/problem/C" },
+  { id:27, title:"Ants and Minimum Spanning Tree",   rating:2000, diff:"hard",   code:"1529D", cfId:"1529/problem/D" },
+  { id:28, title:"Graph Coloring",                   rating:1900, diff:"hard",   code:"662C",  cfId:"662/problem/C"  },
+  { id:29, title:"Tree with Maximum Cost",           rating:2100, diff:"hard",   code:"1092F", cfId:"1092/problem/F" },
+  { id:30, title:"Phoenix and Towers",               rating:2200, diff:"hard",   code:"1515G", cfId:"1515/problem/G" },
+];
+
+const TW_PROBLEMS = [
+  { id:1,  num:"4A",    title:"Watermelon",                  rating:800,  cfId:"4/problem/A",    tags:["adhoc","math","brute force"] },
+  { id:2,  num:"1A",    title:"Theatre Square",              rating:1000, cfId:"1/problem/A",    tags:["math"] },
+  { id:3,  num:"45A",   title:"Stones on the Table",         rating:900,  cfId:"45/problem/A",   tags:["impl","greedy","simulation"] },
+  { id:4,  num:"339A",  title:"Helpful Maths",               rating:900,  cfId:"339/problem/A",  tags:["sorting","impl","sort"] },
+  { id:5,  num:"121A",  title:"Nearly Lucky Number",         rating:900,  cfId:"121/problem/A",  tags:["math","impl"] },
+  { id:6,  num:"31A",   title:"Queue at the School",         rating:1000, cfId:"31/problem/A",   tags:["simulation","impl","string"] },
+  { id:7,  num:"71A",   title:"Way Too Long Words",          rating:1000, cfId:"71/problem/A",   tags:["strings","impl"] },
+  { id:8,  num:"96A",   title:"Football Kit",                rating:1000, cfId:"96/problem/A",   tags:["impl","sorting"] },
+  { id:9,  num:"282A",  title:"Bit++",                       rating:1000, cfId:"282/problem/A",  tags:["impl"] },
+  { id:10, num:"432A",  title:"Choosing Teams",              rating:1000, cfId:"432/problem/A",  tags:["impl","greedy"] },
+  { id:11, num:"458A",  title:"Next Round",                  rating:1000, cfId:"458/problem/A",  tags:["impl","greedy","simulation"] },
+  { id:12, num:"879A",  title:"Even Odds",                   rating:1100, cfId:"879/problem/A",  tags:["math"] },
+  { id:13, num:"236A",  title:"Boy or Girl",                 rating:1100, cfId:"236/problem/A",  tags:["impl","string","set"] },
+  { id:14, num:"69A",   title:"Young Physicist",             rating:1000, cfId:"69/problem/A",   tags:["math","impl"] },
+  { id:15, num:"61A",   title:"Ultra-Fast Mathematician",    rating:1000, cfId:"61/problem/A",   tags:["impl","bitwise","xor"] },
+  { id:16, num:"3A",    title:"Die Roll",                    rating:1000, cfId:"3/problem/A",    tags:["math","impl"] },
+  { id:17, num:"1328A", title:"Divisibility Problem",        rating:1000, cfId:"1328/problem/A", tags:["math","divisibility"] },
+  { id:18, num:"734A",  title:"Anton and Danik",             rating:1100, cfId:"734/problem/A",  tags:["impl","greedy","simulation"] },
+  { id:19, num:"1602A", title:"Maximize the Last",           rating:1200, cfId:"1602/problem/A", tags:["greedy","constructive"] },
+  { id:20, num:"800B",  title:"Twins",                       rating:1300, cfId:"800/problem/B",  tags:["greedy","sorting","binary search"] },
+  { id:21, num:"476C",  title:"Dreamoon and Sums",           rating:1400, cfId:"476/problem/C",  tags:["math","binary search","divisibility"] },
+  { id:22, num:"551E",  title:"Queue Reconstruction",        rating:1500, cfId:"551/problem/E",  tags:["binary search","dp","datastructure"] },
+  { id:23, num:"405D",  title:"Mike and Strings",            rating:1500, cfId:"405/problem/D",  tags:["strings","dp","kmp"] },
+  { id:24, num:"366C",  title:"Dima and Anya",               rating:1600, cfId:"366/problem/C",  tags:["graph","constructive","greedy"] },
+  { id:25, num:"750E",  title:"New Year and Santa Claus",    rating:1700, cfId:"750/problem/E",  tags:["dp","bitmasks","dp_bitmasks"] },
+  { id:26, num:"1364C", title:"Ehab and Another Construction",rating:1900,cfId:"1364/problem/C", tags:["xor","constructive","greedy"] },
+  { id:27, num:"1529D", title:"Ants and MST",                rating:2000, cfId:"1529/problem/D", tags:["mst","greedy","graph"] },
+  { id:28, num:"662C",  title:"Graph Coloring",              rating:1900, cfId:"662/problem/C",  tags:["dp","bitset","math"] },
+  { id:29, num:"1092F", title:"Tree with Maximum Cost",      rating:2100, cfId:"1092/problem/F", tags:["tree","dp","dp_trees"] },
+  { id:30, num:"1515G", title:"Phoenix and Towers",          rating:2200, cfId:"1515/problem/G", tags:["constructive","greedy","graph"] },
+  { id:31, num:"800B",  title:"Gosha is Hunting",            rating:1300, cfId:"800/problem/B",  tags:["binary search","dp"] },
+  { id:32, num:"1349B", title:"Orac and Medians",            rating:1800, cfId:"1349/problem/B", tags:["binary search","greedy","sorting"] },
+  { id:33, num:"566D",  title:"Restructuring Company",       rating:1700, cfId:"566/problem/D",  tags:["dsu","greedy","graph"] },
+  { id:34, num:"429B",  title:"Working out",                 rating:1600, cfId:"429/problem/B",  tags:["dp","2d grid","simulation"] },
+  { id:35, num:"508D",  title:"Tanya and Password",          rating:1700, cfId:"508/problem/D",  tags:["hashing","dfs","graph"] },
+  { id:36, num:"1313C", title:"Skyscrapers",                 rating:1500, cfId:"1313/problem/C", tags:["stack","dp","greedy"] },
+  { id:37, num:"295B",  title:"Greg and Graph",              rating:1700, cfId:"295/problem/B",  tags:["graph","floyd","shortest path"] },
+  { id:38, num:"940E",  title:"Ternary String",              rating:1900, cfId:"940/problem/E",  tags:["strings","hashing","binary search"] },
+  { id:39, num:"1043F", title:"Make It One",                 rating:2400, cfId:"1043/problem/F", tags:["dp","number theory","inclusion-exclusion"] },
+  { id:40, num:"1175E", title:"Minimal Segment Cover",       rating:1800, cfId:"1175/problem/E", tags:["binary search","greedy","prefix sum"] },
+];
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED STATE  —  single source of truth for both sheets
+   In Django: replace localStorage ops with fetch() API calls
+   POST /api/toggle-solved/<id>/
+   POST /api/toggle-star/<id>/
+   POST /api/note/<id>/
+   ════════════════════════════════════════════════════════════════ */
+const SK = { solved:'cft_solved', starred:'cft_starred', notes:'cft_notes' };
+
+function loadState() {
+  try {
+    return {
+      solved:  new Set(JSON.parse(localStorage.getItem(SK.solved)  || '[1,2,3,4,5,6,7]')),
+      starred: new Set(JSON.parse(localStorage.getItem(SK.starred) || '[3,8,15]')),
+      notes:   JSON.parse(localStorage.getItem(SK.notes)           || '{"3":"Use BFS. Watch edge case n=0.","15":"XOR trick — account for carry."}'),
+    };
+  } catch { return { solved:new Set([1,2,3,4,5,6,7]), starred:new Set([3,8,15]), notes:{} }; }
+}
+function persist() {
+  localStorage.setItem(SK.solved,  JSON.stringify([...S.solved]));
+  localStorage.setItem(SK.starred, JSON.stringify([...S.starred]));
+  localStorage.setItem(SK.notes,   JSON.stringify(S.notes));
+}
+
+const S = {
+  ...loadState(),
+  // Blind Order UI state
+  boFilter: 'all', boSearch: '',
+  // Topic Wise UI state
+  twFilter: 'all', twSearch: '', twTag: null,
+  // Modal
+  activeNoteId: null,
+};
+
+/* ════════════════════════════════════════════════════════════════
+   TOGGLE ACTIONS — update state, persist, re-render both sheets
+   ════════════════════════════════════════════════════════════════ */
+function toggleSolved(id) {
+  S.solved.has(id) ? S.solved.delete(id) : S.solved.add(id);
+  persist();
+  boRender(); twRender();
+  showToast(S.solved.has(id) ? '✓ Marked as solved' : 'Marked as unsolved');
+}
+function toggleStar(id) {
+  S.starred.has(id) ? S.starred.delete(id) : S.starred.add(id);
+  persist();
+  boRender(); twRender();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BLIND ORDER RENDER
+   ════════════════════════════════════════════════════════════════ */
+function boRender() {
+  const tbody = document.getElementById('bo-tbody');
+  const empty = document.getElementById('bo-empty');
+  const q = S.boSearch.toLowerCase();
+
+  const filtered = BLIND_PROBLEMS.filter(p => {
+    if (q && !p.title.toLowerCase().includes(q) && !p.code.toLowerCase().includes(q)) return false;
+    if (S.boFilter === 'solved')   return S.solved.has(p.id);
+    if (S.boFilter === 'unsolved') return !S.solved.has(p.id);
+    if (S.boFilter === 'starred')  return S.starred.has(p.id);
+    return true;
+  });
+
+  tbody.innerHTML = '';
+  empty.style.display = filtered.length === 0 ? 'block' : 'none';
+
+  filtered.forEach(p => {
+    const solved  = S.solved.has(p.id);
+    const starred = S.starred.has(p.id);
+    const hasNote = !!S.notes[p.id];
+    const cfLink  = `https://codeforces.com/problemset/problem/${p.cfId}`;
+
+    const tr = document.createElement('tr');
+    if (solved) tr.classList.add('solved');
+    tr.innerHTML = `
+      <td class="center"><div class="cb-wrap"><input type="checkbox" class="cb" data-id="${p.id}" ${solved?'checked':''}></div></td>
+      <td><span class="serial">${String(p.id).padStart(2,'0')}</span></td>
+      <td>
+        <div class="q-title">
+          <span class="q-name">${p.title}</span>
+          <span class="diff-tag ${p.diff}">${p.diff}</span>
+          <span class="rating-chip">${p.rating}</span>
+        </div>
+      </td>
+      <td>
+        <div class="links-cell">
+          <a href="${cfLink}" target="_blank" class="link-btn solve">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>Solve
+          </a>
+          <a href="#" class="link-btn solution" onclick="return false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5L10 10"/></svg>Solution
+          </a>
+        </div>
+      </td>
+      <td class="center">
+        <button class="star-btn ${starred?'starred':''}" data-id="${p.id}">
+          <svg viewBox="0 0 16 16" fill="${starred?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+        </button>
+      </td>
+      <td class="center">
+        <button class="notes-btn ${hasNote?'has-note':''}" data-id="${p.id}" data-title="${p.title}">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v8H8l-3 2V3z"/></svg>
+          ${hasNote?'View':'Add'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('.cb').forEach(cb => cb.addEventListener('change', () => toggleSolved(+cb.dataset.id)));
+  tbody.querySelectorAll('.star-btn').forEach(b => b.addEventListener('click', () => toggleStar(+b.dataset.id)));
+  tbody.querySelectorAll('.notes-btn').forEach(b => b.addEventListener('click', () => openModal(+b.dataset.id, b.dataset.title)));
+
+  boUpdateStats();
+}
+
+function boUpdateStats() {
+  const total  = BLIND_PROBLEMS.length;
+  const solved = [...S.solved].filter(id => BLIND_PROBLEMS.find(p=>p.id===id)).length;
+  const starred= [...S.starred].filter(id => BLIND_PROBLEMS.find(p=>p.id===id)).length;
+  document.getElementById('bo-solved').textContent  = solved;
+  document.getElementById('bo-remain').textContent  = total - solved;
+  document.getElementById('bo-starred').textContent = starred;
+  document.getElementById('bo-prog-label').textContent = `${solved} / ${total}`;
+  document.getElementById('bo-prog-fill').style.width  = `${(solved/total*100).toFixed(1)}%`;
+}
+
+function boSetFilter(f) {
+  S.boFilter = f;
+  ['bo-fAll','bo-fSolved','bo-fUnsolved','bo-fStarred'].forEach(id => document.getElementById(id).classList.remove('active-filter'));
+  ({ all:'bo-fAll', solved:'bo-fSolved', unsolved:'bo-fUnsolved', starred:'bo-fStarred' })[f];
+  document.getElementById({all:'bo-fAll',solved:'bo-fSolved',unsolved:'bo-fUnsolved',starred:'bo-fStarred'}[f]).classList.add('active-filter');
+  boRender();
+}
+document.getElementById('bo-search').addEventListener('input', e => { S.boSearch = e.target.value; boRender(); });
+
+/* ════════════════════════════════════════════════════════════════
+   TOPIC WISE RENDER
+   ════════════════════════════════════════════════════════════════ */
+
+// Build tag map
+const TAG_MAP = {};
+TW_PROBLEMS.forEach(p => p.tags.forEach(t => { if(!TAG_MAP[t]) TAG_MAP[t]=[]; TAG_MAP[t].push(p.id); }));
+const ALL_TAGS = Object.keys(TAG_MAP).sort();
+
+function twBuildSidebar(q='') {
+  const list = document.getElementById('tw-tagList');
+  list.innerHTML = '';
+  ALL_TAGS.filter(t => !q || t.includes(q.toLowerCase())).forEach(tag => {
+    const div = document.createElement('div');
+    div.className = 'tag-item' + (S.twTag === tag ? ' active' : '');
+    div.innerHTML = `<span>${tag}</span><span class="tag-count">${TAG_MAP[tag].length}</span>`;
+    div.onclick = () => twSetTag(tag);
+    list.appendChild(div);
+  });
+}
+
+function twSetTag(tag) {
+  S.twTag = S.twTag === tag ? null : tag;
+  twBuildSidebar(document.getElementById('tw-tagSearch').value);
+  const banner = document.getElementById('tw-tagBanner');
+  if (S.twTag) { banner.classList.add('show'); document.getElementById('tw-tagLabel').textContent = S.twTag; }
+  else banner.classList.remove('show');
+  twRender();
+}
+
+function twClearTag() {
+  S.twTag = null;
+  twBuildSidebar(document.getElementById('tw-tagSearch').value);
+  document.getElementById('tw-tagBanner').classList.remove('show');
+  twRender();
+}
+
+document.getElementById('tw-tagSearch').addEventListener('input', e => twBuildSidebar(e.target.value));
+
+function twRender() {
+  const tbody = document.getElementById('tw-tbody');
+  const empty = document.getElementById('tw-empty');
+  const q = S.twSearch.toLowerCase();
+
+  const filtered = TW_PROBLEMS.filter(p => {
+    if (S.twTag && !p.tags.includes(S.twTag)) return false;
+    if (q && !p.title.toLowerCase().includes(q) && !p.num.toLowerCase().includes(q) && !p.tags.some(t=>t.includes(q))) return false;
+    if (S.twFilter === 'solved')   return S.solved.has(p.id);
+    if (S.twFilter === 'unsolved') return !S.solved.has(p.id);
+    if (S.twFilter === 'starred')  return S.starred.has(p.id);
+    return true;
+  });
+
+  tbody.innerHTML = '';
+  empty.style.display = filtered.length === 0 ? 'block' : 'none';
+
+  filtered.forEach(p => {
+    const solved  = S.solved.has(p.id);
+    const starred = S.starred.has(p.id);
+    const hasNote = !!S.notes[p.id];
+    const cfLink  = `https://codeforces.com/problemset/problem/${p.cfId}`;
+    const pills = p.tags.slice(0,4).map(t =>
+      `<span class="tag-pill${S.twTag===t?' active-tag':''}" onclick="twSetTag('${t}')">${t}</span>`
+    ).join('') + (p.tags.length>4 ? `<span class="tag-more">+${p.tags.length-4}</span>` : '');
+
+    const tr = document.createElement('tr');
+    if (solved) tr.classList.add('solved');
+    tr.innerHTML = `
+      <td class="center"><div class="cb-wrap"><input type="checkbox" class="cb" data-id="${p.id}" ${solved?'checked':''}></div></td>
+      <td><span class="serial">${p.num}</span></td>
+      <td>
+        <div class="q-title">
+          <span class="q-name">${p.title}</span>
+          <span class="rating-chip">${p.rating}</span>
+        </div>
+      </td>
+      <td>
+        <a href="${cfLink}" target="_blank" class="link-btn solve">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>Solve
+        </a>
+      </td>
+      <td><div class="tags-cell">${pills}</div></td>
+      <td class="center">
+        <button class="star-btn ${starred?'starred':''}" data-id="${p.id}">
+          <svg viewBox="0 0 16 16" fill="${starred?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+        </button>
+      </td>
+      <td class="center">
+        <button class="notes-btn ${hasNote?'has-note':''}" data-id="${p.id}" data-title="${p.title}">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v8H8l-3 2V3z"/></svg>
+          ${hasNote?'View':'Add'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('.cb').forEach(cb => cb.addEventListener('change', () => toggleSolved(+cb.dataset.id)));
+  tbody.querySelectorAll('.star-btn').forEach(b => b.addEventListener('click', () => toggleStar(+b.dataset.id)));
+  tbody.querySelectorAll('.notes-btn').forEach(b => b.addEventListener('click', () => openModal(+b.dataset.id, b.dataset.title)));
+
+  twUpdateStats();
+}
+
+function twUpdateStats() {
+  const total  = TW_PROBLEMS.length;
+  const solved = [...S.solved].filter(id => TW_PROBLEMS.find(p=>p.id===id)).length;
+  const starred= [...S.starred].filter(id => TW_PROBLEMS.find(p=>p.id===id)).length;
+  document.getElementById('tw-solved').textContent  = solved;
+  document.getElementById('tw-total').textContent   = total;
+  document.getElementById('tw-starred').textContent = starred;
+  document.getElementById('tw-prog-label').textContent = `${solved} / ${total}`;
+  document.getElementById('tw-prog-fill').style.width  = `${(solved/total*100).toFixed(1)}%`;
+}
+
+function twSetFilter(f) {
+  S.twFilter = f;
+  ['tw-fAll','tw-fSolved','tw-fUnsolved','tw-fStarred'].forEach(id => document.getElementById(id).classList.remove('active-filter'));
+  document.getElementById({all:'tw-fAll',solved:'tw-fSolved',unsolved:'tw-fUnsolved',starred:'tw-fStarred'}[f]).classList.add('active-filter');
+  twRender();
+}
+document.getElementById('tw-search').addEventListener('input', e => { S.twSearch = e.target.value; twRender(); });
+
+/* ════════════════════════════════════════════════════════════════
+   TAB SWITCHING
+   ════════════════════════════════════════════════════════════════ */
+let currentTab = 'blind';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('panelBlind').classList.toggle('active', tab === 'blind');
+  document.getElementById('panelTopic').classList.toggle('active', tab === 'topic');
+  document.getElementById('tabBlind').classList.toggle('active',    tab === 'blind');
+  document.getElementById('tabTopicWise').classList.toggle('active', tab === 'topic');
+  // Re-render active panel to pick up any state changes
+  if (tab === 'blind') boRender();
+  else twRender();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED NOTES MODAL
+   ════════════════════════════════════════════════════════════════ */
+function openModal(id, title) {
+  S.activeNoteId = id;
+  const p = TW_PROBLEMS.find(p=>p.id===id) || BLIND_PROBLEMS.find(p=>p.id===id);
+  const num = p?.num || p?.code || `#${id}`;
+  document.getElementById('modalSubtitle').textContent = `${num} · ${title}`;
+  document.getElementById('noteTextarea').value = S.notes[id] || '';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('noteTextarea').focus(), 250);
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  S.activeNoteId = null;
+}
+function saveNote() {
+  const id  = S.activeNoteId;
+  const val = document.getElementById('noteTextarea').value.trim();
+  if (val) S.notes[id] = val; else delete S.notes[id];
+  persist();
+  closeModal();
+  boRender(); twRender();
+  showToast('Note saved');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey||e.metaKey) && e.key === 'Enter' && S.activeNoteId !== null) saveNote();
+});
+
+/* ════════════════════════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   THEME
+   ════════════════════════════════════════════════════════════════ */
+document.getElementById('themeBtn').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  this.textContent = dark ? '☀' : '☽';
+});
+
+/* ════════════════════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════════════════════ */
+twBuildSidebar();
+boRender();
+twRender();
+</script>
+</body>
+</html>

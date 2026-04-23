@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CF Tracker — Recommendations</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════ TOKENS ═══════════════ */
+:root {
+  --bg:          #f5f5f0;
+  --surface:     #ffffff;
+  --surface2:    #f0ede8;
+  --surface3:    #e8e4de;
+  --border:      #e2ddd8;
+  --text:        #1a1a1a;
+  --text-muted:  #7a7570;
+  --accent:      #e8531e;
+  --accent-soft: #fdf0eb;
+  --blue:        #3b6ef0;
+  --blue-soft:   #eff3fe;
+  --green:       #22c55e;
+  --green-soft:  #f0fdf4;
+  --green-border:#bbf7d0;
+  --medium:      #f59e0b;
+  --medium-soft: #fffbeb;
+  --hard:        #ef4444;
+  --hard-soft:   #fef2f2;
+  --purple:      #8b5cf6;
+  --purple-soft: #f5f3ff;
+  --shadow:      0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.06);
+  --radius:      14px;
+}
+[data-theme="dark"] {
+  --bg:          #121212;
+  --surface:     #1e1e1e;
+  --surface2:    #2a2a2a;
+  --surface3:    #333;
+  --border:      #333;
+  --text:        #f0ede8;
+  --text-muted:  #888;
+  --accent:      #ff6b35;
+  --accent-soft: #2a1a12;
+  --blue-soft:   #0f1a3a;
+  --green-soft:  #0d1f14;
+  --green-border:#166534;
+  --medium-soft: #1c1208;
+  --hard-soft:   #1c0808;
+  --purple-soft: #1a1030;
+  --shadow:      0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.4), 0 16px 40px rgba(0,0,0,0.3);
+}
+
+/* ═══════════════ RESET ══════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background .3s, color .3s;
+}
+
+/* ═══════════════ NAV ════════════════ */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  height: 58px; padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow);
+}
+.nav-left  { display: flex; align-items: center; gap: 6px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+.nav-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 500;
+  color: var(--accent); letter-spacing: -.5px;
+  text-decoration: none; margin-right: 14px;
+}
+.nav-link {
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13.5px; font-weight: 500;
+  color: var(--text-muted); text-decoration: none; transition: all .2s;
+}
+.nav-link:hover { background: var(--surface2); color: var(--text); }
+.nav-link.active {
+  background: var(--accent-soft); color: var(--accent);
+}
+.theme-btn {
+  width: 36px; height: 36px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--surface2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--text); transition: all .2s;
+}
+.theme-btn:hover { background: var(--border); }
+.profile-nav-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 6px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface2);
+  font-size: 13px; font-weight: 500;
+  text-decoration: none; color: var(--text); transition: all .2s;
+}
+.profile-nav-btn:hover { background: var(--border); }
+.avatar-mini {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(135deg, #e8531e, #f0a020);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white;
+}
+
+/* ═══════════════ PAGE LAYOUT ════════ */
+.page-wrap {
+  max-width: 1060px; margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.fade-up { animation: fadeUp .4s ease both; }
+.fade-up-1 { animation: fadeUp .4s .06s ease both; }
+.fade-up-2 { animation: fadeUp .4s .12s ease both; }
+.fade-up-3 { animation: fadeUp .4s .18s ease both; }
+
+/* ═══════════════ PAGE HEADER ════════ */
+.page-header { margin-bottom: 28px; }
+.header-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px; margin-bottom: 8px;
+}
+.page-title { font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
+.page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+.sync-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.sync-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-muted);
+}
+.sync-badge::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 25%, transparent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
+
+.refresh-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--surface);
+  font-family: 'Sora', sans-serif; font-size: 12.5px; font-weight: 500;
+  color: var(--text-muted); cursor: pointer; transition: all .2s;
+}
+.refresh-btn:hover { background: var(--surface2); color: var(--text); }
+.refresh-btn svg { width: 13px; height: 13px; transition: transform .5s; }
+.refresh-btn.spinning svg { animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════ SKILL SNAPSHOT ═════ */
+.skill-snapshot {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.snapshot-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.snapshot-title {
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+}
+.snapshot-title svg { width: 14px; height: 14px; color: var(--accent); }
+.snapshot-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.skill-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.skill-item { }
+.skill-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; margin-bottom: 5px;
+}
+.skill-name { color: var(--text-muted); font-weight: 500; }
+.skill-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.skill-pct.strong { color: var(--green); }
+.skill-pct.mid    { color: var(--medium); }
+.skill-pct.weak   { color: var(--hard); }
+.skill-bar {
+  height: 4px; background: var(--surface2);
+  border-radius: 99px; overflow: hidden;
+}
+.skill-fill {
+  height: 100%; border-radius: 99px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.skill-fill.strong { background: linear-gradient(90deg, var(--green), #16a34a); }
+.skill-fill.mid    { background: linear-gradient(90deg, var(--medium), #d97706); }
+.skill-fill.weak   { background: linear-gradient(90deg, var(--hard), #dc2626); }
+
+.gap-alert {
+  margin-top: 16px; padding: 11px 16px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: 9px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+}
+.gap-alert svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
+.gap-alert strong { color: var(--accent); }
+
+/* ═══════════════ SECTION HEADER ═════ */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.section-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .8px;
+  color: var(--text-muted);
+  display: flex; align-items: center; gap: 7px;
+}
+.section-label svg { width: 13px; height: 13px; }
+.section-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-muted);
+  background: var(--surface2); padding: 2px 8px;
+  border-radius: 5px;
+}
+
+/* ═══════════════ BRIDGE STRIP ════════ */
+.bridge-strip {
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.bridge-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.bridge-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent); color: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.bridge-icon svg { width: 15px; height: 15px; }
+.bridge-title { font-size: 14px; font-weight: 700; }
+.bridge-desc  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.bridge-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.bridge-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px;
+  position: relative; transition: all .2s; cursor: pointer;
+}
+.bridge-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), var(--shadow);
+  transform: translateY(-2px);
+}
+.bridge-card-num {
+  position: absolute; top: 12px; right: 12px;
+  width: 20px; height: 20px; border-radius: 5px;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.bridge-card-type {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .6px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 5px;
+}
+.bridge-card-type.warmup  { color: var(--green); }
+.bridge-card-type.bridge  { color: var(--accent); }
+.bridge-card-type.stretch { color: var(--purple); }
+.bridge-card-type svg { width: 11px; height: 11px; }
+
+.bridge-card-name {
+  font-size: 13.5px; font-weight: 600; margin-bottom: 6px;
+  padding-right: 24px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bridge-card-meta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.rating-chip {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  padding: 2px 7px; border-radius: 5px;
+  background: var(--surface2); color: var(--text-muted);
+}
+.tag-chip {
+  font-size: 10.5px; padding: 2px 7px; border-radius: 5px;
+  background: var(--surface2); color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.tag-chip.highlight {
+  background: var(--accent-soft); color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.bridge-card-why {
+  font-size: 11.5px; color: var(--text-muted);
+  line-height: 1.55; margin-bottom: 12px;
+}
+.bridge-card-why b { color: var(--text); font-weight: 500; }
+.solve-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px;
+  font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600;
+  text-decoration: none; transition: all .18s;
+  border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+  color: var(--blue); background: var(--blue-soft);
+}
+.solve-btn:hover { filter: brightness(.95); transform: translateY(-1px); }
+.solve-btn svg { width: 11px; height: 11px; }
+
+/* ═══════════════ RECOMMENDATION GRID ═ */
+.rec-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 24px;
+}
+
+/* ═══════════════ REC CARD ══════════ */
+.rec-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  box-shadow: var(--shadow); transition: all .22s; cursor: pointer;
+  position: relative;
+}
+.rec-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), var(--shadow-md);
+  transform: translateY(-2px);
+}
+.rec-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px; margin-bottom: 10px;
+}
+.rec-card-left { flex: 1; min-width: 0; }
+.rec-reason {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .6px; margin-bottom: 7px;
+  display: flex; align-items: center; gap: 5px;
+}
+.rec-reason svg { width: 11px; height: 11px; }
+.rec-reason.gap     { color: var(--hard); }
+.rec-reason.rated   { color: var(--blue); }
+.rec-reason.tag     { color: var(--purple); }
+.rec-reason.similar { color: var(--medium); }
+.rec-reason.attempt { color: var(--accent); }
+
+.rec-name {
+  font-size: 15px; font-weight: 600; letter-spacing: -.2px;
+  margin-bottom: 8px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rec-meta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.diff-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 5px; letter-spacing: .3px;
+}
+.diff-tag.easy   { background: #dcfce7; color: #15803d; }
+.diff-tag.medium { background: #fef9c3; color: #854d0e; }
+.diff-tag.hard   { background: #fee2e2; color: #991b1b; }
+[data-theme="dark"] .diff-tag.easy   { background: #14532d; color: #4ade80; }
+[data-theme="dark"] .diff-tag.medium { background: #422006; color: #fbbf24; }
+[data-theme="dark"] .diff-tag.hard   { background: #450a0a; color: #f87171; }
+
+.rec-card-right {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 8px; flex-shrink: 0;
+}
+.rec-rating {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px; font-weight: 700; line-height: 1;
+}
+.rec-rating.easy   { color: var(--green); }
+.rec-rating.medium { color: var(--medium); }
+.rec-rating.hard   { color: var(--hard); }
+
+.similarity-score {
+  font-size: 10.5px; color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface2); padding: 2px 8px; border-radius: 5px;
+}
+
+.rec-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.rec-why {
+  font-size: 12.5px; color: var(--text-muted);
+  line-height: 1.6; margin-bottom: 14px;
+  padding: 10px 12px; border-radius: 8px;
+  background: var(--surface2);
+  border-left: 3px solid var(--border);
+}
+.rec-why.gap-why     { border-left-color: var(--hard); }
+.rec-why.rated-why   { border-left-color: var(--blue); }
+.rec-why.tag-why     { border-left-color: var(--purple); }
+.rec-why.similar-why { border-left-color: var(--medium); }
+.rec-why.attempt-why { border-left-color: var(--accent); }
+.rec-why b { color: var(--text); font-weight: 500; }
+
+.rec-card-actions { display: flex; align-items: center; gap: 8px; }
+.star-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: 7px; cursor: pointer; padding: 6px 8px;
+  display: flex; align-items: center;
+  color: var(--text-muted); transition: all .15s;
+}
+.star-btn:hover { background: var(--surface2); color: var(--medium); }
+.star-btn.starred { color: var(--medium); border-color: var(--medium); }
+.star-btn svg { width: 13px; height: 13px; }
+
+/* ═══════════════ SECTION: RETRY ═════ */
+.retry-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+.retry-row {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow); transition: all .2s; cursor: pointer;
+}
+.retry-row:hover { border-color: var(--accent); transform: translateX(3px); }
+.retry-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+.retry-badge.wa  { background: #fee2e2; color: #991b1b; }
+.retry-badge.tle { background: #fef9c3; color: #854d0e; }
+[data-theme="dark"] .retry-badge.wa  { background: #450a0a; color: #f87171; }
+[data-theme="dark"] .retry-badge.tle { background: #422006; color: #fbbf24; }
+.retry-name { flex: 1; font-size: 13.5px; font-weight: 600; }
+.retry-meta { display: flex; gap: 6px; align-items: center; }
+.retry-count { font-size: 12px; color: var(--text-muted); }
+.retry-days  {
+  font-size: 11.5px; color: var(--text-muted);
+  background: var(--surface2); padding: 2px 8px;
+  border-radius: 5px; font-family: 'JetBrains Mono', monospace;
+}
+
+/* ═══════════════ SPACED REP SECTION ═ */
+.spaced-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+.spaced-row {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow); transition: all .2s; cursor: pointer;
+}
+.spaced-row:hover { border-color: var(--purple); transform: translateX(3px); }
+.spaced-ago {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; padding: 3px 8px; border-radius: 5px;
+  background: var(--purple-soft); color: var(--purple);
+  flex-shrink: 0; font-weight: 700;
+}
+.spaced-name { flex: 1; font-size: 13.5px; font-weight: 600; }
+.spaced-heat {
+  font-size: 11.5px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.heat-bar {
+  display: flex; gap: 2px;
+}
+.heat-cell {
+  width: 8px; height: 8px; border-radius: 2px;
+  background: var(--surface2);
+}
+.heat-cell.h { background: var(--purple); }
+
+/* ═══════════════ RATING TARGET ══════ */
+.target-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px;
+  box-shadow: var(--shadow); margin-bottom: 24px;
+}
+.target-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.target-label {
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+}
+.target-label svg { width: 14px; height: 14px; color: var(--blue); }
+.target-progress {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.target-nums {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--text-muted); flex-shrink: 0;
+}
+.target-nums b { color: var(--blue); }
+.target-track {
+  flex: 1; height: 6px; background: var(--surface2);
+  border-radius: 99px; overflow: hidden;
+}
+.target-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--blue), #60a5fa);
+  transition: width .7s cubic-bezier(.4,0,.2,1);
+}
+.target-problems { display: flex; flex-direction: column; gap: 7px; }
+.target-prob-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+}
+.target-prob-num {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--blue-soft); color: var(--blue);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.target-prob-name { flex: 1; font-weight: 500; }
+.target-prob-why { font-size: 12px; color: var(--text-muted); }
+
+/* ═══════════════ EMPTY ═════════════ */
+.empty-box {
+  text-align: center; padding: 40px 24px;
+  color: var(--text-muted); font-size: 13.5px;
+}
+.empty-box svg { width: 36px; height: 36px; margin: 0 auto 12px; display: block; opacity: .3; }
+
+/* ═══════════════ TOAST ═════════════ */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--text); color: var(--bg);
+  padding: 11px 16px; border-radius: 10px;
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  transform: translateY(16px); opacity: 0;
+  transition: all .28s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast svg { width: 14px; height: 14px; color: var(--green); }
+
+/* ═══════════════ RESPONSIVE ═════════ */
+@media (max-width: 860px) {
+  .rec-grid { grid-template-columns: 1fr; }
+  .bridge-cards { grid-template-columns: 1fr; }
+  .skill-grid { grid-template-columns: repeat(2, 1fr); }
+  nav { padding: 0 16px; }
+  .page-wrap { padding: 20px 16px 60px; }
+}
+@media (max-width: 500px) {
+  .skill-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="profile.html" class="nav-logo">NxtUp</a>
+    <a href="recommendations.html" class="nav-link">Recommendations</a>
+    <a href="blind_order.html" class="nav-link">Blind Order</a>
+    <a href="topicwise.html" class="nav-link">Topic Wise</a>
+    <!-- Here nav-link Active gives the sections it orange glow -->
+    <a href="notes.html" class="nav-link">Notes</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn">☀</button>
+    <a href="profile.html" class="profile-nav-btn">
+      <div class="avatar-mini">A</div>
+      amitk
+    </a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header fade-up">
+    <div class="header-row">
+      <div>
+        <div class="page-title">Recommendations</div>
+        <div class="page-subtitle">Personalized problems based on your skill gap, history and rating target</div>
+      </div>
+      <div class="sync-row">
+        <span class="sync-badge">Live · Synced with CF</span>
+        <button class="refresh-btn" id="refreshBtn" onclick="triggerRefresh()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 4.2 1.7M14 8a6 6 0 0 1-6 6 6 6 0 0 1-4.2-1.7"/><path d="M12 2v4h-4M4 14v-4h4"/></svg>
+          Re-analyze
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILL SNAPSHOT -->
+  <div class="skill-snapshot fade-up-1">
+    <div class="snapshot-header">
+      <div>
+        <div class="snapshot-title">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L6 8l3 3 5-7"/></svg>
+          Your Skill Map
+        </div>
+        <div class="snapshot-subtitle">Based on {{no_of_submissions_analysed}} submissions · last synced {{last_synced_hours}} hrs ago</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">Success rate per tag</div>
+    </div>
+    <div class="skill-grid">
+
+      {% for tags in tags_accuracy %}
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">{{ tags.Tag}}</span>
+          {% if tags.Accuracy > 60 %}
+            <span class="skill-pct strong">{{ tags.Accuracy }}</span>
+            </div>
+            <div class="skill-bar"><div class="skill-fill strong" style="width: {{ tags.Accuracy }}"></div></div>
+          {% elif tags.Accuracy > 20 %}
+            <span class="skill-pct mid">{{tags.Accuracy}}</span>
+            </div>
+            <div class="skill-bar"><div class="skill-fill mid" style="width: {{ tags.Accuracy }}"></div></div>
+          {% else %}
+            <span class="skill-pct weak">{{tags.Accuracy}}</span>
+            </div>
+            <div class="skill-bar"><div class="skill-fill weak" style="width: {{ tags.Accuracy }}"></div></div>
+          {% endif %}
+      </div>
+      
+      {% endfor %}
+</div>
+    
+    <div class="gap-alert">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/><path d="M8 6v3M8 11v.5"/></svg>
+      <span>Critical gap detected: <strong>dp transitions + dp on trees</strong> — 6 WA attempts in last 14 days. Bridge curriculum generated below.</span>
+    </div>
+  </div>
+
+  <!-- BRIDGE CURRICULUM -->
+  <div class="fade-up-2">
+    <div class="section-header">
+      <div class="section-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v12M2 8h12"/></svg>
+        Bridge Curriculum
+        <span class="section-count">3 problems</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">Closes your dp transitions gap in this session</div>
+    </div>
+
+    <div class="bridge-strip">
+      <div class="bridge-header">
+        <div class="bridge-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14c0-4.4 3.6-8 8-8M14 2c0 4.4-3.6 8-8 8"/><circle cx="2" cy="14" r="1.5" fill="currentColor"/><circle cx="14" cy="2" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <div class="bridge-title">Today's Bridge — dp transitions → dp on trees</div>
+          <div class="bridge-desc">Warm up → close the gap → stretch. Complete in order for best results.</div>
+        </div>
+      </div>
+      <div class="bridge-cards">
+
+        <div class="bridge-card" onclick="openCF('476/problem/C')">
+          <div class="bridge-card-num">1</div>
+          <div class="bridge-card-type warmup">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
+            Warm-up
+          </div>
+          <div class="bridge-card-name">Dreamoon and Sums</div>
+          <div class="bridge-card-meta">
+            <span class="rating-chip">1400</span>
+            <span class="tag-chip">math</span>
+            <span class="tag-chip">binary search</span>
+          </div>
+          <div class="bridge-card-why">Gets your brain into problem mode. Math + binary search — two of your strong tags. Should be a clean solve to build momentum.</div>
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/476/C" target="_blank" onclick="e=>e.stopPropagation()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+        </div>
+
+        <div class="bridge-card" onclick="openCF('1092/problem/F')" style="border-color:color-mix(in srgb,var(--accent) 35%,transparent)">
+          <div class="bridge-card-num" style="background:var(--accent);color:white">2</div>
+          <div class="bridge-card-type bridge">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 14c0-4.4 3.6-8 8-8M14 2c0 4.4-3.6 8-8 8"/></svg>
+            Bridge
+          </div>
+          <div class="bridge-card-name">Tree with Maximum Cost</div>
+          <div class="bridge-card-meta">
+            <span class="rating-chip">1900</span>
+            <span class="tag-chip highlight">dp on trees</span>
+            <span class="tag-chip highlight">dp transitions</span>
+          </div>
+          <div class="bridge-card-why">This is your gap. Requires <b>rerooting DP</b> — the exact technique your WA history shows you're missing. Embedding similarity 0.94 to your failed problems.</div>
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/1092/F" target="_blank" onclick="e=>e.stopPropagation()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+        </div>
+
+        <div class="bridge-card" onclick="openCF('1349/problem/B')" style="border-color:color-mix(in srgb,var(--purple) 30%,transparent)">
+          <div class="bridge-card-num" style="background:var(--purple-soft);color:var(--purple)">3</div>
+          <div class="bridge-card-type stretch">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 14V2M4 10l4 4 4-4"/></svg>
+            Stretch
+          </div>
+          <div class="bridge-card-name">Orac and Medians</div>
+          <div class="bridge-card-meta">
+            <span class="rating-chip">1800</span>
+            <span class="tag-chip">greedy</span>
+            <span class="tag-chip highlight">dp transitions</span>
+          </div>
+          <div class="bridge-card-why">Combines <b>greedy with the DP insight</b> from problem 2. If you understood the bridge, this becomes tractable. Your stretch goal for the session.</div>
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/1349/B" target="_blank" onclick="e=>e.stopPropagation()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONALIZED PICKS -->
+  <div class="fade-up-2" style="transition-delay:.08s">
+    <div class="section-header">
+      <div class="section-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+        Personalized Picks
+        <span class="section-count">6 problems</span>
+      </div>
+    </div>
+    <div class="rec-grid">
+
+      <!-- Card 1: Gap fill -->
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-card-left">
+            <div class="rec-reason gap">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/><path d="M8 6v3M8 11v.5"/></svg>
+              Gap Fill · dp on trees
+            </div>
+            <div class="rec-name">Phoenix and Towers</div>
+            <div class="rec-meta">
+              <span class="diff-tag hard">Hard</span>
+              <span class="rating-chip">2200</span>
+            </div>
+          </div>
+          <div class="rec-card-right">
+            <div class="rec-rating hard">2200</div>
+            <div class="similarity-score">sim 0.91</div>
+          </div>
+        </div>
+        <div class="rec-tags">
+          <span class="tag-chip highlight">dp on trees</span>
+          <span class="tag-chip">constructive</span>
+          <span class="tag-chip">graph</span>
+        </div>
+        <div class="rec-why gap-why">Your <b>dp on trees success rate is 28%</b> — among the lowest in your history. This problem targets exactly that concept at a rating you should be able to crack.</div>
+        <div class="rec-card-actions">
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/1515/G" target="_blank">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+          <button class="star-btn" onclick="toggleStar(this)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 2: At your rating -->
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-card-left">
+            <div class="rec-reason rated">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12L6 8l3 3 5-7"/></svg>
+              At Your Rating · 1847
+            </div>
+            <div class="rec-name">Skyscrapers</div>
+            <div class="rec-meta">
+              <span class="diff-tag medium">Medium</span>
+              <span class="rating-chip">1500</span>
+            </div>
+          </div>
+          <div class="rec-card-right">
+            <div class="rec-rating medium">1500</div>
+            <div class="similarity-score">96k solves</div>
+          </div>
+        </div>
+        <div class="rec-tags">
+          <span class="tag-chip">stack</span>
+          <span class="tag-chip">dp</span>
+          <span class="tag-chip">greedy</span>
+        </div>
+        <div class="rec-why rated-why">High solve count (96k) means it's a <b>canonical problem</b> for your level. Stack + DP combination — you're solid on greedy but weak on DP transitions. Good bridge problem.</div>
+        <div class="rec-card-actions">
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/1313/C" target="_blank">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+          <button class="star-btn" onclick="toggleStar(this)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3: Tag weak -->
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-card-left">
+            <div class="rec-reason tag">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h10l2 4-2 4H2l2-4-2-4z"/></svg>
+              Weak Tag · segment tree
+            </div>
+            <div class="rec-name">Restructuring Company</div>
+            <div class="rec-meta">
+              <span class="diff-tag medium">Medium</span>
+              <span class="rating-chip">1700</span>
+            </div>
+          </div>
+          <div class="rec-card-right">
+            <div class="rec-rating medium">1700</div>
+            <div class="similarity-score">sim 0.87</div>
+          </div>
+        </div>
+        <div class="rec-tags">
+          <span class="tag-chip highlight">segment tree</span>
+          <span class="tag-chip">dsu</span>
+          <span class="tag-chip">graph</span>
+        </div>
+        <div class="rec-why tag-why">You've solved 0 segment tree problems successfully. <b>12% success rate</b> is your lowest tag. This entry-level seg tree problem is the right starting point — rated 1700, doable at your level.</div>
+        <div class="rec-card-actions">
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/566/D" target="_blank">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+          <button class="star-btn" onclick="toggleStar(this)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 4: Similar to solved -->
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-card-left">
+            <div class="rec-reason similar">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/></svg>
+              Similar to Solved · 339A
+            </div>
+            <div class="rec-name">Greg and Graph</div>
+            <div class="rec-meta">
+              <span class="diff-tag medium">Medium</span>
+              <span class="rating-chip">1700</span>
+            </div>
+          </div>
+          <div class="rec-card-right">
+            <div class="rec-rating medium">1700</div>
+            <div class="similarity-score">sim 0.89</div>
+          </div>
+        </div>
+        <div class="rec-tags">
+          <span class="tag-chip">graph</span>
+          <span class="tag-chip">floyd</span>
+          <span class="tag-chip">shortest path</span>
+        </div>
+        <div class="rec-why similar-why">Embedding similarity 0.89 to <b>Helpful Maths (339A)</b> which you solved cleanly. Same structural pattern — graph manipulation + ordering — but one difficulty step higher.</div>
+        <div class="rec-card-actions">
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/295/B" target="_blank">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+          <button class="star-btn" onclick="toggleStar(this)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 5: Ladder next -->
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-card-left">
+            <div class="rec-reason rated">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 14V8M6 14V4M10 14V6M14 14V2"/></svg>
+              Ladder Next · 1800 rung
+            </div>
+            <div class="rec-name">Ternary String</div>
+            <div class="rec-meta">
+              <span class="diff-tag hard">Hard</span>
+              <span class="rating-chip">1900</span>
+            </div>
+          </div>
+          <div class="rec-card-right">
+            <div class="rec-rating hard">1900</div>
+            <div class="similarity-score">A2OJ 1800</div>
+          </div>
+        </div>
+        <div class="rec-tags">
+          <span class="tag-chip">strings</span>
+          <span class="tag-chip">hashing</span>
+          <span class="tag-chip">binary search</span>
+        </div>
+        <div class="rec-why rated-why">Next unsolved problem on your <b>1800-rated A2OJ ladder</b>. Binary search + hashing — both reasonably strong tags for you. Natural progression from where you stopped.</div>
+        <div class="rec-card-actions">
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/940/E" target="_blank">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+          <button class="star-btn" onclick="toggleStar(this)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 6: High-value unsolved -->
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-card-left">
+            <div class="rec-reason attempt">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/><path d="M6 6.5C6 5.7 6.9 5 8 5s2 .7 2 1.5c0 1.3-2 2-2 3M8 12v.5"/></svg>
+              Attempted · WA ×4
+            </div>
+            <div class="rec-name">Minimal Segment Cover</div>
+            <div class="rec-meta">
+              <span class="diff-tag medium">Medium</span>
+              <span class="rating-chip">1800</span>
+            </div>
+          </div>
+          <div class="rec-card-right">
+            <div class="rec-rating medium">1800</div>
+            <div class="similarity-score">4 WA</div>
+          </div>
+        </div>
+        <div class="rec-tags">
+          <span class="tag-chip">binary search</span>
+          <span class="tag-chip">greedy</span>
+          <span class="tag-chip">prefix sum</span>
+        </div>
+        <div class="rec-why attempt-why">You attempted this <b>4 times without AC</b>. Your binary search is strong (68%) so the issue is likely the greedy observation. Worth a fresh look — probably one insight away.</div>
+        <div class="rec-card-actions">
+          <a class="solve-btn" href="https://codeforces.com/problemset/problem/1175/E" target="_blank">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+            Solve on CF
+          </a>
+          <button class="star-btn" onclick="toggleStar(this)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RETRY: WA/TLE PROBLEMS -->
+  <div class="fade-up-3">
+    <div class="section-header">
+      <div class="section-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 4.2 1.7M14 8a6 6 0 0 1-6 6 6 6 0 0 1-4.2-1.7"/><path d="M12 2v4h-4M4 14v-4h4"/></svg>
+        Retry These
+        <span class="section-count">5 problems</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">You've attempted but not AC'd — based on WA/TLE patterns</div>
+    </div>
+    <div class="retry-list">
+      <div class="retry-row">
+        <span class="retry-badge wa">WA ×6</span>
+        <div class="retry-name">Tree with Maximum Cost</div>
+        <div class="retry-meta">
+          <span class="tag-chip">dp on trees</span>
+          <span class="retry-days">14d ago</span>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/1092/F" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Retry
+        </a>
+      </div>
+      <div class="retry-row">
+        <span class="retry-badge wa">WA ×4</span>
+        <div class="retry-name">Minimal Segment Cover</div>
+        <div class="retry-meta">
+          <span class="tag-chip">binary search</span>
+          <span class="retry-days">7d ago</span>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/1175/E" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Retry
+        </a>
+      </div>
+      <div class="retry-row">
+        <span class="retry-badge tle">TLE ×3</span>
+        <div class="retry-name">New Year and Santa Claus</div>
+        <div class="retry-meta">
+          <span class="tag-chip">dp bitmask</span>
+          <span class="retry-days">21d ago</span>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/750/E" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Retry
+        </a>
+      </div>
+      <div class="retry-row">
+        <span class="retry-badge wa">WA ×3</span>
+        <div class="retry-name">Ants and MST</div>
+        <div class="retry-meta">
+          <span class="tag-chip">mst</span>
+          <span class="retry-days">30d ago</span>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/1529/D" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Retry
+        </a>
+      </div>
+      <div class="retry-row">
+        <span class="retry-badge tle">TLE ×2</span>
+        <div class="retry-name">Make It One</div>
+        <div class="retry-meta">
+          <span class="tag-chip">inclusion-exclusion</span>
+          <span class="retry-days">45d ago</span>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/1043/F" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Retry
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RATING TARGET PLAN -->
+  <div class="fade-up-3" style="transition-delay:.06s">
+    <div class="section-header">
+      <div class="section-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 2v1M8 13v1M2 8h1M13 8h1"/></svg>
+        1847 → 1900 Plan
+        <span class="section-count">53 rating to go</span>
+      </div>
+    </div>
+    <div class="target-section">
+      <div class="target-header">
+        <div class="target-label">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 12L6 8l3 3 5-7"/></svg>
+          Path to Expert → Candidate Master
+        </div>
+        <div style="font-size:12px;color:var(--text-muted)">Based on what blocks people at 1847</div>
+      </div>
+      <div class="target-progress">
+        <div class="target-nums"><b>1847</b> / 1900</div>
+        <div class="target-track">
+          <div class="target-fill" style="width:72%"></div>
+        </div>
+        <div class="target-nums">72%</div>
+      </div>
+      <div class="target-problems">
+        <div class="target-prob-row">
+          <div class="target-prob-num">1</div>
+          <div class="target-prob-name">Master dp on trees (rerooting technique)</div>
+          <div class="target-prob-why">Your main gap at this rating</div>
+        </div>
+        <div class="target-prob-row">
+          <div class="target-prob-num">2</div>
+          <div class="target-prob-name">Solve 3 more constructive problems 1700–1900</div>
+          <div class="target-prob-why">55% → target 70%</div>
+        </div>
+        <div class="target-prob-row">
+          <div class="target-prob-num">3</div>
+          <div class="target-prob-name">Introduction to segment trees (1700 rated)</div>
+          <div class="target-prob-why">Unlocks Div.1 C range</div>
+        </div>
+        <div class="target-prob-row">
+          <div class="target-prob-num">4</div>
+          <div class="target-prob-name">Participate in 2 more rated rounds</div>
+          <div class="target-prob-why">Performance data shows pace of +18 rating/round</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPACED REPETITION -->
+  <div class="fade-up-3" style="transition-delay:.12s">
+    <div class="section-header">
+      <div class="section-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M8 6v4M6 8h4"/></svg>
+        Spaced Repetition
+        <span class="section-count">Due for review</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">Problems you solved months ago — reinforce before you forget</div>
+    </div>
+    <div class="spaced-list">
+      <div class="spaced-row">
+        <span class="spaced-ago">94d ago</span>
+        <div class="spaced-name">Watermelon · 4A</div>
+        <div class="rec-meta" style="gap:6px">
+          <span class="tag-chip">adhoc</span>
+          <span class="tag-chip">math</span>
+        </div>
+        <div class="spaced-heat">
+          <div class="heat-bar">
+            <div class="heat-cell h"></div><div class="heat-cell h"></div>
+            <div class="heat-cell h"></div><div class="heat-cell"></div>
+            <div class="heat-cell"></div>
+          </div>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/4/A" target="_blank">Re-solve</a>
+      </div>
+      <div class="spaced-row">
+        <span class="spaced-ago">67d ago</span>
+        <div class="spaced-name">Theatre Square · 1A</div>
+        <div class="rec-meta" style="gap:6px">
+          <span class="tag-chip">math</span>
+        </div>
+        <div class="spaced-heat">
+          <div class="heat-bar">
+            <div class="heat-cell h"></div><div class="heat-cell h"></div>
+            <div class="heat-cell"></div><div class="heat-cell"></div>
+            <div class="heat-cell"></div>
+          </div>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/1/A" target="_blank">Re-solve</a>
+      </div>
+      <div class="spaced-row">
+        <span class="spaced-ago">52d ago</span>
+        <div class="spaced-name">Way Too Long Words · 71A</div>
+        <div class="rec-meta" style="gap:6px">
+          <span class="tag-chip">strings</span>
+          <span class="tag-chip">impl</span>
+        </div>
+        <div class="spaced-heat">
+          <div class="heat-bar">
+            <div class="heat-cell h"></div><div class="heat-cell h"></div>
+            <div class="heat-cell h"></div><div class="heat-cell"></div>
+            <div class="heat-cell"></div>
+          </div>
+        </div>
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/71/A" target="_blank">Re-solve</a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.page-wrap -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+/* THEME */
+document.getElementById('themeBtn').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  this.textContent = dark ? '☀' : '☽';
+});
+
+/* STAR TOGGLE */
+function toggleStar(btn) {
+  btn.classList.toggle('starred');
+  const on = btn.classList.contains('starred');
+  btn.querySelector('svg').setAttribute('fill', on ? 'currentColor' : 'none');
+  showToast(on ? '⭐ Starred' : 'Unstarred');
+}
+
+/* REFRESH */
+function triggerRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.textContent = '';
+  btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 4.2 1.7M14 8a6 6 0 0 1-6 6 6 6 0 0 1-4.2-1.7"/><path d="M12 2v4h-4M4 14v-4h4"/></svg> Analyzing…`;
+  setTimeout(() => {
+    btn.classList.remove('spinning');
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 4.2 1.7M14 8a6 6 0 0 1-6 6 6 6 0 0 1-4.2-1.7"/><path d="M12 2v4h-4M4 14v-4h4"/></svg> Re-analyze`;
+    showToast('Recommendations refreshed');
+  }, 2000);
+}
+
+/* OPEN CF */
+function openCF(path) {
+  window.open('https://codeforces.com/problemset/problem/' + path, '_blank');
+}
+
+/* TOAST */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* SKILL BAR ANIMATION */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.skill-fill').forEach(el => {
+      const w = el.style.width;
+      el.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => { el.style.width = w; }));
+    });
+  }, 200);
+});
+</script>
+</body>
+</html>
