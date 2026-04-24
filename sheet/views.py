@@ -22,6 +22,9 @@ def login(request):
 def logout(request):
     pass
 
+def profile(request):
+    return render(request, "sheet/profile.html")
+
 # correct codeforces URL -> https://codeforces.com/problemset/problem/4/A
 # TODO -> Also add activated section context when updating frontend
 
@@ -66,6 +69,18 @@ skill-pct mid = yellow
 skill-pct weak = red
 '''
 from collections import defaultdict
+
+'''
+Submission Fetched JSON Example
+{
+"name" : "Fair Coin",
+"tags" : ["Implementation", "constructive Algorithm"],
+"rating" : 1400,
+"id" : 658,
+"index" : A,
+"verdict" : OK
+}
+'''
 
 def recent_submissions(request):
     handle = request.GET.get("handle", "amit.k_52")

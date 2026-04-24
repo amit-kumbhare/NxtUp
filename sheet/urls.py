@@ -10,13 +10,14 @@ urlpatterns = [
     path("login", views.login, name="login"),
     path("logout", views.logout, name="logout"),
     path("tour", views.tour, name= "tour"),
+    path("profile/", views.profile, name= "profile"),
 
     # Problems Sheets
     path("sheet/blind_order", views.blind_order, name="blind_order"),
     path("sheet/topic_wise", views.topic_wise, name="topic_wise"),
 
     # Recommendations
-    path("sheet/recommendations", views.recommendations, name="topic_wise"),
+    path("sheet/recommendations", views.recommendations, name="recommendations"),
 
     # Notes
     path("sheet/notes", views.notes, name="notes"),
