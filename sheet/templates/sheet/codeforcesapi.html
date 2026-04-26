@@ -10,11 +10,13 @@
     
     <ul>
         {% for subs in submissions%}
-            <li>
-                <strong>{{subs.problem.name}}</strong>
-                <p>{{subs.problem.tags}}</p>
-                <p>{{subs.problem.rating}}</p>
-            </li>
+            <!-- <li>
+                <strong>{{subs.name}}</strong>
+                <p>{{subs.tags}}</p>
+                <p>{{subs.rating}}</p>
+                <p>{{subs.Timestamp}}</p>
+            </li> -->
+            {{ subs }}
         {% endfor %}
     </ul>
 </body>

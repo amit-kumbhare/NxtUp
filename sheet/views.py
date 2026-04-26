@@ -8,6 +8,7 @@ from django.contrib import messages
 import requests
 from django.http import JsonResponse
 import json
+import datetime
 
 
 
@@ -22,6 +23,20 @@ def login(request):
 def logout(request):
     pass
 
+# PROFILE NEEDS :
+'''
+Rating
+User_name
+user_handle
+Country
+Age
+College
+Bio
+
+rating
+no. of questions solved
+Current Rank
+'''
 def profile(request):
     return render(request, "sheet/profile.html")
 
@@ -46,12 +61,25 @@ def blind_order(request):
     })
 
 ####################################################################################
+# TOPIC WISE
+####################################################################################
 
 # TODO Implement a rating sort on your own.
-# TODO Also update new topic_wise.html file name in navigation
 # bars on every page
 def topic_wise(request):
-    return render(request, "sheet/topic_wise.html")
+    with open('sheet/sheet_problems/1300.json') as f:
+        data = json.load(f)
+    return render(request, "sheet/topic_wise.html",{
+        'problems_json': json.dumps(data)
+    })
+
+
+
+
+
+
+
+
 
 ####################################################################################
 # RECOMMENDATIONS
@@ -85,17 +113,24 @@ Submission Fetched JSON Example
 def recent_submissions(request):
     handle = request.GET.get("handle", "amit.k_52")
 
-    url = f"https://codeforces.com/api/user.status?handle={handle}&from=1&count=200"
+    url = f"https://codeforces.com/api/user.status?handle={handle}&from=1&count=2"
+    # url2 = f"https://codeforces.com/api/user?handle={handle}"
+    url2 = f"https://codeforces.com{handle}"
 
     try:
         res = requests.get(url)
+        res2 = requests.get(url2)
         data = res.json()
+        data2 = res2.json()
 
-        if data["status"] != "OK":
+        if data["status"] != "OK" or data2["status"] != "OK":
             return -1
         
         submissions = data["result"]
         result = []
+
+        user_data = data2
+        result.append(user_data)
         for i in submissions:
             result.append({
                 "name":i['problem']['name'],
@@ -104,12 +139,16 @@ def recent_submissions(request):
                 "rating":i['problem'].get('rating',0),
                 "id": i["problem"]["contestId"],
                 "index": i["problem"]["index"],
-                "verdict":i['verdict']
+                "verdict":i['verdict'],
+                "Timestamp": datetime.datetime.fromtimestamp(i['creationTimeSeconds'])
             })
-
+        
+        
         return result
     except Exception as e:
         return -1
+
+
 
 tags = ["implementation", "math", "brute-force","greedy","binary-search",
         "two-pointer", "dp","dfs/bfs","dsu", "number-theory","segment-trees",
@@ -153,6 +192,15 @@ def recommendations(request):
     })
 
 ####################################################################################
+# TESTING AREA
+
+def print_date(request):
+    data = recent_submissions(request)
+    return render(request, "sheet/codeforcesapi.html",{
+        "submissions":data
+    })
+
+####################################################################################
 
 def notes(request):
     return render(request, "sheet/notes.html")
@@ -176,17 +224,18 @@ def get_submissions(request):
         
         submissions = data["result"]
 
-        # Optional: simplify response
-        result = [
-            {
-                "name": sub["problem"]["name"],
-                "verdict": sub.get("verdict", "UNKNOWN")
-            }
-            for sub in submissions
-        ]
+        # # Optional: simplify response
+        # result = [
+        #     {
+        #         "name": sub["problem"]["name"],
+        #         "verdict": sub.get("verdict", "UNKNOWN")
+        #     }
+        #     for sub in submissions
+        # ]
         return render(request, "sheet/codeforcesapi.html",{
-            "content":result
+            "submissions": submissions
         })
+        # print(data)
 
         # return JsonResponse({"submissions": result})
 

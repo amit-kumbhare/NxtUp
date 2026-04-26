@@ -107,16 +107,15 @@ const PROBLEMS_RAW = {{ problems_json|safe}};
 
 const PROBLEMS = PROBLEMS_RAW.map((p,index) => ({
   id: index ,
-  ...p,
+  ...p, 
+  // TODO  Find meaning of ...p 
   diff: p.rating < 1000 ? "easy" : p.rating < 1500 ? "medium" : "hard",
   code: `${p.contestId}${p.index}`,
   cfId: `${p.contestId}/problem/${p.index}`
 }));
 
 
-
-
-
+// ACTUAL STATE SHOULD BE SEND AND RENDERED VIA DB  
 // State
 const state = {
   solved: new Set([1,2,3,4,5,6,7]),

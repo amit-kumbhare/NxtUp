@@ -165,48 +165,15 @@ function saveState() {
 // {{ problems|safe }} or via /api/problems/?tag=dp
 // ═══════════════════════════════════════════════════════════════════
 
-const PROBLEMS = [
-  { id:1,  num:"4A",   title:"Watermelon",                     rating:800,  cfId:"4/problem/A",    tags:["adhoc","math","brute force"] },
-  { id:2,  num:"1A",   title:"Theatre Square",                 rating:1000, cfId:"1/problem/A",    tags:["math"] },
-  { id:3,  num:"45A",  title:"Stones on the Table",            rating:900,  cfId:"45/problem/A",   tags:["impl","greedy","simulation"] },
-  { id:4,  num:"339A", title:"Helpful Maths",                  rating:900,  cfId:"339/problem/A",  tags:["sorting","impl","sort"] },
-  { id:5,  num:"121A", title:"Nearly Lucky Number",            rating:900,  cfId:"121/problem/A",  tags:["math","impl"] },
-  { id:6,  num:"31A",  title:"Queue at the School",            rating:1000, cfId:"31/problem/A",   tags:["simulation","impl","string"] },
-  { id:7,  num:"71A",  title:"Way Too Long Words",             rating:1000, cfId:"71/problem/A",   tags:["strings","impl"] },
-  { id:8,  num:"282A", title:"Bit++",                          rating:1000, cfId:"282/problem/A",  tags:["impl"] },
-  { id:9,  num:"432A", title:"Choosing Teams",                 rating:1000, cfId:"432/problem/A",  tags:["impl","greedy"] },
-  { id:10, num:"458A", title:"Next Round",                     rating:1000, cfId:"458/problem/A",  tags:["impl","greedy","simulation"] },
-  { id:11, num:"879A", title:"Even Odds",                      rating:1100, cfId:"879/problem/A",  tags:["math"] },
-  { id:12, num:"236A", title:"Boy or Girl",                    rating:1100, cfId:"236/problem/A",  tags:["impl","string","set"] },
-  { id:13, num:"69A",  title:"Young Physicist",                rating:1000, cfId:"69/problem/A",   tags:["math","impl"] },
-  { id:14, num:"61A",  title:"Ultra-Fast Mathematician",       rating:1000, cfId:"61/problem/A",   tags:["impl","bitwise","xor"] },
-  { id:15, num:"3A",   title:"Shortest Path of the King",      rating:1000, cfId:"3/problem/A",    tags:["greedy","impl","bfs"] },
-  { id:16, num:"1328A",title:"Divisibility Problem",           rating:1000, cfId:"1328/problem/A", tags:["math","divisibility"] },
-  { id:17, num:"734A", title:"Anton and Danik",                rating:1100, cfId:"734/problem/A",  tags:["impl","greedy","simulation"] },
-  { id:18, num:"800B", title:"Gosha is Hunting",               rating:1300, cfId:"800/problem/B",  tags:["binary search","dp"] },
-  { id:19, num:"1602A",title:"Balanced Substring",             rating:1200, cfId:"1602/problem/A", tags:["strings","greedy","sliding window"] },
-  { id:20, num:"476C", title:"Dreamoon and Sums",              rating:1400, cfId:"476/problem/C",  tags:["math","binary search","divisibility"] },
-  { id:21, num:"551E", title:"GukiZ and GukiZiana",            rating:1500, cfId:"551/problem/E",  tags:["binary search","dp","datastructure"] },
-  { id:22, num:"405D", title:"Minimum Spanning Tree",          rating:1500, cfId:"405/problem/D",  tags:["graph","mst","greedy"] },
-  { id:23, num:"366C", title:"Dima and Anya",                  rating:1600, cfId:"366/problem/C",  tags:["graph","constructive","greedy"] },
-  { id:24, num:"750E", title:"New Year and Santa Claus",       rating:1700, cfId:"750/problem/E",  tags:["dp","bitmasks","dp_bitmasks"] },
-  { id:25, num:"1364C",title:"Ehab and Prefix XOR",            rating:1900, cfId:"1364/problem/C", tags:["xor","constructive","greedy"] },
-  { id:26, num:"1529D",title:"Ants and MST",                   rating:2000, cfId:"1529/problem/D", tags:["mst","greedy","graph"] },
-  { id:27, num:"662C", title:"Binary Table",                   rating:1900, cfId:"662/problem/C",  tags:["dp","bitset","math"] },
-  { id:28, num:"1092F",title:"Tree with Maximum Cost",         rating:2100, cfId:"1092/problem/F", tags:["tree","dp","dp_trees"] },
-  { id:29, num:"1515G",title:"Phoenix and Towers",             rating:2200, cfId:"1515/problem/G", tags:["constructive","greedy","graph"] },
-  { id:30, num:"1349B",title:"Orac and Medians",               rating:1800, cfId:"1349/problem/B", tags:["binary search","greedy","sorting"] },
-  { id:31, num:"368E", title:"Sereja and Suffixes",            rating:1800, cfId:"368/problem/E",  tags:["dp","segment tree","suffix array"] },
-  { id:32, num:"940E", title:"Ternary String",                 rating:1900, cfId:"940/problem/E",  tags:["strings","hashing","binary search"] },
-  { id:33, num:"1081G",title:"Merging Rectangles",             rating:2200, cfId:"1081/problem/G", tags:["geometry","sweep","datastructure"] },
-  { id:34, num:"1175E",title:"Minimal Segment Cover",          rating:1800, cfId:"1175/problem/E", tags:["binary search","greedy","prefix sum"] },
-  { id:35, num:"566D", title:"Restructuring Company",          rating:1700, cfId:"566/problem/D",  tags:["dsu","greedy","graph"] },
-  { id:36, num:"429B", title:"Working out",                    rating:1600, cfId:"429/problem/B",  tags:["dp","2d grid","simulation"] },
-  { id:37, num:"508D", title:"Tanya and Password",             rating:1700, cfId:"508/problem/D",  tags:["hashing","dfs","graph"] },
-  { id:38, num:"1313C",title:"Skyscrapers",                    rating:1500, cfId:"1313/problem/C", tags:["stack","dp","greedy"] },
-  { id:39, num:"295B", title:"Greg and Graph",                 rating:1700, cfId:"295/problem/B",  tags:["graph","floyd","shortest path"] },
-  { id:40, num:"1043F",title:"Make It One",                    rating:2400, cfId:"1043/problem/F", tags:["dp","number theory","inclusion-exclusion"] },
-];
+const PROBLEMS_RAW = {{ problems_json | safe}}
+
+
+const PROBLEMS = PROBLEMS_RAW.map((p, index) => ({
+  id : index,
+  ...p,
+  code: `${p.contestId}${p.index}`,
+  cfID: `${p.contestId}/problem/${p.index}`
+}));
 
 // ═══════════════════════════════════════════════════════════════════
 // UI STATE

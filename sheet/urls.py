@@ -24,6 +24,6 @@ urlpatterns = [
 
     #api
     path("codeforces", views.get_submissions, name="submissions"),
-    path("recent", views.recent_submissions, name="recent_submissions")
+    path("recent", views.print_date, name="recent_submissions")
     
 ]
