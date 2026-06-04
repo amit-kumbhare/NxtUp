@@ -1,0 +1,308 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CF Tracker — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'sheet/layout.css' %}">
+
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a class="topbar-logo" href="#">NxtUp</a>
+  <button class="theme-btn" id="themeBtn">☀</button>
+</div>
+
+<div class="page">
+
+    <!-- STEP 2: Profile -->
+    <div class="panel" id="reg-step2">
+      <div class="card-title">Set up your profile</div>
+      <div class="card-subtitle">Tell us a bit about yourself</div>
+
+      <div class="form-stack">
+
+        <div class="form-group">
+          <label for="reg-cf">Codeforces Handle</label>
+          <div class="verify-row">
+            <div class="form-group">
+              <div class="input-wrap" id="reg-cf-wrap">
+                <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg>
+                <input type="text" id="reg-cf" placeholder="e.g. tourist">
+              </div>
+            </div>
+            <button class="verify-btn" id="reg-verify-btn" onclick="verifyCF()">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+              Verify
+            </button>
+          </div>
+          <span class="field-msg hint-msg" id="reg-cf-hint">We'll pull your rating and rank automatically</span>
+          <span class="field-msg error-msg" id="reg-cf-err"></span>
+        </div>
+
+        <div class="form-group row">
+          <div class="form-group">
+            <label for="reg-age">Age</label>
+            <div class="input-wrap no-icon">
+              <input type="number" id="reg-age" placeholder="21" min="10" max="99" style="padding-left:13px">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reg-country">Country</label>
+            <div class="input-wrap" style="position:relative">
+              <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>
+              <select id="reg-country">
+                <option value="">Select…</option>
+                <option value="EG">🇪🇬 Egypt</option>
+                <option value="IN">🇮🇳 India</option>
+                <option value="BD">🇧🇩 Bangladesh</option>
+                <option value="PK">🇵🇰 Pakistan</option>
+                <option value="RU">🇷🇺 Russia</option>
+                <option value="CN">🇨🇳 China</option>
+                <option value="US">🇺🇸 United States</option>
+                <option value="DE">🇩🇪 Germany</option>
+                <option value="PL">🇵🇱 Poland</option>
+                <option value="BR">🇧🇷 Brazil</option>
+                <option value="NG">🇳🇬 Nigeria</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-role">Current Role / Qualification</label>
+          <div class="input-wrap no-icon">
+            <input type="text" id="reg-role" placeholder="e.g. CS Sophomore — Cairo University" style="padding-left:13px">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-bio">Short Bio <span style="font-weight:400;color:var(--text-muted)">(optional · 150 chars)</span></label>
+          <div class="input-wrap no-icon" style="position:static">
+            <input type="text" id="reg-bio" placeholder="A quick line about yourself…" maxlength="150" style="padding-left:13px">
+          </div>
+        </div>
+
+        <button class="submit-btn" onclick="regStep2Next()">
+          Create Account
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+        </button>
+
+        <button type="button" style="background:none;border:none;font-family:'Sora',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;text-align:center;padding:4px" onclick="regStep2Next()">
+          Skip for now →
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Success -->
+    <div class="panel" id="reg-step3" style="text-align:center;padding:8px 0">
+      <div style="width:60px;height:60px;border-radius:50%;background:#f0fdf4;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+        <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+      </div>
+      <!-- [data-theme="dark"] & { background: #0d1f14; border-color: #166534; } -->
+      <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px">You're all set!</div>
+      <div style="font-size:13.5px;color:var(--text-muted);line-height:1.6;margin-bottom:28px">Your account has been created.<br>Start grinding problems.</div>
+      <button class="submit-btn" onclick="goToDashboard()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M5 8h6M8 5v6"/></svg>
+        Go to Dashboard
+      </button>
+    </div>
+
+    <div class="card-footer" id="reg-footer">
+      Already have an account? <a onclick="showPanel('panelLogin')">Sign in</a>
+    </div>
+  </div>
+
+</div><!-- /.page -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+  const CSRF = '{{ csrf_token }}';
+/* ══════════════════════ PANEL ROUTER ══════════════════════════ */
+function showPanel(id) {
+  document.querySelectorAll('.card.panel').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  // Reset card animation
+  target.style.animation = 'none';
+  target.offsetHeight; // reflow
+  target.style.animation = '';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ══════════════════════ THEME ══════════════════════════════════ */
+document.getElementById('themeBtn').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  this.textContent = dark ? '☀' : '☽';
+});
+
+/* ══════════════════════ INPUT FOCUS HIGHLIGHT ════════════════ */
+document.querySelectorAll('.input-wrap').forEach(wrap => {
+  const inp = wrap.querySelector('input, select');
+  if (!inp) return;
+  inp.addEventListener('focus',  () => wrap.classList.add('focused'));
+  inp.addEventListener('blur',   () => wrap.classList.remove('focused'));
+});
+
+/* ══════════════════════ PW TOGGLE ════════════════════════════ */
+function togglePw(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  btn.innerHTML = showing
+    ? `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>`
+    : `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l12 12M6.5 6.6A3 3 0 0 0 9.4 9.5M4.2 4.3C2.8 5.3 1.8 6.7 1 8c.8 1.5 3 5 7 5 1.3 0 2.5-.4 3.5-1M7 3.1C7.3 3 7.7 3 8 3c4 0 6.2 3.5 7 5a11.5 11.5 0 0 1-1.7 2.4"/></svg>`;
+}
+
+
+/* ══════════════════════ VALIDATION HELPERS ══════════════════ */
+function setErr(inputId, errId, msg) {
+  const inp = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if (msg) { inp.classList.add('error'); inp.classList.remove('valid'); err.textContent = msg; err.classList.add('error-msg'); }
+  else      { inp.classList.remove('error'); err.textContent = ''; }
+}
+function setValid(inputId) {
+  const inp = document.getElementById(inputId);
+  inp.classList.remove('error'); inp.classList.add('valid');
+}
+function showAlert(id, show) {
+  document.getElementById(id).classList.toggle('show', show);
+}
+
+
+
+function regStep2Next() {
+  // Simulate account creation — replace with Django POST /auth/register/
+  const btn = document.querySelector('#reg-step2 .submit-btn');
+
+
+  
+  btn.classList.add('loading');
+  btn.innerHTML = `<svg style="animation:spin .7s linear infinite" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z" stroke-dasharray="24" stroke-dashoffset="8"/></svg> Creating…`;
+  setTimeout(() => goToRegStep(3), 1600);
+  // Now invoke all_submissions
+
+  // fetch('/all_submissions', {
+  // method: 'POST',
+  // headers: 
+  // { 'Content-Type': 'application/json' },
+  // 'X-CSRFToken':  "{{ csrf_token }}",
+
+  // body: JSON.stringify({ key: 'value' })
+  // });
+
+}
+
+function goToRegStep(n) {
+  regStep = n;
+  ['reg-step1','reg-step2','reg-step3'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('active', i+1 === n);
+  });
+  // Update step indicators
+  for (let i=1; i<=3; i++) {
+    const ind = document.getElementById(`step${i}-ind`);
+    const dot = document.getElementById(`step${i}-dot`);
+    ind.classList.remove('active','done');
+    if (i < n)  { ind.classList.add('done');   dot.innerHTML = `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>`; }
+    if (i === n)  ind.classList.add('active');
+    if (i > n)   dot.textContent = i;
+  }
+  if (document.getElementById('line-1-2'))
+    document.getElementById('line-1-2').classList.toggle('done', n > 1);
+  if (document.getElementById('line-2-3'))
+    document.getElementById('line-2-3').classList.toggle('done', n > 2);
+
+  if (n === 3) document.getElementById('reg-footer').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ══════════════════════ CF VERIFY ═══════════════════════════ */
+function verifyCF() {
+  const handle = document.getElementById('reg-cf').value.trim();
+  if (!handle) { setErr('reg-cf','reg-cf-err','Enter your Codeforces handle first'); return; }
+  setErr('reg-cf','reg-cf-err','');
+
+  const btn = document.getElementById('reg-verify-btn');
+  btn.classList.remove('verified');
+  btn.innerHTML = `<svg style="animation:spin .7s linear infinite" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z" stroke-dasharray="24" stroke-dashoffset="8"/></svg> Checking…`;
+
+  setTimeout(() => {
+    btn.classList.add('verified');
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg> Verified`;
+    document.getElementById('reg-cf-hint').textContent = `✓ Found: ${handle} · Expert · Rating 1847`;
+    setValid('reg-cf');
+    showToast('CF handle verified!');
+  }, 1500);
+}
+
+/* ══════════════════════ FORGOT PASSWORD ═════════════════════ */
+function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  setErr('forgot-email','forgot-err','');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setErr('forgot-email','forgot-err','Please enter a valid email address');
+    return;
+  }
+  // Simulate — replace with Django POST /auth/forgot-password/
+  document.getElementById('forgot-form').style.opacity = '.5';
+  setTimeout(() => {
+    document.getElementById('forgot-form').style.opacity = '1';
+    document.getElementById('forgot-success').classList.add('show');
+    document.getElementById('forgot-form').style.display = 'none';
+  }, 1200);
+}
+
+/* ══════════════════════ OAUTH (demo) ════════════════════════ */
+function oauthLogin(provider) {
+  showToast(`Redirecting to ${provider}…`);
+  // Replace with: window.location.href = '/auth/social/' + provider.toLowerCase();
+}
+
+/* ══════════════════════ DASHBOARD ═══════════════════════════ */
+function goToDashboard() {
+  showToast('Welcome aboard! Loading…');
+  setTimeout(() => window.location.href = '/tour', 1200);
+}
+
+/* ══════════════════════ TOAST ════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ══════════════════════ ENTER KEY ══════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.card.panel.active');
+  if (!active) return;
+  if (active.id === 'panelLogin')  doLogin();
+  if (active.id === 'panelForgot') doForgot();
+});
+</script>
+
+<style>
+@keyframes spin {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(360deg); }
+}
+</style>
+</body>
+</html>

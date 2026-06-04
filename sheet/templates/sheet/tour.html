@@ -615,7 +615,7 @@ body {
 
   <!-- TOP BAR -->
   <div class="top-bar">
-    <span class="top-bar-logo">cf/tracker</span>
+    <span class="top-bar-logo">NxtUp</span>
     <div class="top-bar-right">
       <button class="theme-btn" id="themeBtn">☀</button>
       <button class="skip-btn" onclick="goTo(4)">Skip tour</button>
@@ -648,7 +648,7 @@ body {
         </div>
 
         <h1 class="slide-title">
-          Your CF grind,<br>
+          Your Codeforces grind,<br>
           <span class="orange">finally organized</span>
           <span class="muted">Setting up your account while you read this</span>
         </h1>
@@ -660,15 +660,15 @@ body {
 
         <div class="stat-row">
           <div class="stat-pill">
-            <span class="num orange">9,400+</span>
+            <span class="num orange">300+</span>
             <span class="lbl">CF problems</span>
           </div>
           <div class="stat-pill">
-            <span class="num green">240+</span>
+            <span class="num green">8+</span>
             <span class="lbl">topic tags</span>
           </div>
           <div class="stat-pill">
-            <span class="num blue">5</span>
+            <span class="num blue">4+</span>
             <span class="lbl">features</span>
           </div>
         </div>
@@ -701,7 +701,7 @@ body {
 
         <div class="stat-row">
           <div class="stat-pill">
-            <span class="num orange">30</span>
+            <span class="num orange">300</span>
             <span class="lbl">curated problems</span>
           </div>
           <div class="stat-pill">
@@ -781,22 +781,22 @@ body {
 
         <h1 class="slide-title">
           Topic Wise Sheet
-          <span class="muted">Filter by any of 240+ topic tags</span>
+          <span class="muted">Filter by any of 8+ topic tags</span>
         </h1>
 
         <p class="slide-sub">
-          Same problems, different lens. Browse by tag — <strong>dp, graph, binary search</strong> and 237 more.
+          Same problems, different lens. Browse by tag — <strong>dp, graph, binary search</strong> and many more.
           Click any tag pill on a row to instantly filter to that topic. Fully synced with Blind Order.
         </p>
 
         <div class="stat-row">
           <div class="stat-pill">
-            <span class="num purple">240+</span>
+            <span class="num purple">8+</span>
             <span class="lbl">topic tags</span>
           </div>
           <div class="stat-pill">
             <span class="num green">Synced</span>
-            <span class="lbl">with Blind Order</span>
+            <span class="lbl">with your Account</span>
           </div>
           <div class="stat-pill">
             <span class="num orange">Instant</span>
@@ -1092,7 +1092,7 @@ body {
                 <div><div class="feature-item-title" style="font-size:12px">Unified Notes</div></div>
               </div>
             </div>
-            <a href="sheets.html" class="finish-btn" style="margin-top:8px;font-size:13px;padding:11px 20px">
+            <a href="{% url 'blind_order'%}" class="finish-btn" style="margin-top:8px;font-size:13px;padding:11px 20px">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
               Go to Dashboard
             </a>
@@ -1129,11 +1129,83 @@ body {
 </div><!-- /story-shell -->
 
 <script>
+
+  const CSRF = '{{ csrf_token }}';
+// Sleep function
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // Here first call the submissions and rating features, account is already built
+async function fetch_submissions() {
+  console.log("Calling /add_past_submissions...");
+  const res  = await fetch('/add_past_submissions', {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken':  CSRF
+    },
+    body: JSON.stringify({}),
+  });
+  const data = await res.json();
+  console.log("/add_past_submissions response:", data);
+}
+
+async function fetch_rating() {
+  console.log("Calling /get_rating...");
+  const res  = await fetch('/get_rating', {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken':  CSRF
+    },
+    body: JSON.stringify({}),
+  });
+  const data = await res.json();
+  console.log("/get_rating response:", data);
+}
+
+async function calc_stats() {
+  console.log("Calling /calc_stats...");
+  const res  = await fetch('/calc_stats', {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken':  CSRF
+    },
+    body: JSON.stringify({}),
+  });
+  const data = await res.json();
+  console.log("/calc_stats response:", data);
+}
+
+async function waiting() {
+  await sleep(5000);
+}
+
+// Fetches the user's past 10k submissions and puts them into the DB
+async function sync_all() {
+  console.log("Fetching submissions...");
+  await fetch_submissions();
+  
+  console.log("Waiting for submissions to save...");
+  await waiting();
+  
+  console.log("Fetching rating...");
+  await fetch_rating();
+  
+  console.log("Calculating stats...");
+  await calc_stats();
+  
+  console.log("All done!");
+}
+
+sync_all();
+
 /* ════════════════════════════════════════
    SLIDE ENGINE
    ════════════════════════════════════════ */
 const TOTAL  = 5;
-const SEG_DUR = 7; // seconds per slide auto-advance
+const SEG_DUR = 10; // seconds per slide auto-advance
 let current  = 0;
 let autoTimer = null;
 let segTimer  = null;
@@ -1206,7 +1278,7 @@ function updateNav() {
 
   if (current === TOTAL - 1) {
     nextBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg> Done`;
-    nextBtn.onclick = () => window.location.href = 'sheet/blind_order';
+    nextBtn.onclick = () => window.location.href = '/sheet/blind_order';
   } else {
     nextBtn.innerHTML = `Next <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>`;
     nextBtn.onclick = next;
@@ -1231,7 +1303,7 @@ function resumeAuto() { startAuto(); }
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
   if (e.key === 'ArrowLeft')                   { e.preventDefault(); prev(); }
-  if (e.key === 'Escape') window.location.href = 'sheet/blind_order';
+  if (e.key === 'Escape') window.location.href = '/sheet/blind_order';
 });
 
 /* SWIPE */

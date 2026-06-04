@@ -354,7 +354,11 @@ select {
   z-index: 999; pointer-events: none;
 }
 .toast.show { opacity: 1; transform: translateY(0); }
-.toast svg { width: 15px; height: 15px; color: var(--green); flex-shrink: 0; }
+.toast svg { width: 15px; height: 15px; flex-shrink: 0; }
+.toast.toast-success svg { color: var(--green); }
+.toast.toast-error   svg { color: #fff; }
+.toast.toast-error   { background: #ef4444; }
+.toast.toast-success { background: var(--text); }
 
 /* FOOTER NOTE */
 .card-footer {

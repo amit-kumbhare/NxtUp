@@ -5,10 +5,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CF Tracker — Sign In</title>
+<title>NxtUp - Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'sheet/layout.css' %}">
 
+<meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
 
@@ -18,18 +19,20 @@
   <button class="theme-btn" id="themeBtn">☀</button>
 </div>
 
+
+
 <div class="page">
 
   <!-- ════════════════ LOGIN PANEL ════════════════ -->
   <div class="card panel active" id="panelLogin">
-    <div class="card-logo">NU</div> 
-    <!-- Add your Logo here -->
+    <div class="card-logo">NU</div>
     <div class="card-title">Welcome back</div>
     <div class="card-subtitle">
       Sign in to your account to continue tracking.<br>
       No account? <a onclick="showPanel('panelRegister')">Create one free →</a>
     </div>
 
+    <!-- This alert is shown when Django returns { ok: false, error: "..." } -->
     <div class="alert error" id="login-alert">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11v.5"/></svg>
       <span id="login-alert-msg">Invalid email or password.</span>
@@ -38,6 +41,7 @@
     <div class="form-stack" style="margin-top:14px">
 
       <!-- OAuth -->
+      <!-- calls oauthLogin() → redirects to /auth/social/google/ (django-allauth) -->
       <button class="oauth-btn" onclick="oauthLogin('Google')">
         <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Continue with Google
@@ -65,16 +69,18 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
           </button>
         </div>
+        <!-- clicking this shows panelForgot — calls views.forgot_password via doForgot() -->
         <a class="forgot-link" onclick="showPanel('panelForgot')">Forgot password?</a>
         <span class="field-msg error-msg" id="login-pw-err"></span>
       </div>
 
-      <!-- Remember me -->
+      <!-- Remember me — passed as { remember: true/false } in the fetch body -->
       <div class="check-group">
         <input type="checkbox" id="remember" checked>
         <label for="remember">Keep me signed in for 30 days</label>
       </div>
 
+      <!-- calls doLogin() → POST /login/api/ → views.login_api() -->
       <button class="submit-btn" id="login-btn" onclick="doLogin()">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M11 11l3-3-3-3M14 8H6"/></svg>
         Sign In
@@ -82,211 +88,7 @@
     </div>
 
     <div class="card-footer">
-      Don't have an account? <a onclick="showPanel('panelRegister')">Create one free</a>
-    </div>
-  </div>
-
-  <!-- ════════════════ REGISTER PANEL ═════════════ -->
-  <div class="card panel" id="panelRegister" style="max-width:460px">
-
-    <button class="back-btn" onclick="showPanel('panelLogin')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
-      Back to sign in
-    </button>
-
-    <!-- Step indicator -->
-    <div class="steps" id="reg-steps">
-      <div class="step active" id="step1-ind">
-        <div class="step-dot" id="step1-dot">1</div>
-        <span>Account</span>
-      </div>
-      <div class="step-line" id="line-1-2"></div>
-      <div class="step" id="step2-ind">
-        <div class="step-dot" id="step2-dot">2</div>
-        <span>Profile</span>
-      </div>
-      <div class="step-line" id="line-2-3"></div>
-      <div class="step" id="step3-ind">
-        <div class="step-dot" id="step3-dot">3</div>
-        <span>Done</span>
-      </div>
-    </div>
-
-    <!-- STEP 1: Account -->
-    <div class="panel active" id="reg-step1">
-      <div class="card-title">Create your account</div>
-      <div class="card-subtitle">Start tracking your CF journey</div>
-
-      <div class="form-stack">
-        <button class="oauth-btn" onclick="oauthLogin('Google')">
-          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Sign up with Google
-        </button>
-
-        <div class="divider">or with email</div>
-
-        <div class="form-group row">
-          <div class="form-group">
-            <label for="reg-fname">First Name</label>
-            <div class="input-wrap no-icon">
-              <input type="text" id="reg-fname" placeholder="Ahmed" autocomplete="given-name">
-            </div>
-            <span class="field-msg error-msg" id="reg-fname-err"></span>
-          </div>
-          <div class="form-group">
-            <label for="reg-lname">Last Name</label>
-            <div class="input-wrap no-icon">
-              <input type="text" id="reg-lname" placeholder="Al-Rashid" autocomplete="family-name">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-email">Email</label>
-          <div class="input-wrap" id="reg-email-wrap">
-            <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 5l6.5 4 6.5-4"/></svg>
-            <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
-          </div>
-          <span class="field-msg error-msg" id="reg-email-err"></span>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-password">Password</label>
-          <div class="input-wrap" id="reg-pw-wrap">
-            <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-            <input type="password" id="reg-password" placeholder="Min. 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
-            <button class="pw-toggle" type="button" onclick="togglePw('reg-password', this)">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
-            </button>
-          </div>
-          <div class="strength-wrap">
-            <div class="strength-track"><div class="strength-fill" id="strength-fill"></div></div>
-            <div class="strength-label" id="strength-label">Enter a password</div>
-          </div>
-          <span class="field-msg error-msg" id="reg-pw-err"></span>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-confirm">Confirm Password</label>
-          <div class="input-wrap" id="reg-confirm-wrap">
-            <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
-            <input type="password" id="reg-confirm" placeholder="Repeat password" autocomplete="new-password">
-            <button class="pw-toggle" type="button" onclick="togglePw('reg-confirm', this)">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
-            </button>
-          </div>
-          <span class="field-msg error-msg" id="reg-confirm-err"></span>
-        </div>
-
-        <div class="check-group">
-          <input type="checkbox" id="reg-terms">
-          <label for="reg-terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
-        </div>
-        <span class="field-msg error-msg" id="reg-terms-err"></span>
-
-        <button class="submit-btn" onclick="regStep1Next()">
-          Continue
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 2: Profile -->
-    <div class="panel" id="reg-step2">
-      <div class="card-title">Set up your profile</div>
-      <div class="card-subtitle">Tell us a bit about yourself</div>
-
-      <div class="form-stack">
-
-        <div class="form-group">
-          <label for="reg-cf">Codeforces Handle</label>
-          <div class="verify-row">
-            <div class="form-group">
-              <div class="input-wrap" id="reg-cf-wrap">
-                <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg>
-                <input type="text" id="reg-cf" placeholder="e.g. tourist">
-              </div>
-            </div>
-            <button class="verify-btn" id="reg-verify-btn" onclick="verifyCF()">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
-              Verify
-            </button>
-          </div>
-          <span class="field-msg hint-msg" id="reg-cf-hint">We'll pull your rating and rank automatically</span>
-          <span class="field-msg error-msg" id="reg-cf-err"></span>
-        </div>
-
-        <div class="form-group row">
-          <div class="form-group">
-            <label for="reg-age">Age</label>
-            <div class="input-wrap no-icon">
-              <input type="number" id="reg-age" placeholder="21" min="10" max="99" style="padding-left:13px">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="reg-country">Country</label>
-            <div class="input-wrap" style="position:relative">
-              <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>
-              <select id="reg-country">
-                <option value="">Select…</option>
-                <option value="EG">🇪🇬 Egypt</option>
-                <option value="IN">🇮🇳 India</option>
-                <option value="BD">🇧🇩 Bangladesh</option>
-                <option value="PK">🇵🇰 Pakistan</option>
-                <option value="RU">🇷🇺 Russia</option>
-                <option value="CN">🇨🇳 China</option>
-                <option value="US">🇺🇸 United States</option>
-                <option value="DE">🇩🇪 Germany</option>
-                <option value="PL">🇵🇱 Poland</option>
-                <option value="BR">🇧🇷 Brazil</option>
-                <option value="NG">🇳🇬 Nigeria</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-role">Current Role / Qualification</label>
-          <div class="input-wrap no-icon">
-            <input type="text" id="reg-role" placeholder="e.g. CS Sophomore — Cairo University" style="padding-left:13px">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-bio">Short Bio <span style="font-weight:400;color:var(--text-muted)">(optional · 150 chars)</span></label>
-          <div class="input-wrap no-icon" style="position:static">
-            <input type="text" id="reg-bio" placeholder="A quick line about yourself…" maxlength="150" style="padding-left:13px">
-          </div>
-        </div>
-
-        <button class="submit-btn" onclick="regStep2Next()">
-          Create Account
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
-        </button>
-
-        <button type="button" style="background:none;border:none;font-family:'Sora',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;text-align:center;padding:4px" onclick="regStep2Next()">
-          Skip for now →
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 3: Success -->
-    <div class="panel" id="reg-step3" style="text-align:center;padding:8px 0">
-      <div style="width:60px;height:60px;border-radius:50%;background:#f0fdf4;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-        <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
-      </div>
-      [data-theme="dark"] & { background: #0d1f14; border-color: #166534; }
-      <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px">You're all set!</div>
-      <div style="font-size:13.5px;color:var(--text-muted);line-height:1.6;margin-bottom:28px">Your account has been created.<br>Start grinding problems.</div>
-      <button class="submit-btn" onclick="goToDashboard()">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M5 8h6M8 5v6"/></svg>
-        Go to Dashboard
-      </button>
-    </div>
-
-    <div class="card-footer" id="reg-footer">
-      Already have an account? <a onclick="showPanel('panelLogin')">Sign in</a>
+      Don't have an account? <a onclick="window.location.href='register';">Create one free</a>
     </div>
   </div>
 
@@ -301,11 +103,13 @@
     <div class="card-title">Reset password</div>
     <div class="card-subtitle">Enter your email and we'll send you a reset link.</div>
 
+    <!-- Shown after Django returns { ok: true } from views.forgot_password() -->
     <div class="alert success" id="forgot-success">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
       <span>Reset link sent! Check your inbox.</span>
     </div>
 
+    <!-- calls doForgot() → POST /forgot/ → views.forgot_password() -->
     <div class="form-stack" style="margin-top:14px" id="forgot-form">
       <div class="form-group">
         <label for="forgot-email">Email address</label>
@@ -325,21 +129,24 @@
 
 </div><!-- /.page -->
 
-<!-- TOAST -->
+<!-- TOAST — shown briefly after successful actions -->
 <div class="toast" id="toast">
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>
   <span id="toastMsg">Done</span>
 </div>
 
 <script>
+  // Reads the CSRF token injected by Django into the <meta> tag above.
+  // Sent as a header with every POST fetch so Django doesn't reject the request.
+  const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+
 /* ══════════════════════ PANEL ROUTER ══════════════════════════ */
 function showPanel(id) {
   document.querySelectorAll('.card.panel').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(id);
   target.classList.add('active');
-  // Reset card animation
   target.style.animation = 'none';
-  target.offsetHeight; // reflow
+  target.offsetHeight;
   target.style.animation = '';
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -369,37 +176,11 @@ function togglePw(inputId, btn) {
     : `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l12 12M6.5 6.6A3 3 0 0 0 9.4 9.5M4.2 4.3C2.8 5.3 1.8 6.7 1 8c.8 1.5 3 5 7 5 1.3 0 2.5-.4 3.5-1M7 3.1C7.3 3 7.7 3 8 3c4 0 6.2 3.5 7 5a11.5 11.5 0 0 1-1.7 2.4"/></svg>`;
 }
 
-/* ══════════════════════ PASSWORD STRENGTH ════════════════════ */
-function checkStrength(pw) {
-  let score = 0;
-  if (pw.length >= 8)  score++;
-  if (pw.length >= 12) score++;
-  if (/[A-Z]/.test(pw)) score++;
-  if (/[0-9]/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-
-  const fill  = document.getElementById('strength-fill');
-  const label = document.getElementById('strength-label');
-  const configs = [
-    { w:'0%',   bg:'',              txt:'Enter a password' },
-    { w:'20%',  bg:'var(--red)',    txt:'Very weak' },
-    { w:'40%',  bg:'var(--red)',    txt:'Weak' },
-    { w:'60%',  bg:'var(--medium)', txt:'Fair' },
-    { w:'80%',  bg:'var(--blue)',   txt:'Strong' },
-    { w:'100%', bg:'var(--green)',  txt:'Very strong ✓' },
-  ];
-  const c = configs[score] || configs[0];
-  fill.style.width      = c.w;
-  fill.style.background = c.bg;
-  label.textContent     = c.txt;
-  label.style.color     = c.bg || 'var(--text-muted)';
-}
-
 /* ══════════════════════ VALIDATION HELPERS ══════════════════ */
 function setErr(inputId, errId, msg) {
   const inp = document.getElementById(inputId);
   const err = document.getElementById(errId);
-  if (msg) { inp.classList.add('error'); inp.classList.remove('valid'); err.textContent = msg; err.classList.add('error-msg'); }
+  if (msg) { inp.classList.add('error'); inp.classList.remove('valid'); err.textContent = msg; }
   else      { inp.classList.remove('error'); err.textContent = ''; }
 }
 function setValid(inputId) {
@@ -410,149 +191,111 @@ function showAlert(id, show) {
   document.getElementById(id).classList.toggle('show', show);
 }
 
-/* ══════════════════════ LOGIN ════════════════════════════════ */
-function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pw    = document.getElementById('login-password').value;
-  let ok = true;
+/* ══════════════════════ LOGIN ════════════════════════════════
+   Sends: POST /login/api/
+   Body:  { email, password, remember }
+   Calls: views.login_api()
+   ✅ ok:true  → redirects to data.redirect (e.g. /dashboard/)
+   ❌ ok:false → shows data.error in the red alert banner
+════════════════════════════════════════════════════════════════ */
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const pw       = document.getElementById('login-password').value;
+  const remember = document.getElementById('remember').checked;
+  let valid = true;
 
   showAlert('login-alert', false);
-  setErr('login-email', 'login-email-err', '');
-  setErr('login-password', 'login-pw-err', '');
+  setErr('login-email',    'login-email-err', '');
+  setErr('login-password', 'login-pw-err',    '');
 
+  // Client-side validation — server also validates, this just gives instant feedback
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setErr('login-email', 'login-email-err', 'Please enter a valid email address'); ok = false;
+    setErr('login-email', 'login-email-err', 'Please enter a valid email address'); valid = false;
   }
   if (!pw || pw.length < 6) {
-    setErr('login-password', 'login-pw-err', 'Password must be at least 6 characters'); ok = false;
+    setErr('login-password', 'login-pw-err', 'Password must be at least 6 characters'); valid = false;
   }
-  if (!ok) return;
+  if (!valid) return;
 
-  // Simulate login — replace with Django POST /auth/login/
   const btn = document.getElementById('login-btn');
-  btn.classList.add('loading');
+  btn.disabled = true;
   btn.innerHTML = `<svg style="animation:spin .7s linear infinite" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z" stroke-dasharray="24" stroke-dashoffset="8"/></svg> Signing in…`;
 
-  setTimeout(() => {
-    btn.classList.remove('loading');
-    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M11 11l3-3-3-3M14 8H6"/></svg> Sign In`;
-    // Simulate wrong credentials (demo):
-    if (pw !== 'demo1234') {
-      document.getElementById('login-alert-msg').textContent = 'Invalid email or password. (Hint: use "demo1234")';
+  try {
+    const res  = await fetch('/login/api/', {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken':  "{{ csrf_token }}",    // Django rejects POST without this
+      },
+      body: JSON.stringify({ email, password :pw, remember }),
+    });
+
+    const data = await res.json();  // Django returns { ok, redirect } or { ok, error }
+
+    if (data.ok) {
+      setValid('login-email');
+      setValid('login-password');
+      showToast('Signed in! Redirecting…');
+      // Now it takes me to my redirect location via data.redirect
+      setTimeout(() => window.location.href = data.redirect, 1200);
+    } else {
+      // data.error comes directly from views.login_api()
+      document.getElementById('login-alert-msg').textContent = data.error;
       showAlert('login-alert', true);
       document.getElementById('login-password').classList.add('error');
-    } else {
-      setValid('login-email'); setValid('login-password');
-      showToast('Signed in! Redirecting…');
-      setTimeout(() => window.location.href = '/tour', 1200);
     }
-  }, 1400);
-}
 
-/* ══════════════════════ REGISTER STEP 1 ═════════════════════ */
-let regStep = 1;
-function regStep1Next() {
-  const fname   = document.getElementById('reg-fname').value.trim();
-  const email   = document.getElementById('reg-email').value.trim();
-  const pw      = document.getElementById('reg-password').value;
-  const confirm = document.getElementById('reg-confirm').value;
-  const terms   = document.getElementById('reg-terms').checked;
-  let ok = true;
+  } catch {
+    // Only triggers on network failure, not wrong password
+    document.getElementById('login-alert-msg').textContent = 'Network error — please try again.';
+    showAlert('login-alert', true);
 
-  setErr('reg-fname',    'reg-fname-err',   '');
-  setErr('reg-email',    'reg-email-err',   '');
-  setErr('reg-password', 'reg-pw-err',      '');
-  setErr('reg-confirm',  'reg-confirm-err', '');
-  document.getElementById('reg-terms-err').textContent = '';
-
-  if (!fname) { setErr('reg-fname','reg-fname-err','First name is required'); ok=false; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('reg-email','reg-email-err','Enter a valid email'); ok=false; }
-  if (pw.length < 8) { setErr('reg-password','reg-pw-err','Password must be at least 8 characters'); ok=false; }
-  if (pw !== confirm) { setErr('reg-confirm','reg-confirm-err','Passwords do not match'); ok=false; }
-  if (!terms) { document.getElementById('reg-terms-err').textContent = 'You must accept the terms to continue'; ok=false; }
-  if (!ok) return;
-
-  goToRegStep(2);
-}
-
-function regStep2Next() {
-  // Simulate account creation — replace with Django POST /auth/register/
-  const btn = document.querySelector('#reg-step2 .submit-btn');
-  btn.classList.add('loading');
-  btn.innerHTML = `<svg style="animation:spin .7s linear infinite" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z" stroke-dasharray="24" stroke-dashoffset="8"/></svg> Creating…`;
-  setTimeout(() => goToRegStep(3), 1600);
-}
-
-function goToRegStep(n) {
-  regStep = n;
-  ['reg-step1','reg-step2','reg-step3'].forEach((id,i) => {
-    document.getElementById(id).classList.toggle('active', i+1 === n);
-  });
-  // Update step indicators
-  for (let i=1; i<=3; i++) {
-    const ind = document.getElementById(`step${i}-ind`);
-    const dot = document.getElementById(`step${i}-dot`);
-    ind.classList.remove('active','done');
-    if (i < n)  { ind.classList.add('done');   dot.innerHTML = `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg>`; }
-    if (i === n)  ind.classList.add('active');
-    if (i > n)   dot.textContent = i;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M11 11l3-3-3-3M14 8H6"/></svg> Sign In`;
   }
-  if (document.getElementById('line-1-2'))
-    document.getElementById('line-1-2').classList.toggle('done', n > 1);
-  if (document.getElementById('line-2-3'))
-    document.getElementById('line-2-3').classList.toggle('done', n > 2);
-
-  if (n === 3) document.getElementById('reg-footer').style.display = 'none';
-  window.scrollTo({top:0, behavior:'smooth'});
 }
 
-/* ══════════════════════ CF VERIFY ═══════════════════════════ */
-function verifyCF() {
-  const handle = document.getElementById('reg-cf').value.trim();
-  if (!handle) { setErr('reg-cf','reg-cf-err','Enter your Codeforces handle first'); return; }
-  setErr('reg-cf','reg-cf-err','');
-
-  const btn = document.getElementById('reg-verify-btn');
-  btn.classList.remove('verified');
-  btn.innerHTML = `<svg style="animation:spin .7s linear infinite" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z" stroke-dasharray="24" stroke-dashoffset="8"/></svg> Checking…`;
-
-  setTimeout(() => {
-    btn.classList.add('verified');
-    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L6 11 3 8"/></svg> Verified`;
-    document.getElementById('reg-cf-hint').textContent = `✓ Found: ${handle} · Expert · Rating 1847`;
-    setValid('reg-cf');
-    showToast('CF handle verified!');
-  }, 1500);
-}
-
-/* ══════════════════════ FORGOT PASSWORD ═════════════════════ */
-function doForgot() {
+/* ══════════════════════ FORGOT PASSWORD ═════════════════════
+   Sends: POST /forgot/
+   Body:  { email }
+   Calls: views.forgot_password()
+   Always returns { ok: true } — Django never reveals if email exists
+   ✅ Hides the form and shows the success alert
+════════════════════════════════════════════════════════════════ */
+async function doForgot() {
   const email = document.getElementById('forgot-email').value.trim();
-  setErr('forgot-email','forgot-err','');
+  setErr('forgot-email', 'forgot-err', '');
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setErr('forgot-email','forgot-err','Please enter a valid email address');
+    setErr('forgot-email', 'forgot-err', 'Please enter a valid email address');
     return;
   }
-  // Simulate — replace with Django POST /auth/forgot-password/
-  document.getElementById('forgot-form').style.opacity = '.5';
-  setTimeout(() => {
-    document.getElementById('forgot-form').style.opacity = '1';
+
+  const res  = await fetch('/forgot/', {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken':  CSRF
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
     document.getElementById('forgot-success').classList.add('show');
     document.getElementById('forgot-form').style.display = 'none';
-  }, 1200);
+  }
 }
 
-/* ══════════════════════ OAUTH (demo) ════════════════════════ */
+/* ══════════════════════ OAUTH ═══════════════════════════════
+   Redirects to /accounts/google/login/ (handled by django-allauth)
+   Requires: pip install django-allauth + settings.py config
+════════════════════════════════════════════════════════════════ */
 function oauthLogin(provider) {
-  showToast(`Redirecting to ${provider}…`);
-  // Replace with: window.location.href = '/auth/social/' + provider.toLowerCase();
-}
-
-/* ══════════════════════ DASHBOARD ═══════════════════════════ */
-function goToDashboard() {
-  showToast('Welcome aboard! Loading…');
-  setTimeout(() => window.location.href = '/tour', 1200);
+  window.location.href = '/accounts/' + provider.toLowerCase() + '/login/';
 }
 
 /* ══════════════════════ TOAST ════════════════════════════════ */
@@ -577,8 +320,8 @@ document.addEventListener('keydown', e => {
 
 <style>
 @keyframes spin {
-  from { transform:rotate(0deg); }
-  to   { transform:rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 </style>
 </body>

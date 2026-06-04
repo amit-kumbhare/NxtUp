@@ -1,0 +1,34 @@
+     <!-- Add this at the very top of your HTML file -->
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Occured</title>
+</head>
+<body>
+    <!-- Add image of monkey here -->
+    <h1>Sorry For Incovenience !! </h1>
+    <p>We are currently experiencing issues at our backend.</p>
+
+    <!-- Update your image tag -->
+    <img src="{% static 'chud-gaye-guru-mehul.png' %}" alt="Aw Snap" height="150" width="150">
+
+    <script>
+        document.addEventListener("DOMContentLoaded",()=>{
+            const savedError = sessionStorage.getItem('pending Error'); 
+            // This gets me the stored data inside of session storage.
+
+            if (savedError) { // If such an error exists (which it would do )
+                const errorContext = JSON.parse(savedError);
+
+                console.log(errorContext);
+
+                sessionStorage.removeItem("pending Error");
+            }
+        })
+    </script>
+</body>
+</html>

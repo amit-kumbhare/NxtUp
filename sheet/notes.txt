@@ -1,0 +1,44 @@
+Use object.get_field => to update Notes, toggle stars 
+
+# NEED FOR Services.py
+# DRY -> Don't Repeat Yourself
+# it handles the business logic
+
+# API ERROR CODES
+# 404 - Normal Error
+# 200 - Success
+# 202 - Accepted
+# 204 - No Content
+# 408 - Request TimeOut
+# 500 - Internal Server Error
+# 502 - Bad Gateway
+# 504 - Gateway TimeOut
+
+# HTTP Methods
+# GET - Fetch data
+# POST - Submit data
+# PUT - Update data
+# DELETE - Delete data
+
+# Codeforces user.info
+#
+# {'status': 'OK', 
+# 'result': [{
+# 'firstName': 'Amit', 
+# 'lastName': 'Kumbhare', 
+# 'country': 'India', 
+# 'contribution': 0, 
+# 'lastOnlineTimeSeconds': 1777370260, 
+# 'city': 'Nagpur', 
+# 'organization': '', 
+# 'friendOfCount': 0, 
+# 'titlePhoto': 'https://userpic.codeforces.org/4619687/title/592f2ed056c12bd4.jpg', 
+# 'handle': 'amit.k_52', 
+# 'avatar': 'https://userpic.codeforces.org/4619687/avatar/55edda6ab033e3ae.jpg', 
+# 'registrationTimeSeconds': 1738553758}
+# ]}
+
+
+0 < Easy <= 1200
+1200 < Medium <1900
+1900 < Hard

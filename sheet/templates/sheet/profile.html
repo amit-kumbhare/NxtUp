@@ -7,48 +7,69 @@
 {% endblock %}
 {% block body %}
 <main>
+  <div style="text-align:right; font-size:11px; color:var(--text-muted); margin-bottom:-16px;">
+  * excludes GYM &amp; Team Contest problems
+</div>
+
+  <div id="profile-data-container" 
+     data-handle="{{ profile_data.handle }}">
+  </div>
+
   <!-- PROFILE CARD -->
   <div class="profile-card">
     <div class="pfp-wrap">
       <div class="pfp">A</div>
-      <span class="rating-badge">1847</span>
+      <span class="rating-badge"></span>
     </div>
     <div class="profile-info">
-      <div class="profile-name">Amit Kumbhare</div>
-      <div class="profile-handle">Amit.k_52</div>
+      <div class="profile-name"></div>
+      <div class="profile-handle"></div>
       <div class="profile-meta">
-        <span class="meta-chip">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>
-          India
+        <span class="meta-chip" id="country">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" ><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5z"/><circle cx="8" cy="6" r="1.5"/></svg>
+          <span class="chip-text"></span>
         </span>
-        <span class="meta-chip">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v3.5l2 2"/></svg>
-          Age 20
+        <span class="meta-chip" id="age" >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" ><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v3.5l2 2"/></svg>
+          <span class="chip-text"></span>
         </span>
-        <span class="meta-chip">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 3V1.5M11 3V1.5M2 7h12"/></svg>
-          CS Ungrad - Yeshwantrao Chavan College of Engineering
+        <!-- Here replace rating with Max rating ever -->
+        <span class="meta-chip" id="current-role">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" ><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 3V1.5M11 3V1.5M2 7h12"/></svg>
+          <span class="chip-text"></span>
         </span>
       </div>
-      <p class="profile-bio">Competitive programmer grinding CF since 2 months. Love graph problems and DP. Currently targeting Pupil → Specialist.</p>
-      <a href="profile-edit.html" class="edit-profile-btn">
+      <p class="profile-bio"></p>
+      
+      <a href="{% url 'profile_edit' %}" class="edit-profile-btn">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5z"/>
         </svg>
         Edit Profile
       </a>
+
+      <a href="{% url 'logout' %}" class="edit-profile-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        Logout
+      </a>
+
+
     </div>
     <div class="profile-stats">
       <div class="stat-item">
-        <div class="stat-val" style="color:var(--accent)">1847</div>
+        <div class="stat-val" style="color:var(--accent)" id="cf-rating">
+        </div>
         <div class="stat-label">CF Rating</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">342</div>
+        <!-- Add an id for this that isn't "total-count" -->
+        <div class="stat-val" id="first-total-count">XXXX</div>
         <div class="stat-label">Solved</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">Expert</div>
+        <div class="stat-val" id="titled-rank">N/A</div>
         <div class="stat-label">Rank</div>
       </div>
     </div>
@@ -57,7 +78,7 @@
   <!-- HEATMAP 1: SUBMISSION ACTIVITY -->
   <div class="layer2">
     <div class="heatmap-header">
-      <div class="section-title">SUBMISSION ACTIVITY</div>
+      <div class="section-title">ACCEPTED SUBMISSION ACTIVITY</div>
       <div class="heatmap-summary"><b id="totalActive">0</b> active days &nbsp;·&nbsp; <b id="totalSolved">0</b> problems this year</div>
     </div>
     <div class="heatmap-scroll-outer">
@@ -137,22 +158,22 @@
             <circle id="pc-easy" cx="60" cy="60" r="44" fill="none" stroke="#22c55e" stroke-width="18" stroke-dasharray="0 276.46"/>
           </svg>
           <div class="pie-center">
-            <div class="pie-total">342</div>
+            <div class="pie-total" id="total-count"></div>
             <div class="pie-label">total</div>
           </div>
         </div>
         <div class="pie-legend">
           <div class="pie-row">
             <span class="pie-row-left"><span class="pie-dot" style="background:#22c55e"></span>Easy</span>
-            <div><span class="pie-count">168</span><span class="pie-pct"> / 49%</span></div>
+            <div><span class="pie-count"></span><span class="pie-pct">  </span></div>
           </div>
           <div class="pie-row">
             <span class="pie-row-left"><span class="pie-dot" style="background:#f59e0b"></span>Medium</span>
-            <div><span class="pie-count">132</span><span class="pie-pct"> / 39%</span></div>
+            <div><span class="pie-count"></span><span class="pie-pct">  </span></div>
           </div>
           <div class="pie-row">
             <span class="pie-row-left"><span class="pie-dot" style="background:#ef4444"></span>Hard</span>
-            <div><span class="pie-count">42</span><span class="pie-pct"> / 12%</span></div>
+            <div><span class="pie-count"></span><span class="pie-pct"> </span></div>
           </div>
         </div>
       </div>
@@ -160,30 +181,288 @@
 
     <div class="card">
       <div class="section-title">Topic Wise Solved</div>
-      <div class="bar-chart" id="barChart"></div>
+      <div style="position: relative; height: 400px; padding: 10px;">
+        <canvas id="topicChart"></canvas>
+      </div>
     </div>
   </div>
+
+
 
 </main>
 
 <script>
+let topicChart = null;
+let graphData = null;
 // ─── THEME ───────────────────────────────────────────────────────────────────
 const themeBtn = document.getElementById('themeBtn');
 let dark = false;
+
+// Load saved theme from localStorage on page load
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+  dark = true;
+  document.documentElement.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☽';
+} else {
+  dark = false;
+  document.documentElement.setAttribute('data-theme', 'light');
+  themeBtn.textContent = '☀';
+}
+
+
 themeBtn.addEventListener('click', () => {
   dark = !dark;
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   themeBtn.textContent = dark ? '☽' : '☀';
+  // Save theme choice to localStorage
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  renderTopicChart();
 });
+
+// Setting basic data
+let data_handle = document.getElementById("profile-data-container");
+let handle = data_handle.getAttribute('data-handle');
+let myRawPayloadArray = [];
+
+// USER DATA
+async function fetch_user_info(){
+  try{
+    const res = await fetch("/user_profile_data",{
+      method : 'GET',
+    });
+    const payload = await res.json();
+
+    console.log("Full payload:", payload.data);
+
+    const user_data = payload.user;
+    const submission = payload.data;
+    const pie_data = payload.pie;
+    const graph_data = payload.graph;
+    graphData = graph_data;
+    
+
+    const rating = document.getElementsByClassName('rating-badge');
+    // rating[0].innerHTML = user_data.maxrating;
+    rating[0].innerHTML = `MAX ${user_data.maxrating}`;
+
+    const name = document.getElementsByClassName('profile-name');
+    name[0].innerHTML = `${user_data.first_name} ${user_data.last_name}`;
+
+    const handle_el = document.getElementsByClassName('profile-handle');
+    handle_el[0].innerHTML = `@${user_data.handle}`;
+
+    document.querySelector('#country .chip-text').textContent = user_data.country;
+    
+    document.querySelector('#age .chip-text').textContent = user_data.age;
+
+    document.querySelector('#current-role .chip-text').textContent = user_data.current_role;
+
+    document.getElementById('cf-rating').innerHTML = user_data.rating;
+
+    document.getElementById('first-total-count').innerHTML = user_data.solved_count;
+    
+    document.getElementById('titled-rank').innerHTML = user_data.rank;
+
+
+    const bio = document.getElementsByClassName('profile-bio');
+    bio[0].innerHTML = user_data.bio;
+
+    // This is all data required for heatmaps
+    myRawPayloadArray = payload.data;
+
+    const indexedData = {};
+
+
+    myRawPayloadArray.forEach(item => {
+      indexedData[item.timestamp] = item; // Gets me timestamp for every iteration
+    });
+
+    buildSubmissionMap(indexedData);
+    buildDifficultyMap(indexedData);
+
+    // Code for Graphs and pie_data
+
+    const circ = 2 * Math.PI * 44;
+
+    const easy = pie_data["easy"];
+    const medium = pie_data["medium"];
+    const hard = pie_data["hard"];
+    const total = user_data.solved_count;
+
+    document.getElementById('total-count').textContent = total;
+
+    const easyArc = (easy / total) * circ;
+    const medArc  = (medium / total) * circ;
+    const hardArc = (hard / total) * circ;
+
+    const pieRows = document.querySelectorAll('.pie-row');
+
+    const difficulties = [
+      {count : easy, total},
+      {count : medium, total},
+      {count : hard, total},
+    ]
+
+    difficulties.forEach((d,i) => {
+      const pct = total > 0 ? ((d.count / total) * 100).toFixed(1) : 0;
+      pieRows[i].querySelector('.pie-count').textContent = d.count;
+      pieRows[i].querySelector('.pie-pct').textContent = `${pct}%`;
+    });
+    console.log(difficulties);
+
+    function animatePie() {
+      const easyEl = document.getElementById('pc-easy');
+      const medEl  = document.getElementById('pc-medium');
+      const hardEl = document.getElementById('pc-hard');
+
+      easyEl.style.transition = 'stroke-dasharray 1s ease';
+      easyEl.setAttribute('stroke-dasharray', `${easyArc} ${circ - easyArc}`);
+      easyEl.setAttribute('stroke-dashoffset', '0');
+
+      medEl.style.transition = 'stroke-dasharray 1s 0.3s ease';
+      medEl.setAttribute('stroke-dasharray', `${medArc} ${circ - medArc}`);
+      medEl.setAttribute('stroke-dashoffset', `-${easyArc}`);
+
+      hardEl.style.transition = 'stroke-dasharray 1s 0.6s ease';
+      hardEl.setAttribute('stroke-dasharray', `${hardArc} ${circ - hardArc}`);
+      hardEl.setAttribute('stroke-dashoffset', `-${easyArc + medArc}`);
+    }
+
+    // Animate pie chart
+    setTimeout(() => {
+      animatePie();
+    }, 300);
+
+    // Create donut chart for topic-wise solved
+    setTimeout(() => {
+      renderTopicChart();
+    }, 400);
+
+  }
+  catch (error){   
+    console.error("Process failed, redirecting to safety:", error);
+  }
+}
+
+function renderTopicChart() {
+  if (!graphData) return;
+  const canvas = document.getElementById('topicChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const ctx = canvas.getContext('2d');
+  const topicLabels = [
+    'Graph Theory', 'Dynamic Prog.', 'Greedy', 'Binary Search',
+    'Data Structures', 'Math', 'Strings', 'DFS and Similar',
+    'Shortest Paths', 'Trees', 'Two Pointers', 'Sliding Window',
+    'Implementation', 'DSU', 'Bitmasks'
+  ];
+  const topicValues = [
+    graphData.graphs, graphData.dp, graphData.greedy,
+    graphData.binary_search, graphData.data_structures,
+    graphData.math, graphData.strings, graphData.dfs,
+    graphData.shortest_paths, graphData.trees,
+    graphData.two_pointer, graphData.sliding_window,
+    graphData.implementation, graphData.dsu,
+    graphData.bitmasks
+  ];
+  const topicColors = [
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+    '#9966FF', '#FF9F40', '#4CAF50', '#9C27B0',
+    '#FF5722', '#00BCD4', '#8BC34A', '#E91E63',
+    '#FFEB3B', '#673AB7', '#009688'
+  ];
+
+  // Combine and sort by value descending
+  const combinedData = [];
+  for (let i = 0; i < topicLabels.length; i++) {
+    if (topicValues[i] > 0) {
+      combinedData.push({
+        label: topicLabels[i],
+        value: topicValues[i],
+        color: topicColors[i]
+      });
+    }
+  }
+  combinedData.sort((a, b) => b.value - a.value);
+  const filteredLabels = combinedData.map(d => d.label);
+  const filteredValues = combinedData.map(d => d.value);
+  const filteredColors = combinedData.map(d => d.color);
+
+  // Get theme colors
+  const rootStyle = getComputedStyle(document.documentElement);
+  const textColor = rootStyle.getPropertyValue('--text').trim() || '#1a1a1a';
+  const textMuted = rootStyle.getPropertyValue('--text-muted').trim() || '#7a7570';
+  const surfaceColor = rootStyle.getPropertyValue('--surface').trim() || '#ffffff';
+  const borderColor = rootStyle.getPropertyValue('--border').trim() || '#e2ddd8';
+
+  // Destroy old chart if exists
+  if (topicChart) {
+    topicChart.destroy();
+  }
+
+  topicChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: filteredLabels,
+      datasets: [{
+        data: filteredValues,
+        backgroundColor: filteredColors,
+        borderWidth: 1,
+        borderColor: surfaceColor
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      layout: {
+        padding: {
+          top: 10,
+          bottom: 10
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            font: {
+              size: 12,
+              family: 'Sora, sans-serif'
+            },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            color: textColor,
+            padding: 15
+          }
+        },
+        tooltip: {
+          backgroundColor: surfaceColor,
+          titleColor: textColor,
+          bodyColor: textMuted,
+          borderColor: borderColor,
+          borderWidth: 1,
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              return `${label}: ${value}`;
+            }
+          }
+        }
+      },
+      cutout: '50%'
+    }
+  });
+}
 
 // ─── SHARED ───────────────────────────────────────────────────────────────────
 const tooltip = document.getElementById('tooltip');
 const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 // Date range: last 365 days ending today, aligned to Monday
-const today = new Date(2024, 11, 29);
+const today = new Date();
 const startDate = new Date(today);
-startDate.setDate(startDate.getDate() - 364);
+startDate.setDate(startDate.getDate() - 364); // One year back
 while (startDate.getDay() !== 1) startDate.setDate(startDate.getDate() - 1);
 
 function buildMonthLabels(containerId) {
@@ -203,7 +482,7 @@ function buildMonthLabels(containerId) {
   }
 }
 
-function showTooltip(e, html) {
+function showTooltip(e, html) { // Shows details for mouse hover over days
   tooltip.innerHTML = html;
   tooltip.style.opacity = '1';
   tooltip.style.left = (e.clientX + 12) + 'px';
@@ -222,22 +501,48 @@ document.addEventListener('mousemove', e => {
   }
 });
 
+function formatDateToKey(dateObj) {
+  const year = dateObj.getFullYear();
+  // Months are 0-indexed in JS (January is 0), so add 1
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`; // Returns "2025-06-28"
+}
+
+
+
+
+
+
 // ─── HEATMAP 1: SUBMISSION ACTIVITY ──────────────────────────────────────────
-buildMonthLabels('monthsRow');
+function buildSubmissionMap(indexedData){
+  buildMonthLabels('monthsRow');
 
 const heatmapEl = document.getElementById('heatmap');
 let totalActive = 0, totalSolved = 0;
 
 for (let i = 0; i < 53 * 7; i++) {
-  const d = new Date(startDate);
+  const d = new Date(startDate); // New Date
   d.setDate(d.getDate() + i);
 
+  const lookupkey = formatDateToKey(d);
+
+  const daydata = indexedData[lookupkey];
+
   let v = 0, solved = 0;
-  if (d <= today && Math.random() > 0.55) {
-    v = Math.ceil(Math.random() * 4);
-    solved = v * 2;
-    totalActive++;
+  // if (d <= today && Math.random() > 0.55) {
+  //   v = Math.ceil(Math.random() * 4);
+  //   solved = v * 2;
+  //   totalActive++;
+  //   totalSolved += solved;
+  // }
+  if (daydata){
+    solved = daydata.count;
+    totalActive += 1;
     totalSolved += solved;
+    v = Math.min(daydata.count,4);
+    
   }
 
   const cell = document.createElement('div');
@@ -259,9 +564,11 @@ for (let i = 0; i < 53 * 7; i++) {
 
 document.getElementById('totalActive').textContent = totalActive;
 document.getElementById('totalSolved').textContent = totalSolved;
+}
 
 // ─── HEATMAP 2: MAX DIFFICULTY ────────────────────────────────────────────────
-buildMonthLabels('monthsRowMax');
+function buildDifficultyMap(indexedData){
+  buildMonthLabels('monthsRowMax');
 
 const heatmapMaxEl = document.getElementById('heatmapMax');
 
@@ -274,11 +581,11 @@ const diffTiers = [
   { label: '≥1900', min: 1900, max: 2500 },
 ];
 
-function randomDifficulty() {
-  // Random realistic CF difficulty
-  const tier = diffTiers[Math.floor(Math.random() * diffTiers.length)];
-  return tier.min + Math.floor(Math.random() * (tier.max - tier.min + 1)) ;
-}
+// function randomDifficulty() {
+//   // Random realistic CF difficulty
+//   const tier = diffTiers[Math.floor(Math.random() * diffTiers.length)];
+//   return tier.min + Math.floor(Math.random() * (tier.max - tier.min + 1)) ;
+// }
 
 function diffToLevel(diff) {
   if (diff < 1000) return 1;
@@ -294,14 +601,25 @@ for (let i = 0; i < 53 * 7; i++) {
   const d = new Date(startDate);
   d.setDate(d.getDate() + i);
 
+  const lookup = formatDateToKey(d);
+  const daydata = indexedData[lookup];
+
+
   let v = 0, diff = null;
-  if (d <= today && Math.random() > 0.6) {
-    diff = randomDifficulty();
+  // if (d <= today && Math.random() > 0.6) {
+  //   diff = randomDifficulty();
+  //   v = diffToLevel(diff);
+  //   totalActiveMax++;
+  //   totalSolvedMax++;
+  // }
+  if (daydata){
+    diff = daydata.rating;
     v = diffToLevel(diff);
     totalActiveMax++;
-    totalSolvedMax++;
+    totalSolvedMax += daydata.count;
   }
 
+  
   const cell = document.createElement('div');
   cell.className = 'heat-cell';
   cell.setAttribute('data-v', v);
@@ -321,61 +639,48 @@ for (let i = 0; i < 53 * 7; i++) {
 
 document.getElementById('totalActiveMax').textContent = totalActiveMax;
 document.getElementById('totalSolvedMax').textContent = totalSolvedMax;
-
-// ─── PIE CHART ────────────────────────────────────────────────────────────────
-const circ = 2 * Math.PI * 44;
-const easy = 168, medium = 132, hard = 42, total = 342;
-const easyArc = (easy / total) * circ;
-const medArc  = (medium / total) * circ;
-const hardArc = (hard / total) * circ;
-
-function animatePie() {
-  const easyEl = document.getElementById('pc-easy');
-  const medEl  = document.getElementById('pc-medium');
-  const hardEl = document.getElementById('pc-hard');
-
-  easyEl.style.transition = 'stroke-dasharray 1s ease';
-  easyEl.setAttribute('stroke-dasharray', `${easyArc} ${circ - easyArc}`);
-  easyEl.setAttribute('stroke-dashoffset', '0');
-
-  medEl.style.transition = 'stroke-dasharray 1s 0.3s ease';
-  medEl.setAttribute('stroke-dasharray', `${medArc} ${circ - medArc}`);
-  medEl.setAttribute('stroke-dashoffset', `-${easyArc}`);
-
-  hardEl.style.transition = 'stroke-dasharray 1s 0.6s ease';
-  hardEl.setAttribute('stroke-dasharray', `${hardArc} ${circ - hardArc}`);
-  hardEl.setAttribute('stroke-dashoffset', `-${easyArc + medArc}`);
 }
 
+// ─── PIE CHART ────────────────────────────────────────────────────────────────
+
+
+
 // ─── BAR CHART ────────────────────────────────────────────────────────────────
-const topics = [
-  { name: 'Graph Theory',    solved: 68, max: 80 },
-  { name: 'Dynamic Prog.',   solved: 55, max: 80 },
-  { name: 'Greedy',          solved: 47, max: 80 },
-  { name: 'Binary Search',   solved: 42, max: 80 },
-  { name: 'Data Structures', solved: 38, max: 80 },
-  { name: 'Math',            solved: 35, max: 80 },
-  { name: 'String',          solved: 28, max: 80 },
-  { name: 'Brute Force',     solved: 22, max: 80 },
-];
 
-const barChart = document.getElementById('barChart');
-topics.forEach(t => {
-  const row = document.createElement('div');
-  row.className = 'bar-row';
-  row.innerHTML = `
-    <span class="bar-topic">${t.name}</span>
-    <div class="bar-track"><div class="bar-fill" data-pct="${(t.solved/t.max*100).toFixed(0)}"></div></div>
-    <span class="bar-val">${t.solved}</span>
-  `;
-  barChart.appendChild(row);
-});
 
-// ─── ANIMATE ON LOAD ─────────────────────────────────────────────────────────
-setTimeout(() => {
-  document.querySelectorAll('.bar-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
-  animatePie();
-}, 300);
+
+
+
+
+fetch_user_info();
+
+// // STICKY NOTE
+// document.getElementById('stickyClose').addEventListener('click', () => {
+//   document.getElementById('stickyNote').classList.add('hidden');
+// });
+
+// STICKY NOTE — injected directly into body to bypass any stacking context
+const stickyNote = document.createElement('div');
+stickyNote.id = 'stickyNote';
+stickyNote.className = 'sticky-note';
+stickyNote.innerHTML = `
+  <button class="sticky-close" id="stickyClose" aria-label="Close note">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M4 4l8 8M12 4l-8 8"/>
+    </svg>
+  </button>
+  <div class="sticky-icon">ℹ</div>
+  <p class="sticky-text">Zero rating problems are unrated or yet to be rated.</p>
+`;
+document.body.appendChild(stickyNote);
+
+// document.getElementById('stickyClose').addEventListener('click', () => {
+//   stickyNote.classList.add('hidden');
+// });
 </script>
 
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 {% endblock %}

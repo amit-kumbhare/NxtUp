@@ -76,8 +76,8 @@
       <table>
         <thead>
           <tr>
-            <th class="center" style="width:44px">Done</th>
-            <th style="width:60px">No.</th>
+            <!-- <th class="center" style="width:44px">Done</th> -->
+            <th style="width:60px">CODE</th>
             <th>Problem</th>
             <th style="width:95px">Link</th>
             <th>Tags</th>
@@ -170,9 +170,10 @@ const PROBLEMS_RAW = {{ problems_json | safe}}
 
 const PROBLEMS = PROBLEMS_RAW.map((p, index) => ({
   id : index,
+  num: index+1,
   ...p,
   code: `${p.contestId}${p.index}`,
-  cfID: `${p.contestId}/problem/${p.index}`
+  cfID: `${p.contestId}/${p.index}`
 }));
 
 // ═══════════════════════════════════════════════════════════════════
@@ -262,7 +263,8 @@ function render() {
     const solved  = state.solved.has(p.id);
     const starred = state.starred.has(p.id);
     const hasNote = !!state.notes[p.id];
-    const cfLink  = `https://codeforces.com/problemset/problem/${p.cfId}`;
+    // const cfLink  = `https://codeforces.com/problemset/problem/${p.cfId}`;
+    const cfLink  = `https://codeforces.com/problemset/problem/${p.contestId}/${p.index}`;
 
     const tagPills = p.tags.slice(0, 4).map(t =>
       `<span class="tag-pill${state.activeTag === t ? ' active-tag' : ''}" onclick="setTagFilter('${t}')">${t}</span>`
@@ -273,13 +275,8 @@ function render() {
     if (solved) tr.classList.add('solved');
 
     tr.innerHTML = `
-      <td class="center">
-        <div class="cb-wrap">
-          <input type="checkbox" class="cb" data-id="${p.id}" ${solved ? 'checked' : ''}>
-        </div>
-      </td>
       <td>
-        <span class="serial">${p.num}</span>
+        <span class="serial">${p.code}</span>
       </td>
       <td>
         <div class="q-title">

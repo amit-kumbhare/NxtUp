@@ -1,27 +1,149 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.http import require_POST
 from django.shortcuts import render
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 import requests
 from django.http import JsonResponse
+from .services import verify_handle, rating_maxrating
+from .essentials import add_past_submissions,update_ach, user_solve_count
+from django.db.models import Count,Max
 import json
 import datetime
-
-
-
-# Create your views here.
+import time
+from .models import submission, user, sheet_question
 
 def index(request):
     return render(request, "sheet/login.html")
 
-def login(request):
-    pass
+@require_POST
+def login_user(request):
+    data = json.loads(request.body)
+    if request.method == "POST":
 
-def logout(request):
-    pass
+        email = data.get("email","").strip()
+        password = data.get("password","")
+        remember = data.get("remember", False)
+
+        # authenticate() returns an user instance is it exists, none otherwise
+        user_verify = authenticate(request, username = email, password = password)
+
+        # Check if authentication successful
+        if user_verify is not None:
+            # Creates a session for user, which redirects and sends context
+            login(request, user_verify)
+            if not remember:
+                request.session.set_expiry(0) # Would be logged out later
+            # This is the success case -> Now login the user to blind_order
+            return JsonResponse({"ok" : True, "redirect": reverse("blind_order")})
+            # return render(request, "sheet/blind_order.html")
+        else:
+            return JsonResponse({"ok": False, "error":"Invalid Credentials"})
+    else:
+        return JsonResponse({"ok":False, "error": "Invalid email or password."})
+
+
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("index"))
+
+# TODO -> add # message inside login page to show errors
+
+def register(request):
+    return render(request, "sheet/register.html")
+
+
+@require_POST
+def register_check(request):
+    data = json.loads(request.body)
+    if request.method == "POST":
+        email = data.get('email').strip()
+        exists = user.objects.filter(email = email).first()
+
+        if not exists : # Success case for new registration
+            return JsonResponse({"ok": True})
+        else:
+            return JsonResponse({"ok":False, "error": "Email is already registered"})
+        
+    else:
+        # Instead we should try to raise an error here
+        return JsonResponse({"ok":False})
+
+@require_POST
+def handle_check(request):
+    data = json.loads(request.body)
+    if request.method == "POST":
+        handle = data.get("handle").strip()
+        exists = verify_handle(handle)
+
+        if not exists:
+            # Failure case INVALID HANDLE
+            return JsonResponse({"ok":False})
+        else:
+            # Success Case
+            return JsonResponse({"ok":True})
+    else:
+        return JsonResponse({"ok":False})
+
+
+@require_POST
+def create_user(request):
+    data = json.loads(request.body)
+
+    # First if any existing 
+    if request.method == "POST":
+
+        fname = data.get('fname')
+        lname = data.get('lname')
+        email = data.get('email')
+    
+        password = data.get('password')
+        handle = data.get('handle')
+
+        age = data.get('age')
+        country = data.get('Country')
+        role = data.get('role')
+        bio = data.get('bio')
+
+        new_user = user.objects.create_user(
+            handle = data.get('handle'),
+            username=handle, # Abstract User class requirements
+            password=password, # Automatically hashed by Django
+            first_name = fname,
+            last_name = lname,
+            email = email,
+
+            age = age,
+            country = country,
+            current_role = role,
+            bio = bio
+        )
+        new_user.save()
+
+        login(request,new_user)
+
+        print(request.user.is_authenticated)
+        print(request.user.username)
+        print(request.session.session_key)
+
+
+        # Now run these post creation API Calls
+        # 1. add_past_submissions
+        # 2. update_ach
+
+        return JsonResponse({"ok":True})
+    else:
+        return JsonResponse({"ok":False})
+
+def forgot_password(request):
+    pass # TODO
+
+def error_occured(request):
+    return render(request,"sheet/error.html")
 
 # PROFILE NEEDS :
 '''
@@ -37,8 +159,171 @@ rating
 no. of questions solved
 Current Rank
 '''
+
+def control(request):
+    return render(request, "sheet/control.html")
+
+@login_required
 def profile(request):
+    # Currently update rating when visiting the profile, later shift it to half hourly updation
+    # update_ach(request)
     return render(request, "sheet/profile.html")
+
+@login_required
+def profile_data(request):
+    submission_data = year_submission(request)
+    user_solve_count(request)
+    # profile_stats = 
+    # Now add user data like solved count and tags info
+    user_object = {
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name,
+        # "handle": getattr(request.user, 'handle', ''),
+        "handle": request.user.handle,
+        "country": getattr(request.user, 'country', ''),
+        "age": getattr(request.user, 'age', ''),
+        "current_role": getattr(request.user, 'current_role', ''),
+        "bio": getattr(request.user, 'bio', ''),
+        "rating":getattr(request.user,'rating',''),
+        "maxrating":getattr(request.user, 'MaxRating',''),
+        "solved_count":getattr(request.user,'solved_count',''),
+        "rank":getattr(request.user, 'rank','')
+    }
+
+    # Graph data
+    diff = request.user.difficulty # Fetches UserDifficultyStats
+    pie_data = {
+        "easy" : diff.easy,
+        "medium" : diff.medium,
+        "hard" : diff.hard
+    }
+    topics = request.user.topic_wise # Fetches UserTopicStats
+    topic = {
+        "graphs" : topics.graphs,
+        "dp" : topics.dp,
+        "greedy" : topics.greedy,
+        "binary_search" : topics.binary_search,
+        "data_structures" : topics.data_structures,
+        "math" : topics.math,
+        "strings" : topics.strings,
+        "dfs" : topics.dfs,
+        "shortest_paths" : topics.shortest_paths,
+        "trees" : topics.trees,
+        "two_pointer" : topics.two_pointer,
+        "sliding_window" : topics.sliding_window,
+        "implementation" : topics.implementation,
+        "dsu" : topics.dsu,
+        "bitmasks" : topics.bitmasks
+    }
+    return JsonResponse({"user": user_object, "data": submission_data, "pie":pie_data, "graph":topic})
+
+@login_required
+def year_submission(request):
+    """Gets all submission from a user within the past 364 Days."""
+    user_data = request.user
+    start_date = datetime.date.today() - datetime.timedelta(days=365)
+    end_date = datetime.date.today()
+
+    all_submissions = submission.objects.filter(solver__handle = user_data.handle, timestamp__range =[start_date,end_date], verdict="OK" )
+    submission_data = all_submissions.values('timestamp').annotate(count=Count('id'), rating= Max('problem__rating'))
+
+    # Now converting dates to strings because JSON can't serialise date in Django (basically trying to make them strings to send places)
+    formatted_data = []
+    for item in submission_data:
+        formatted_data.append({
+            "timestamp": item['timestamp'].strftime('%Y-%m-%d'),
+            "count" : item['count'],
+            "rating": item['rating']
+        })
+    return formatted_data
+
+@login_required
+def graph_data(request):
+    """Updates user's statistics data for the first time (on all 10k submissions)"""
+    # subs = submission.objects.filter(solver__handle = request.user.handle,verdict="OK").distinct("problem__problem_id")
+    subs = (
+        submission.objects.filter(solver__handle=request.user.handle, verdict="OK")
+        .select_related('problem') # Fetches entire problem table, reducing 10k query to 1
+        .order_by('problem__problem_id') # SQL ORDER BY
+    )
+
+    # Now look for duplicates 
+    seen_problem_ids = set()
+
+    new_subs = []
+
+    for sub in subs:
+        if sub.problem.problem_id not in seen_problem_ids:
+            seen_problem_ids.add(sub.problem.problem_id)
+            new_subs.append(sub)
+    solved = {"easy":0, "medium":0, "hard":0}
+
+    tag = {"graphs":0, 
+                  "dp": 0,
+                  "greedy":0,
+                  "binary_search":0,
+                  "data_structures":0,
+                  "math":0,
+                  "strings":0,
+                  "dfs":0,
+                  "shortest_paths":0,
+                  "trees":0,
+                  "two_pointer":0,
+                  "sliding_window":0,
+                  "implementation":0,
+                  "dsu":0,
+                  "bitmasks":0
+                  }
+    
+    for sub in subs:
+        # Now get sub's rating 
+        if sub.problem.rating <= 1200:
+            solved["easy"] += 1
+        elif sub.problem.rating <= 1900:
+            solved["medium"] += 1
+        else:
+            solved["hard"] += 1
+        
+        for i in sub.problem.tags:
+            if i in tag:
+                tag[i] += 1
+    
+    # Now update the new data with user stats
+
+    diff = request.user.difficulty # Object of UserDifficultyStats
+    diff.easy = solved["easy"]
+    diff.medium = solved["medium"]
+    diff.hard = solved["hard"]
+
+    diff.save()
+
+    topics = request.user.topic_wise # Object of UserTopicStats
+    topics.graphs = tag["graphs"]
+    topics.dp = tag["dp"]
+    topics.greedy = tag["greedy"]
+    topics.binary_search = tag["binary_search"]
+    topics.data_structures = tag["data_structures"]
+    topics.math = tag["math"]
+    topics.strings = tag["strings"]
+    topics.dfs = tag["dfs"]
+    topics.shortest_paths = tag["shortest_paths"]
+    topics.trees = tag["trees"]
+    topics.two_pointer = tag["two_pointer"]
+    topics.sliding_window = tag["sliding_window"]
+    topics.implementation = tag["implementation"]
+    topics.dsu = tag["dsu"]
+    topics.bitmasks = tag["bitmasks"]
+    
+    topics.save()
+
+    request.user.save()
+
+    # return redirect("profile")
+
+
+
+def profile_edit(request):
+    return render(request, "sheet/profile_edit.html")
 
 # correct codeforces URL -> https://codeforces.com/problemset/problem/4/A
 # TODO -> Also add activated section context when updating frontend
@@ -47,19 +332,45 @@ def profile(request):
 def tour(request):
     return render(request, "sheet/tour.html")
 
+# def user_data(request):
+#     json_data = get_user_data(request)
+#     return render(request, "sheet/codeforcesapi.html",{
+#         "userdata":json_data
+#     })
+
+        
+
+
 
 ####################################################################################
 # BLIND ORDER
 ####################################################################################
 
+@login_required # This decorator only allows blind_order to run if loggedin
+def questions_data(request):
+    user_handle = request.user.handle
 
-def blind_order(request):
-    with open('sheet/sheet_problems/1300.json') as f:
+    # Firstly fetch sheet_problems
+    sheet_problems = list(sheet_question.objects.values())
+
+    with open('sheet/sheet_problems/a2oj_problems.json') as f:
         data = json.load(f)
-    return render(request, "sheet/blind_order.html",{
-        'problems_json': json.dumps(data)
-    })
+    problem_codes = [f"{p["contestId"]}{p["index"]}" for p in data] # This is list of all problem_ids
+    solved_ids = list(
+        submission.objects.filter(
+            solver__handle = user_handle,
+            problem__problem_id__in = problem_codes,
+            verdict = "OK"
+        )
+        .values_list('problem__problem_id', flat=True)
+        .distinct()
+    )
+    return JsonResponse({"problems": sheet_problems, "solved_problem_list": solved_ids})
 
+
+@login_required
+def blind_order(request):
+    return render(request, "sheet/blind_order.html")
 ####################################################################################
 # TOPIC WISE
 ####################################################################################
@@ -67,18 +378,11 @@ def blind_order(request):
 # TODO Implement a rating sort on your own.
 # bars on every page
 def topic_wise(request):
-    with open('sheet/sheet_problems/1300.json') as f:
+    with open('sheet/sheet_problems/a2oj_problems.json') as f:
         data = json.load(f)
     return render(request, "sheet/topic_wise.html",{
         'problems_json': json.dumps(data)
     })
-
-
-
-
-
-
-
 
 
 ####################################################################################
@@ -110,44 +414,9 @@ Submission Fetched JSON Example
 }
 '''
 
+
 def recent_submissions(request):
-    handle = request.GET.get("handle", "amit.k_52")
-
-    url = f"https://codeforces.com/api/user.status?handle={handle}&from=1&count=2"
-    # url2 = f"https://codeforces.com/api/user?handle={handle}"
-    url2 = f"https://codeforces.com{handle}"
-
-    try:
-        res = requests.get(url)
-        res2 = requests.get(url2)
-        data = res.json()
-        data2 = res2.json()
-
-        if data["status"] != "OK" or data2["status"] != "OK":
-            return -1
-        
-        submissions = data["result"]
-        result = []
-
-        user_data = data2
-        result.append(user_data)
-        for i in submissions:
-            result.append({
-                "name":i['problem']['name'],
-                "tags":i['problem']['tags'],
-                # Special check for unrated gym problems
-                "rating":i['problem'].get('rating',0),
-                "id": i["problem"]["contestId"],
-                "index": i["problem"]["index"],
-                "verdict":i['verdict'],
-                "Timestamp": datetime.datetime.fromtimestamp(i['creationTimeSeconds'])
-            })
-        
-        
-        return result
-    except Exception as e:
-        return -1
-
+    pass
 
 
 tags = ["implementation", "math", "brute-force","greedy","binary-search",
@@ -205,42 +474,10 @@ def print_date(request):
 def notes(request):
     return render(request, "sheet/notes.html")
 
-def fetching(request):
-    handle = "amit.k_52"
 
 
 
-def get_submissions(request):
-    handle = request.GET.get("handle", "amit.k_52")
 
-    url = f"https://codeforces.com/api/user.status?handle={handle}&from=1&count=1000"
-
-    try:
-        res = requests.get(url)
-        data = res.json()
-
-        if data["status"] != "OK":
-            return JsonResponse({"error": "Invalid handle"}, status=400)
-        
-        submissions = data["result"]
-
-        # # Optional: simplify response
-        # result = [
-        #     {
-        #         "name": sub["problem"]["name"],
-        #         "verdict": sub.get("verdict", "UNKNOWN")
-        #     }
-        #     for sub in submissions
-        # ]
-        return render(request, "sheet/codeforcesapi.html",{
-            "submissions": submissions
-        })
-        # print(data)
-
-        # return JsonResponse({"submissions": result})
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
 
 
 

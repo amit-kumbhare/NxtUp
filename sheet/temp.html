@@ -56,8 +56,8 @@
     <table>
       <thead>
         <tr>
-          <!-- <th class="center" style="width:44px">Done</th> -->
-          <th style="width:52px">CODE</th>
+          <th class="center" style="width:44px">Done</th>
+          <th style="width:52px">#</th>
           <th>Problem</th>
           <th style="width:210px">Links</th>
           <th class="center" style="width:44px">Star</th>
@@ -101,68 +101,27 @@
 </div>
 
 <script>
-
-  // Var Initalization
-
-  let PROBLEMS = [];
-  let state = {
-    solved: new Set(),
-    starred: new Set(),
-    notes: {},
-    filter: 'all',
-    search: '',
-    activeNoteId: null,
-  };
 // ─── DATA ───────────────────────────────────────────────────────────────────
-// Fetch the problem Data
+const solvedArray = {{ solved_problem_list| safe}};
+const problemsRawData = {{ problems_json|safe }};
 
+const PROBLEMS = problemsRawData.map((p, index) => ({
+    id : index + 1,
+    ...p,
+    code:`${p.contestId}${p.index}`,
+    diff : p.rating < 1000 ? "easy" : p.rating < 1500 ? "medium" : "hard",
+}));
 
-
-async function fetch_question_info(){
-  try{
-    const res = await fetch("/fetch_sheet_questions",{
-      method : 'GET',
-    });
-    const payload = await res.json();
-
-    // console.log(payload);
-
-    const solvedArray = payload.solved_problem_list;
-    const problemsRawData = payload.problems;
-    state.solved = new Set(solvedArray);  
-
-    console.log(payload.problems);
-    console.log(payload.solved_problem_list);
-  
-    PROBLEMS = problemsRawData.map((p, index) => ({
-        id : index + 1,
-        ...p,
-        code:`${p.contestId}${p.index}`,
-        diff : p.rating < 1000 ? "easy" : p.rating < 1500 ? "medium" : "hard",
-    }));
-
-    document.getElementById('searchInput').addEventListener('input', e => {
-      state.search = e.target.value;
-      render();
-    });
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeModal();
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.activeNoteId) saveNote();
-    });
-
-    // ─── INIT ────────────────────────────────────────────────────────────────────
-    setFilter('all');
-    render();
-
-  }
-  catch(error){
-    console.log("error occured", error);
-  }
-}
-fetch_question_info();
-
-
+// ACTUAL STATE SHOULD BE SEND AND RENDERED VIA DB  
+// State
+const state = {
+  solved: new Set(solvedArray),
+  starred: new Set([]),
+  notes: {},
+  filter: 'all',
+  search: '',
+  activeNoteId: null,
+};
 
 // ─── RENDER ─────────────────────────────────────────────────────────────────
 function render() {
@@ -192,15 +151,17 @@ function render() {
     if (solved) tr.classList.add('solved');
 
     tr.innerHTML = `
-
-      <td><span class="serial">${p.code}</span></td>
+      <td class="center">
+        <div class="cb-wrap">
+          <input type="checkbox" class="cb" data-id="${p.code}" ${solved ? 'checked' : ''}>
+        </div>
+      </td>
+      <td><span class="serial">${String(p.id).padStart(2,'0')}</span></td>
       <td>
         <div class="q-title">
           ${p.title}
-
           <span class="diff-tag ${p.diff}">${p.diff}</span>
           <span class="rating-chip">${p.rating}</span>
-          
         </div>
       </td>
       <td>
@@ -255,7 +216,7 @@ function updateStats() {
   document.getElementById('remainCount').textContent  = total - solved;
   document.getElementById('starCount').textContent    = state.starred.size;
   document.getElementById('progressLabel').textContent = `${solved} / ${total}`;
-  // llWidth = total > 0 ? (solved/ total * 100)/toFixed(1) : 0;
+  llWidth = total > 0 ? (solved/ total * 100)/toFixed(1) : 0;
   document.getElementById('progressFill').style.width  = `${(solved/total*100).toFixed(1)}%`;
 }
 
@@ -280,7 +241,10 @@ function setFilter(f) {
   render();
 }
 
-
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value;
+  render();
+});
 
 // ─── MODAL ───────────────────────────────────────────────────────────────────
 function openModal(id, title) {
@@ -306,7 +270,10 @@ function saveNote() {
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
-
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.activeNoteId) saveNote();
+});
 
 // ─── THEME ───────────────────────────────────────────────────────────────────
 document.getElementById('themeBtn').addEventListener('click', function() {
@@ -315,7 +282,9 @@ document.getElementById('themeBtn').addEventListener('click', function() {
   this.textContent = dark ? '☀' : '☽';
 });
 
-
+// ─── INIT ────────────────────────────────────────────────────────────────────
+setFilter('all');
+render();
 </script>
 </body>
 
