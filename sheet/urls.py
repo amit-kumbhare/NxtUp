@@ -26,8 +26,6 @@ urlpatterns = [
     path("profile_edit", views.profile_edit, name= "profile_edit"),
 
     # Blindorder and Topic Wise Sheets  Questions
-
-    # NOTE => Try to add those questions in session storage for smoother experience
     path("fetch_sheet_questions", views.questions_data, name="fetch_sheet_questions"),
 
     # Problems Sheets
@@ -39,6 +37,10 @@ urlpatterns = [
 
     # Notes
     path("sheet/notes", views.notes, name="notes"),
+    path("create_note", essentials.create_note, name="notes"),
+
+    # Star
+    path("create_star", essentials.create_star, name="create_star"),
 
     #api
     path("add_past_submissions", essentials.add_past_submissions, name="add_past_submissions"),
@@ -49,6 +51,7 @@ urlpatterns = [
     path("calc_stats", essentials.create_user_ach, name="calc_stats"),
     path("update_data", views.graph_data, name="update_data"),
     path("create_questions", essentials.create_questions, name="create_questions"),
+    path("create_questions2", essentials.create_questions_2, name="create_questions2"),
 
     # Control Panel 
     # Fetch Submission of a user

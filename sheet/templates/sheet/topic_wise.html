@@ -130,77 +130,93 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// SHARED STATE — In production, replace localStorage calls with
-// Django API endpoints: /api/problems/<id>/toggle-solved/
-//                       /api/problems/<id>/toggle-star/
-//                       /api/problems/<id>/note/
-// All three pages read/write the same keys so they stay in sync.
-// ═══════════════════════════════════════════════════════════════════
 
-const STORAGE_KEYS = {
-  solved:  'cft_solved',   // Set<id>  → JSON array
-  starred: 'cft_starred',  // Set<id>  → JSON array
-  notes:   'cft_notes',    // {id: str} → JSON object
-};
-
-function loadState() {
-  try {
-    return {
-      solved:  new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.solved)  || '[1,2,3,4,5,6,7]')),
-      starred: new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.starred) || '[3,8,15]')),
-      notes:   JSON.parse(localStorage.getItem(STORAGE_KEYS.notes) || '{"3":"Use BFS. Edge case when grid is 1x1.","15":"XOR trick."}'),
-    };
-  } catch { return { solved: new Set([1,2,3,4,5,6,7]), starred: new Set([3,8,15]), notes: {3:'Use BFS.',15:'XOR trick.'} }; }
-}
-
-function saveState() {
-  localStorage.setItem(STORAGE_KEYS.solved,  JSON.stringify([...state.solved]));
-  localStorage.setItem(STORAGE_KEYS.starred, JSON.stringify([...state.starred]));
-  localStorage.setItem(STORAGE_KEYS.notes,   JSON.stringify(state.notes));
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// PROBLEM DATA — In Django, this comes from the template context:
-// {{ problems|safe }} or via /api/problems/?tag=dp
-// ═══════════════════════════════════════════════════════════════════
-
-const PROBLEMS_RAW = {{ problems_json | safe}}
-
-
-const PROBLEMS = PROBLEMS_RAW.map((p, index) => ({
-  id : index,
-  num: index+1,
-  ...p,
-  code: `${p.contestId}${p.index}`,
-  cfID: `${p.contestId}/${p.index}`
-}));
-
-// ═══════════════════════════════════════════════════════════════════
-// UI STATE
-// ═══════════════════════════════════════════════════════════════════
+let PROBLEMS_RAW = [];
+let PROBLEMS = [];
+let toastTimer;
+let TAG_MAP = {};
+let ALL_TAGS = [];
 
 const state = {
-  ...loadState(),
+  solved : new Set(),
+  starred : new Set(),
+  notes : {},
   filter:     'all',
   search:     '',
   activeTag:  null,
   activeNoteId: null,
+  problemId : null
 };
 
-// Build tag map: tag → [problem ids]
-const TAG_MAP = {};
-PROBLEMS.forEach(p => {
-  p.tags.forEach(t => {
-    if (!TAG_MAP[t]) TAG_MAP[t] = [];
-    TAG_MAP[t].push(p.id);
-  });
-});
-const ALL_TAGS = Object.keys(TAG_MAP).sort();
+async function fetch_question_info(){
+  try{
+    // For Question Data
+    const res = await fetch("/fetch_sheet_questions",{
+      method : 'GET',
+    });
+    const payload = await res.json();
+    console.log(payload);
 
-// ═══════════════════════════════════════════════════════════════════
-// SIDEBAR
-// ═══════════════════════════════════════════════════════════════════
+    PROBLEMS_RAW = payload.problems;
+
+    state.solved = new Set(payload.solved_problem_list.map(String)); // Ask why
+    console.log(state.solved)
+
+    state.starred = new Set(payload.starred.map(String));
+    console.log(state.starred);
+
+    state.notes   = Object.fromEntries(
+      Object.entries(payload.notes || {}).map(([k, v]) => [String(k), v])
+    );
+    console.log(state.notes);
+
+
+
+    PROBLEMS = PROBLEMS_RAW.map((p, index) => ({
+      id : index,
+      num: index+1,
+      ...p,
+      code: `${p.problem_id}`, // code is for filtering sorted ones
+      cfID: `${p.contestId}/${p.index}` // CfId is for Links
+    }));
+
+    // Build tag map: tag → [problem ids]
+    
+    PROBLEMS.forEach(p => {
+      p.tags.forEach(t => {
+        if (!TAG_MAP[t]) TAG_MAP[t] = [];
+        TAG_MAP[t].push(p.id);
+      });
+    });
+    ALL_TAGS = Object.keys(TAG_MAP).sort();
+
+    // This builds sidebar
+    document.getElementById('tagSearch').addEventListener('input', e => buildSidebar(e.target.value));
+
+    // This is for Sidebar Search
+    document.getElementById('searchInput').addEventListener('input', e => {
+      state.search = e.target.value;
+      render();
+    });
+
+    // This is for Notes 
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.activeNoteId !== null) saveNote();
+    });
+
+    buildSidebar();
+    setFilter('all');
+    render();
+
+  }
+  catch(error){
+    console.log("error occured", error);
+  }
+}
+
+fetch_question_info();
+
 
 function buildSidebar(filter='') {
   const list = document.getElementById('tagList');
@@ -214,8 +230,6 @@ function buildSidebar(filter='') {
     list.appendChild(div);
   });
 }
-
-document.getElementById('tagSearch').addEventListener('input', e => buildSidebar(e.target.value));
 
 function setTagFilter(tag) {
   state.activeTag = state.activeTag === tag ? null : tag;
@@ -248,11 +262,11 @@ function render() {
 
   const filtered = PROBLEMS.filter(p => {
     if (state.activeTag && !p.tags.includes(state.activeTag)) return false;
-    const matchSearch = !search || p.title.toLowerCase().includes(search) || p.num.toLowerCase().includes(search) || p.tags.some(t => t.includes(search));
+    const matchSearch = !search || p.title.toLowerCase().includes(search) || String(p.num).includes(search) || p.tags.some(t => t.includes(search));
     if (!matchSearch) return false;
-    if (state.filter === 'solved')   return state.solved.has(p.id);
-    if (state.filter === 'unsolved') return !state.solved.has(p.id);
-    if (state.filter === 'starred')  return state.starred.has(p.id);
+    if (state.filter === 'solved')   return state.solved.has(p.problem_id);
+    if (state.filter === 'unsolved') return !state.solved.has(p.problem_id);
+    if (state.filter === 'starred')  return state.starred.has(p.problem_id);
     return true;
   });
 
@@ -260,9 +274,9 @@ function render() {
   empty.style.display = filtered.length === 0 ? 'block' : 'none';
 
   filtered.forEach(p => {
-    const solved  = state.solved.has(p.id);
-    const starred = state.starred.has(p.id);
-    const hasNote = !!state.notes[p.id];
+    const solved  = state.solved.has(p.code);
+    const starred = state.starred.has(p.code);
+    const hasNote = !!state.notes[p.code];
     // const cfLink  = `https://codeforces.com/problemset/problem/${p.cfId}`;
     const cfLink  = `https://codeforces.com/problemset/problem/${p.contestId}/${p.index}`;
 
@@ -294,14 +308,14 @@ function render() {
         <div class="tags-cell">${tagPills}${morePill}</div>
       </td>
       <td class="center">
-        <button class="star-btn ${starred ? 'starred' : ''}" data-id="${p.id}">
+        <button class="star-btn ${starred ? 'starred' : ''}" data-id="${p.id}" data-code="${p.code}">
           <svg viewBox="0 0 16 16" fill="${starred ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/>
           </svg>
         </button>
       </td>
       <td class="center">
-        <button class="notes-btn ${hasNote ? 'has-note' : ''}" data-id="${p.id}" data-title="${p.title}">
+        <button class="notes-btn ${hasNote ? 'has-note' : ''}" data-id="${p.id}" data-title="${p.title}" data-problem-id="${p.code}">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v8H8l-3 2V3z"/></svg>
           ${hasNote ? 'View' : 'Add'}
         </button>
@@ -312,13 +326,13 @@ function render() {
 
   // Bind events
   tbody.querySelectorAll('.cb').forEach(cb =>
-    cb.addEventListener('change', () => toggleSolved(+cb.dataset.id))
+    cb.addEventListener('change', () => toggleSolved(+cb.dataset.code))
   );
   tbody.querySelectorAll('.star-btn').forEach(btn =>
-    btn.addEventListener('click', () => toggleStar(+btn.dataset.id))
+    btn.addEventListener('click', () => toggleStar(btn.dataset.code))
   );
   tbody.querySelectorAll('.notes-btn').forEach(btn =>
-    btn.addEventListener('click', () => openModal(+btn.dataset.id, btn.dataset.title))
+    btn.addEventListener('click', () => openModal(btn.dataset.problemId, btn.dataset.title))
   );
 
   updateStats();
@@ -328,19 +342,31 @@ function render() {
 // ACTIONS — write state, persist, re-render
 // ═══════════════════════════════════════════════════════════════════
 
-function toggleSolved(id) {
-  state.solved.has(id) ? state.solved.delete(id) : state.solved.add(id);
-  saveState();
+async function toggleStar(code) {
+  state.starred.has(code) ? state.starred.delete(code) : state.starred.add(code); // Ask explanation
   render();
-  showToast(state.solved.has(id) ? '✓ Marked as solved' : 'Marked as unsolved');
-  // Django equivalent: fetch(`/api/problems/${id}/toggle-solved/`, { method:'POST' })
+  await add_star(code);
 }
 
-function toggleStar(id) {
-  state.starred.has(id) ? state.starred.delete(id) : state.starred.add(id);
-  saveState();
-  render();
-  // Django equivalent: fetch(`/api/problems/${id}/toggle-star/`, { method:'POST' })
+async function add_star(problemId){
+  try{
+    const res = await fetch('/create_star',{
+      method : 'POST',
+      headers : {
+      'Content-Type' : 'application/json',
+      'X-CSRFToken': "{{ csrf_token}}",
+      },
+      body : JSON.stringify({id:problemId}),
+    });
+    const ans = await res.json();
+    if(ans.status === "ok"){
+      return true;
+    }
+    return false;
+  }
+  catch(error){
+    return false;
+  }
 }
 
 function updateStats() {
@@ -367,19 +393,18 @@ function setFilter(f) {
   render();
 }
 
-document.getElementById('searchInput').addEventListener('input', e => {
-  state.search = e.target.value;
-  render();
-});
+
 
 // ═══════════════════════════════════════════════════════════════════
 // NOTES MODAL
 // ═══════════════════════════════════════════════════════════════════
 
-function openModal(id, title) {
-  state.activeNoteId = id;
-  document.getElementById('modalSubtitle').textContent = `${PROBLEMS.find(p=>p.id===id)?.num} · ${title}`;
-  document.getElementById('noteTextarea').value = state.notes[id] || '';
+function openModal(problemId, title) {
+  state.activeNoteId  = problemId;  
+  state.problemId     = problemId;
+  const p = PROBLEMS.find(p => p.code === problemId);
+  document.getElementById('modalSubtitle').textContent = `${p?.num} · ${title}`;
+  document.getElementById('noteTextarea').value = state.notes[problemId] || '';
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('noteTextarea').focus(), 250);
 }
@@ -387,34 +412,57 @@ function openModal(id, title) {
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
   state.activeNoteId = null;
+  state.problemId = null; // Reset it after closing the note
 }
 
-function saveNote() {
+async function saveNote() {
   const id  = state.activeNoteId;
   const val = document.getElementById('noteTextarea').value.trim();
   if (val) state.notes[id] = val;
   else delete state.notes[id];
-  saveState();
+  
   closeModal();
+  const ok = await add_note(val, state.problemId);
+  if (ok) {
+    showToast('Note saved.');
+    saveState();
+  } else {
+    showToast('Error Occured!');
+  }
+  
   render();
-  showToast('Note saved');
-  // Django equivalent: fetch(`/api/problems/${id}/note/`, { method:'POST', body: JSON.stringify({note: val}) })
+}
+
+async function add_note(val, problemId){
+  try{
+    const res = await fetch('/create_note',{
+      method : 'POST',
+      headers : {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': "{{ csrf_token }}",
+      },
+      body : JSON.stringify({ note:val, id: problemId }),
+    });
+    const ans = await res.json();
+    if (ans.status === "ok"){
+      return true;
+    }
+    return false
+  }
+  catch(error){
+    return false;
+  }
+}
+
+function saveState() {
+  // Persistence is not implemented yet for topic_wise page.
+  // This stub prevents runtime errors from saveState() calls.
 }
 
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && state.activeNoteId !== null) saveNote();
-});
-
-// ═══════════════════════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════════════════════
-
-let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toastMsg').textContent = msg;
@@ -433,27 +481,10 @@ document.getElementById('themeBtn').addEventListener('click', function() {
   this.textContent = dark ? '☀' : '☽';
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════════════
-
-buildSidebar();
-setFilter('all');
-render();
 
 // Cross-tab sync: if user opens both pages in different tabs,
 // updates propagate via storage events.
 // In Django production, use WebSockets or simple polling instead.
-window.addEventListener('storage', e => {
-  if (Object.values(STORAGE_KEYS).includes(e.key)) {
-    const fresh = loadState();
-    state.solved  = fresh.solved;
-    state.starred = fresh.starred;
-    state.notes   = fresh.notes;
-    render();
-    updateStats();
-  }
-});
 </script>
 </body>
 

@@ -1,40 +1,10 @@
 from .services import recent_submissions, all_submissions, rating_maxrating
-from .models import user,submission,question,UserDifficultyStats,UserTopicStats, sheet_question
+from .models import user,submission,question,UserDifficultyStats,UserTopicStats, sheet_question, notes, star
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse
 from django.db.models import F
-
-
-
-
-# Functions which USE Apis
-
-# def initialise_user_data(request):
-#     """
-#     If doesn't exists, initialises a new user instance.
-#     Would run from register.html"""
-    
-#     add_past_submissions(request)
-#     user_data = request
-#     # Here call api to fetch user's current rating
-#     obj, created = user.objects.get_or_create(
-#         handle = user_data.get("handle"),
-#         defaults={
-#             "first_name" : user_data.get("firstName"),
-#             "last_name" : user_data.get("lastName"),
-#             "email" : user_data.get("email"),
-#             "age" : user_data.get("age"),
-#             "current_role" : user_data.get('role'),
-#             "country" : user_data.get("country")
-#         }
-#     )
-#     if not created:
-#         return False
-    
-#     return True
-
 
 @login_required
 def update_ach(request):
@@ -57,26 +27,6 @@ def user_solve_count(request):
     request.user.save()
     return True
 
-# @login_required
-# def user_solve_count(request):
-#     """Returns the exact number of unique questions solved by the user"""
-#     # 1. Get titles of questions that have an 'OK' submission from this user
-#     solved_titles = question.objects.filter(
-#         submission__solver=request.user,
-#         submission__verdict="OK"
-#     ).values_list('title', flat=True)
-    
-#     # 2. Collapse identical titles (e.g., matching shared Div1/Div2 problems)
-#     unique_count = len(set(solved_titles))
-    
-#     # 3. Save the exact 336 count
-#     request.user.solved_count = unique_count
-#     request.user.save()
-    
-#     return True
-
-
-
 def active_days(request):
     """Problems this year, and group them by date"""
     pass
@@ -84,31 +34,6 @@ def active_days(request):
 def problems_this_year(request):
     """past 365 day AC Count per day."""
     pass
-
-# @login_required
-# def add_past_submissions(request):
-#     """
-#     Creates submission object, showing questions solved by user."""
-#     new_data = all_submissions(request) 
-#     for i in new_data:
-#         sub = submission.objects.get_or_create(
-#             solver=request.user,
-#             problem=question.objects.get_or_create(
-#                 problem_id=f"{i['id']}{i['index']}",
-#                 defaults={
-#                     # 'problem_id': f"{i['id']}{i['index']}",
-#                     'title': i["name"],
-#                     'rating': i["rating"],
-#                     'tags': i["tags"]
-#                 }
-#             )[0],
-#             defaults={
-#                 'verdict': i["verdict"],
-#                 'timestamp': i["Timestamp"]
-#             }
-#         )
-#         # sub.save() # get_or_create already saves the obj by default
-#     return JsonResponse({"ok": True})
 
 @login_required
 def add_past_submissions(request):
@@ -413,6 +338,26 @@ def create_questions(request):
         new_ques = sheet_question(
             contestId = i["contestId"],
             index = i["index"],
+            problem_id = f"{i["contestId"]}{i["index"]}",
+            title = i["title"],
+            rating = i["rating"],
+            tags = i["tags"]
+        )
+        new_ques.save()
+    return redirect("profile")
+
+def create_questions_2(request):
+    """
+    For creating question instances from json data
+    """
+    with open(f'sheet/sheet_problems/a2oj_problems.json') as f:
+        data = json.load(f) # Loads all json question data
+    new_ques = []
+    for i in data:
+        new_ques = question(
+            contestId = i["contestId"],
+            index = i["index"],
+            problem_id = f"{i["contestId"]}{i["index"]}",
             title = i["title"],
             rating = i["rating"],
             tags = i["tags"]
@@ -424,6 +369,35 @@ def update_user_statistics(request):
     # Here add data to user stats
     pass
     
+@login_required
+def create_note(request):
+    data = json.loads(request.body)
+    if request.method == "POST":
+        # content = request # HERE GET THE CONTENT
+        problem_instance = sheet_question.objects.get(problem_id = data.get("id"))
+        new_note, created = notes.objects.update_or_create(
+            user = request.user,
+            problem = problem_instance, # This should be an instance of the object of sheet_problem
+            defaults= {"text": data.get("note")}
+        )
+        return JsonResponse({"status": "ok", "update":not created})
+
+    return JsonResponse({"status": "fail"})
+
+        
+@login_required
+def create_star(request):
+    data = json.loads(request.body)
+    if request.method == "POST":
+        # content = request # HERE GET THE CONTENT
+        problem_instance = sheet_question.objects.get(problem_id = data.get("id"))
+        new_star = star.objects.get_or_create(
+            user = request.user,
+            problem = problem_instance
+        )
+        return JsonResponse({"status": "ok"})
+    return JsonResponse({"status": "fail"})
+        
 
 
 

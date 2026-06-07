@@ -15,7 +15,7 @@ from django.db.models import Count,Max
 import json
 import datetime
 import time
-from .models import submission, user, sheet_question
+from .models import submission, user, sheet_question, star, notes
 
 def index(request):
     return render(request, "sheet/login.html")
@@ -130,11 +130,6 @@ def create_user(request):
         print(request.user.username)
         print(request.session.session_key)
 
-
-        # Now run these post creation API Calls
-        # 1. add_past_submissions
-        # 2. update_ach
-
         return JsonResponse({"ok":True})
     else:
         return JsonResponse({"ok":False})
@@ -144,21 +139,6 @@ def forgot_password(request):
 
 def error_occured(request):
     return render(request,"sheet/error.html")
-
-# PROFILE NEEDS :
-'''
-Rating
-User_name
-user_handle
-Country
-Age
-College
-Bio
-
-rating
-no. of questions solved
-Current Rank
-'''
 
 def control(request):
     return render(request, "sheet/control.html")
@@ -215,7 +195,11 @@ def profile_data(request):
         "dsu" : topics.dsu,
         "bitmasks" : topics.bitmasks
     }
+
+
     return JsonResponse({"user": user_object, "data": submission_data, "pie":pie_data, "graph":topic})
+
+
 
 @login_required
 def year_submission(request):
@@ -318,7 +302,7 @@ def graph_data(request):
 
     request.user.save()
 
-    # return redirect("profile")
+    return redirect("profile")
 
 
 
@@ -352,20 +336,32 @@ def questions_data(request):
 
     # Firstly fetch sheet_problems
     sheet_problems = list(sheet_question.objects.values())
+    # This is list of all problem_ids
+    problem_id = [f"{p["contestId"]}{p["index"]}" for p in sheet_problems]
 
-    with open('sheet/sheet_problems/a2oj_problems.json') as f:
-        data = json.load(f)
-    problem_codes = [f"{p["contestId"]}{p["index"]}" for p in data] # This is list of all problem_ids
+    # Fetch all star from users 
+    star_problems = star.objects.filter(
+        user = request.user
+        ).values_list(
+            "problem__problem_id",flat=True)
+    # Make a list of all problem id having a star from user
+    star_list = [str(p) for p in star_problems]
+
+    # Fetch all user notes
+    notes_list = dict(notes.objects.filter(
+        user = request.user
+    ).values_list("problem__problem_id","text"))
+    
     solved_ids = list(
         submission.objects.filter(
             solver__handle = user_handle,
-            problem__problem_id__in = problem_codes,
+            problem__problem_id__in = problem_id,
             verdict = "OK"
         )
         .values_list('problem__problem_id', flat=True)
         .distinct()
     )
-    return JsonResponse({"problems": sheet_problems, "solved_problem_list": solved_ids})
+    return JsonResponse({"problems": sheet_problems, "solved_problem_list": solved_ids, "starred": star_list, "notes": notes_list}, json_dumps_params={"default": str})
 
 
 @login_required
@@ -377,12 +373,22 @@ def blind_order(request):
 
 # TODO Implement a rating sort on your own.
 # bars on every page
+
+@login_required
 def topic_wise(request):
     with open('sheet/sheet_problems/a2oj_problems.json') as f:
         data = json.load(f)
     return render(request, "sheet/topic_wise.html",{
         'problems_json': json.dumps(data)
     })
+
+@login_required
+def user_notes(request):
+    pass
+
+@login_required
+def user_stars(request):
+    pass
 
 
 ####################################################################################
@@ -424,7 +430,7 @@ tags = ["implementation", "math", "brute-force","greedy","binary-search",
         "dp-on-trees","shortest-paths"]
 
 
-
+@login_required
 def topic_analysis(request):
     """Generates an accuracy percentage table, showing strong
        weak topics of the user.
@@ -471,8 +477,6 @@ def print_date(request):
 
 ####################################################################################
 
-def notes(request):
-    return render(request, "sheet/notes.html")
 
 
 

@@ -113,12 +113,8 @@
     search: '',
     activeNoteId: null,
   };
-// ─── DATA ───────────────────────────────────────────────────────────────────
-// Fetch the problem Data
 
-
-
-async function fetch_question_info(){
+  async function fetch_question_info(){
   try{
     const res = await fetch("/fetch_sheet_questions",{
       method : 'GET',

@@ -5,23 +5,16 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-
-# Create your models here.
-
-class user(AbstractUser): # Using abstract user model provides better security
-    # These are standard Fields
+class user(AbstractUser): 
+    # standard Fields
     profile_pic = models.URLField(null=True, blank=True)
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     email = models.EmailField(max_length=50, unique=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
-    # Abstract classes have built in hashed passwords
 
-    # Custom Fields
     handle = models.CharField(max_length=20, unique=True, blank=False, null = False)
-    
-    # MinValueValidator and MaxValueValidator are used to set limits on the input
     age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(120)], null=True, blank=True)
     country = models.CharField(max_length=15, null=True, blank=True)
     current_role = models.TextField(max_length=50, null=True, blank=True)
@@ -36,10 +29,6 @@ class user(AbstractUser): # Using abstract user model provides better security
     # User Stats
     solved_count = models.IntegerField(default=0)
     
-    # @property
-    # def solved_questions(self):
-    #     return question.objects.filter()
-    
     # Other profile Data
     leetcode_handle = models.CharField(max_length=20, unique=True, blank=True,null=True)
     github_handle = models.CharField(max_length=20, unique=True, blank=True,null=True)
@@ -50,27 +39,18 @@ class user(AbstractUser): # Using abstract user model provides better security
     target_problems = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(15)],default=1)
     target_contest = models.TextField(max_length=25,default="At least 2/Month")
     
-
-
-
-
 class question(models.Model):
-    # This won't have a solved status -> every submission will have 
-    # a link to a problem, and if for a problem, a submission from 
-    # that user exists and it says OK -> Its green
-    problem_id = models.CharField(max_length=100,unique=True)
+    contestId = models.CharField(max_length=10)
+    index = models.CharField(max_length=10)
+    problem_id = models.CharField(max_length=10, unique=True)
     title = models.TextField(max_length=100)
     rating = models.IntegerField()
-    problem_link = models.URLField()
-    solution_link = models.URLField(blank=True)
     tags = models.JSONField(default=list,blank=True)
 
 class sheet_question(models.Model):
-    # This won't have a solved status -> every submission will have 
-    # a link to a problem, and if for a problem, a submission from 
-    # that user exists and it says OK -> Its green
     contestId = models.CharField(max_length=10)
     index = models.CharField(max_length=10)
+    problem_id = models.CharField(max_length=10, unique=True)
     title = models.TextField(max_length=100)
     rating = models.IntegerField()
     tags = models.JSONField(default=list,blank=True)
@@ -111,18 +91,16 @@ class submission(models.Model):
 
 class star(models.Model):
     user = models.ForeignKey(user,on_delete=models.CASCADE )
-    is_star = models.BooleanField(default=False)
-    problem = models.ForeignKey(question, on_delete=models.CASCADE)
+    problem = models.ForeignKey(sheet_question, on_delete=models.CASCADE)
 
 class notes(models.Model):
     user = models.ForeignKey(user, on_delete=models.CASCADE, related_name="notes")
-    problem = models.ForeignKey(question, on_delete=models.CASCADE, null=True, blank=True)  # Link to actual problem
+    problem = models.ForeignKey(sheet_question, on_delete=models.CASCADE, null=True, blank=True)  # Link to actual problem
     text = models.TextField(max_length=300)
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
         return f"Note for {self.problem_id or self.problem} by {self.user}"
-
 
 @receiver(post_save,sender=user)
 def create_user_stats(sender,instance, created, **kwargs):
