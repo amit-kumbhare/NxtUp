@@ -8,6 +8,7 @@ from django.db.models import F
 
 @login_required
 def update_ach(request):
+    """Updates user acheivements like rating (max also), and his rank"""
     ach = rating_maxrating(request)
     if not ach: # Now redirect to error page
         return redirect("error")
@@ -40,14 +41,14 @@ def add_past_submissions(request):
     """
     Creates submission object, showing questions solved by user."""
     new_data = all_submissions(request)
-    # Reverse to process oldest submission first
+    # here Reverse to process oldest submission first
     new_data = list(reversed(new_data))
 
     for i in new_data:
 
         # Now update the count of question rating and tags for user
 
-        # 1. Get or create the question
+        # Get or create the question
         prob, _ = question.objects.get_or_create(
             problem_id=f"{i['id']}{i['index']}",
             defaults={
@@ -57,7 +58,7 @@ def add_past_submissions(request):
             }
         )
 
-        # 2. Check if submission already exists
+        # Check if submission already exists
         existing_sub = submission.objects.filter(
             solver=request.user,
             problem=prob
@@ -86,11 +87,11 @@ def add_recent_submissions(request):
     """
     Creates submission object, showing questions solved by user."""
     new_data = recent_submissions(request)
-    # Reverse to process oldest submission first
+    # abb Reverse to process oldest submission first
     new_data = list(reversed(new_data))
 
     for i in new_data:
-        # 1. Get or create the question
+        # Get or create the question
         prob, _ = question.objects.get_or_create(
             problem_id=f"{i['id']}{i['index']}",
             defaults={
@@ -100,7 +101,7 @@ def add_recent_submissions(request):
             }
         )
 
-        # 2. Check if submission already exists
+        # Check if submission already exists
         existing_sub = submission.objects.filter(
             solver=request.user,
             problem=prob
@@ -126,6 +127,7 @@ def add_recent_submissions(request):
 
 @login_required
 def create_user_ach(request):
+    """Gets all submission data and creates fresh user statistics"""
     # Get all OK submissions with full problem data
     all_subs = (
         submission.objects.filter(solver__handle=request.user.handle, verdict="OK")
@@ -144,7 +146,6 @@ def create_user_ach(request):
     # Initialize counters
     solved = {"easy": 0, "medium": 0, "hard": 0}
 
-    # Tag mapping: Codeforces tag name → model field name
     tag_mapping = {
         "graph theory": "graphs",
         "dynamic programming": "dp",
@@ -182,14 +183,14 @@ def create_user_ach(request):
                 model_field = tag_mapping[normalized_tag]
                 tag[model_field] += 1
 
-    # Update UserDifficultyStats
+    # Update UserDifficultyStats obj
     diff, _ = UserDifficultyStats.objects.get_or_create(user=request.user)
     diff.easy = solved["easy"]
     diff.medium = solved["medium"]
     diff.hard = solved["hard"]
     diff.save()
 
-    # Update UserTopicStats
+    # Update UserTopicStats obj
     topics, _ = UserTopicStats.objects.get_or_create(user=request.user)
     topics.graphs = tag["graphs"]
     topics.dp = tag["dp"]
@@ -208,7 +209,7 @@ def create_user_ach(request):
     topics.bitmasks = tag["bitmasks"]
     topics.save()
 
-    # Optional: Update user's solved_count
+    # Update user's solved_count
     request.user.solved_count = len(unique_subs)
     request.user.save()
 
@@ -219,6 +220,7 @@ def create_user_ach(request):
 # Update user ach
 @login_required
 def update_user_ach(request):
+    """Updates them with the latest submission data fetched (ones from recent_submissions)"""
     subs = (
         submission.objects.filter(solver__handle=request.user.handle, verdict="OK")
         .select_related('problem')
@@ -371,6 +373,7 @@ def update_user_statistics(request):
     
 @login_required
 def create_note(request):
+    """Creates an obj of notes from user (on sheet_problems), takes in user, note and problem_id"""
     data = json.loads(request.body)
     if request.method == "POST":
         # content = request # HERE GET THE CONTENT
@@ -387,6 +390,7 @@ def create_note(request):
         
 @login_required
 def create_star(request):
+    """Creates obj of star from user (on sheet_problems), takes in user and problem_id"""
     data = json.loads(request.body)
     if request.method == "POST":
         # content = request # HERE GET THE CONTENT

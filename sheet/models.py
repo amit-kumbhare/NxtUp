@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 class user(AbstractUser): 
-    # standard Fields
+    # standard Fields for user 
     profile_pic = models.URLField(null=True, blank=True)
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
@@ -40,6 +40,7 @@ class user(AbstractUser):
     target_contest = models.TextField(max_length=25,default="At least 2/Month")
     
 class question(models.Model):
+    """Questions formed by user submissions"""
     contestId = models.CharField(max_length=10)
     index = models.CharField(max_length=10)
     problem_id = models.CharField(max_length=10, unique=True)
@@ -48,6 +49,7 @@ class question(models.Model):
     tags = models.JSONField(default=list,blank=True)
 
 class sheet_question(models.Model):
+    """Questions included in A2OJ Sheets"""
     contestId = models.CharField(max_length=10)
     index = models.CharField(max_length=10)
     problem_id = models.CharField(max_length=10, unique=True)
@@ -56,6 +58,7 @@ class sheet_question(models.Model):
     tags = models.JSONField(default=list,blank=True)
 
 class UserTopicStats(models.Model):
+    """topic_wise counts questions solved per tag"""
     user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='topic_wise')
     
     graphs          = models.IntegerField(default=0)
@@ -75,6 +78,7 @@ class UserTopicStats(models.Model):
     bitmasks        = models.IntegerField(default=0)
 
 class UserDifficultyStats(models.Model):
+    """User Difficulty counts them by their rating"""
     user   = models.OneToOneField(user, on_delete=models.CASCADE, related_name='difficulty')
     easy   = models.IntegerField(default=0)
     medium = models.IntegerField(default=0)
