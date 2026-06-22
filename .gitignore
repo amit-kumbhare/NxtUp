@@ -4,3 +4,7 @@ __pycache__/
 .vscode/
 .env
 ques.py
+chroma_db/
+codeforces_train.csv
+sheet/temp.html
+migrations/

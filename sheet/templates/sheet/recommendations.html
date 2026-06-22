@@ -16,17 +16,10 @@
         <div class="page-title">Recommendations</div>
         <div class="page-subtitle">Personalized problems based on your skill gap, history and rating target</div>
       </div>
-      <div class="sync-row">
-        <span class="sync-badge">Live · Synced with CF</span>
-        <button class="refresh-btn" id="refreshBtn" onclick="triggerRefresh()">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 4.2 1.7M14 8a6 6 0 0 1-6 6 6 6 0 0 1-4.2-1.7"/><path d="M12 2v4h-4M4 14v-4h4"/></svg>
-          Re-analyze
-        </button>
-      </div>
     </div>
   </div>
 
-  <!-- SKILL SNAPSHOT -->
+ <!-- SKILL SNAPSHOT -->
   <div class="skill-snapshot fade-up-1">
     <div class="snapshot-header">
       <div>
@@ -34,33 +27,118 @@
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L6 8l3 3 5-7"/></svg>
           Your Skill Map
         </div>
-        <div class="snapshot-subtitle">Based on {{no_of_submissions_analysed}} submissions · last synced {{last_synced_hours}} hrs ago</div>
+        <div class="snapshot-subtitle">Based on 200 submissions</div>
       </div>
-      <div style="font-size:12px;color:var(--text-muted)">Success rate per tag</div>
+      <div style="font-size:12px;color:var(--text-muted)">Skill score per tag</div>
     </div>
     <div class="skill-grid">
-
-      {% for tags in tags_accuracy %}
       <div class="skill-item">
         <div class="skill-row">
-          <span class="skill-name">{{ tags.Tag}}</span>
-          {% if tags.Accuracy > 60 %}
-            <span class="skill-pct strong">{{ tags.Accuracy }}</span>
-            </div>
-            <div class="skill-bar"><div class="skill-fill strong" style="width: {{ tags.Accuracy }}"></div></div>
-          {% elif tags.Accuracy > 20 %}
-            <span class="skill-pct mid">{{tags.Accuracy}}</span>
-            </div>
-            <div class="skill-bar"><div class="skill-fill mid" style="width: {{ tags.Accuracy }}"></div></div>
-          {% else %}
-            <span class="skill-pct weak">{{tags.Accuracy}}</span>
-            </div>
-            <div class="skill-bar"><div class="skill-fill weak" style="width: {{ tags.Accuracy }}"></div></div>
-          {% endif %}
+          <span class="skill-name">greedy</span>
+          <span class="skill-pct strong">74%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill strong" style="width:74%"></div></div>
       </div>
-      
-      {% endfor %}
-</div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">binary search</span>
+          <span class="skill-pct strong">68%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill strong" style="width:68%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">constructive</span>
+          <span class="skill-pct mid">55%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill mid" style="width:55%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">math</span>
+          <span class="skill-pct mid">51%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill mid" style="width:51%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">sorting</span>
+          <span class="skill-pct mid">48%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill mid" style="width:48%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">dp on trees</span>
+          <span class="skill-pct weak">28%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:28%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">dp transitions</span>
+          <span class="skill-pct weak">19%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:19%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">segment tree</span>
+          <span class="skill-pct weak">12%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill weak" style="width:12%"></div></div>
+      </div>
+    </div>
+
     
     <div class="gap-alert">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/><path d="M8 6v3M8 11v.5"/></svg>
@@ -91,7 +169,7 @@
       </div>
       <div class="bridge-cards">
 
-        <div class="bridge-card" onclick="openCF('476/problem/C')">
+        <div class="bridge-card" onclick="openCF('476/C')">
           <div class="bridge-card-num">1</div>
           <div class="bridge-card-type warmup">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
@@ -110,7 +188,7 @@
           </a>
         </div>
 
-        <div class="bridge-card" onclick="openCF('1092/problem/F')" style="border-color:color-mix(in srgb,var(--accent) 35%,transparent)">
+        <div class="bridge-card" onclick="openCF('1092/F')" style="border-color:color-mix(in srgb,var(--accent) 35%,transparent)">
           <div class="bridge-card-num" style="background:var(--accent);color:white">2</div>
           <div class="bridge-card-type bridge">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 14c0-4.4 3.6-8 8-8M14 2c0 4.4-3.6 8-8 8"/></svg>

@@ -42,3 +42,11 @@ Use object.get_field => to update Notes, toggle stars
 0 < Easy <= 1200
 1200 < Medium <1900
 1900 < Hard
+
+USER Data
+
+
+
+THINGS TO BE FIXED LATER    
+1. Currently Tour.html calls -> recent_submissions which calls skilltag, while we are also calling all_submissions
+   make a func to get past 200 submissions without that API call wastage.

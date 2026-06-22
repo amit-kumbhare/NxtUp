@@ -1,14 +1,18 @@
-import requests, base64
+import requests, base64, os
+from dotenv import load_dotenv
 
 invoke_url = "https://integrate.api.nvidia.com/v1/chat/completions"
 stream = False
+
+load_dotenv()
+api_key = os.environ.get("NVIDIA_API_KEY")
 
 def read_b64(path):
   with open(path, "rb") as f:
     return base64.b64encode(f.read()).decode()
 
 headers = {
-  "Authorization": "Bearer $NVIDIA_API_KEY",
+  "Authorization": f"Bearer {api_key}",
   "Accept": "text/event-stream" if stream else "application/json"
 }
 

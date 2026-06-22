@@ -77,6 +77,29 @@ class UserTopicStats(models.Model):
     dsu             = models.IntegerField(default=0)
     bitmasks        = models.IntegerField(default=0)
 
+class UserSkillTag(models.Model):
+    """Evaluates user's per tag proefficiency. """
+    TAG_CHOICES = [
+        ('graphs', 'Graphs'), ('dp', 'Dynamic Programming'), ('greedy', 'Greedy'),
+        ('binary_search', 'Binary Search'), ('data_structures', 'Data Structures'),
+        ('math', 'Math'), ('strings', 'Strings'), ('dfs', 'DFS/BFS'),
+        ('shortest_paths', 'Shortest Paths'), ('trees', 'Trees'),
+        ('two_pointer', 'Two Pointers'), ('sliding_window', 'Sliding Window'),
+        ('implementation', 'Implementation'), ('dsu', 'DSU'), ('bitmasks', 'Bitmasks')
+    ]
+
+    user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='skill_tags')
+    tag = models.CharField(max_length=30, choices=TAG_CHOICES)
+    score = models.IntegerField(default=800) # default CF rating base
+
+    class Meta:
+        # Prevents duplicate rows for the same user and tag
+        unique_together = ('user', 'tag')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.tag}: {self.score}"
+
+
 class UserDifficultyStats(models.Model):
     """User Difficulty counts them by their rating"""
     user   = models.OneToOneField(user, on_delete=models.CASCADE, related_name='difficulty')
@@ -89,6 +112,7 @@ class submission(models.Model):
     problem = models.ForeignKey(question, on_delete=models.CASCADE)
     verdict = models.CharField(max_length=50)
     timestamp = models.DateField()
+    time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Meta:
         unique_together = ('solver','problem')

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import user, notes, question, submission, UserDifficultyStats, UserTopicStats, sheet_question, star
+from .models import user, notes, question, submission, UserDifficultyStats, UserTopicStats, sheet_question, star, UserSkillTag
 
 admin.site.register(user)
 admin.site.register(notes)
@@ -11,3 +11,4 @@ admin.site.register(star)
 admin.site.register(submission)
 admin.site.register(UserTopicStats)
 admin.site.register(UserDifficultyStats)
+admin.site.register(UserSkillTag)

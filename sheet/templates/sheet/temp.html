@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List with Buttons</title>
+    <style>
+        li {
+            margin: 8px 0;
+        }
+
+        button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Command Center</h1>
+<ul>
+    <li>Apple <button type="submit" onclick="window.location.href='all_submissions';" class="btn btn-primary">All Submissions</button></li>
+    <li>Banana <button>Select</button></li>
+    <li>Orange <button>Select</button></li>
+    <li>Grapes <button>Select</button></li>
+</ul>
+<script>
+    const subs = JSON.parse('{{submissions|safe}}');
+    console.log(subs);
+</script>
+</body>
+</html>

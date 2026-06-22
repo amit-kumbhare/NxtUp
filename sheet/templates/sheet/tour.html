@@ -1178,6 +1178,21 @@ async function calc_stats() {
   console.log("/calc_stats response:", data);
 }
 
+async function build_skilltag(){
+  console.log("Calling /recent_submissions");
+  const res = await fetch('/recent_submissions',{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': CSRF
+    },
+    body: JSON.stringify({})
+    
+  })
+  const data = await res.json();
+  console.log("recent submissions added");
+}
+
 async function waiting() {
   await sleep(5000);
 }
@@ -1195,6 +1210,9 @@ async function sync_all() {
   
   console.log("Calculating stats...");
   await calc_stats();
+
+  console.log("Generating Skill Tags...");
+  await build_skilltag();
   
   console.log("All done!");
 }
@@ -1205,7 +1223,7 @@ sync_all();
    SLIDE ENGINE
    ════════════════════════════════════════ */
 const TOTAL  = 5;
-const SEG_DUR = 10; // seconds per slide auto-advance
+const SEG_DUR = 15; // seconds per slide auto-advance
 let current  = 0;
 let autoTimer = null;
 let segTimer  = null;

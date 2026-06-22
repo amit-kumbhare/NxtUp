@@ -1,10 +1,20 @@
 from .services import recent_submissions, all_submissions, rating_maxrating
-from .models import user,submission,question,UserDifficultyStats,UserTopicStats, sheet_question, notes, star
+from .models import user,submission,question,UserDifficultyStats,UserTopicStats, sheet_question, notes, star, UserSkillTag
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse
 from django.db.models import F
+from .skill_map import skill_map
+
+# CHECK IF NEW SUBMISSIONS WERE MADE
+@login_required
+def checking_new_submissions(request):
+    """Checks if a new submissions by user was added to DB."""
+    check = submission.objects.get()
+    return True
+
+#--------------------------------------------------------------------------------------
 
 @login_required
 def update_ach(request):
@@ -27,14 +37,6 @@ def user_solve_count(request):
     # Now save the current updates in the request.user
     request.user.save()
     return True
-
-def active_days(request):
-    """Problems this year, and group them by date"""
-    pass
-
-def problems_this_year(request):
-    """past 365 day AC Count per day."""
-    pass
 
 @login_required
 def add_past_submissions(request):
@@ -88,7 +90,10 @@ def add_recent_submissions(request):
     Creates submission object, showing questions solved by user."""
     new_data = recent_submissions(request)
     # abb Reverse to process oldest submission first
+    # First wrong subs, then right subs -> Correct Subs are counted for only once (in solved list)
     new_data = list(reversed(new_data))
+    # Here i skill_map.skill_map to get those recent submissions analysed and shown in recommendations
+    skill_map(new_data)
 
     for i in new_data:
         # Get or create the question
@@ -121,8 +126,6 @@ def add_recent_submissions(request):
                 verdict=i["verdict"],
                 timestamp=i["Timestamp"]
             )
-            
-
     return JsonResponse({"ok": True})
 
 @login_required
@@ -146,6 +149,7 @@ def create_user_ach(request):
     # Initialize counters
     solved = {"easy": 0, "medium": 0, "hard": 0}
 
+    # NEEDS REVIEW TODO
     tag_mapping = {
         "graph theory": "graphs",
         "dynamic programming": "dp",

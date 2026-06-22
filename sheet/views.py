@@ -20,6 +20,9 @@ from .models import submission, user, sheet_question, star, notes
 def index(request):
     return render(request, "sheet/login.html")
 
+def test(request):
+    return render(request, "sheet/temp.html")
+
 @require_POST
 def login_user(request):
     data = json.loads(request.body)
@@ -459,11 +462,11 @@ def weak_topic_analysis(request):
     pass
 
 def recommendations(request):
-    tags_accuracy = topic_analysis(request)
+    # tags_accuracy = topic_analysis(request)
     return render(request, "sheet/recommendations.html",{
         "no_of_submissions_analysed" : 200,
         "last_synced": 2,
-        "tags_accuracy" : tags_accuracy
+        "tags_accuracy" : []
     })
 
 ####################################################################################

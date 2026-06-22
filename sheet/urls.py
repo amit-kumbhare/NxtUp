@@ -12,7 +12,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     # Alt path
     # path("accounts/login/", views.index, name="login"),
-    path("login/",views.index, name="login"),
+    path("login",views.index, name="login"),
     # path("login", views.login, name="login"),
     path("login/api/", views.login_user, name = "check_login"),
     path("register", views.register, name="register"),
@@ -55,6 +55,7 @@ urlpatterns = [
 
     # Control Panel 
     # Fetch Submission of a user
-    path("error",views.error_occured, name="error")
+    path("error",views.error_occured, name="error"),
+    path("test", views.test, name="test")
     
 ]
