@@ -55,7 +55,7 @@
 <img width="1533" height="857" alt="image" src="https://github.com/user-attachments/assets/38807eb5-e6ae-4146-bad7-8b7731561668" />
 
 ## Dataset from Hugging Face
-- Contains approximately 10k problems ranging from all ratings across all tags.
+- Contains approximately 10k problems ranging from all ratings across all tags. [Link to Dataset](https://huggingface.co/datasets/open-r1/codeforces)
 <img width="1477" height="894" alt="image" src="https://github.com/user-attachments/assets/6493d4af-59f4-4b26-97e7-16a914bafc0b" />
 
 
