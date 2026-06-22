@@ -46,7 +46,7 @@
 <img width="1305" height="833" alt="image" src="https://github.com/user-attachments/assets/b5df1ae7-0326-4eb8-8c21-bbfff791bc9d" />
 
 ## Code for Vector Embeddings
-<img width="926" height="898" alt="image" src="https://github.com/user-attachments/assets/9ac211a8-7422-4bff-a201-ea5afb6cd7bb" />
+<img width="929" height="860" alt="image" src="https://github.com/user-attachments/assets/7470a10f-5a27-4198-bda1-ba774ccc0cf0" />
 
 
 ## Core Math Logic (For Context Compression)
