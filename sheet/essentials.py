@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse
 from django.db.models import F
-from .skill_map import skill_map
+from .skill_map import skill_map, get_user_skillmap
 
 # CHECK IF NEW SUBMISSIONS WERE MADE
 @login_required
@@ -84,16 +84,25 @@ def add_past_submissions(request):
 
     return JsonResponse({"ok": True})
 
+# Use a CRON Job for this to update user submissions every 30 minutes
+# Associated Tasks -> 
+"""
+1. Skill Map
+2. Update User dashboard Layers (user graphs and pies)
+"""
+
 @login_required
 def add_recent_submissions(request):
     """
     Creates submission object, showing questions solved by user."""
     new_data = recent_submissions(request)
+    if not new_data:
+        return JsonResponse({"ok": False})
     # abb Reverse to process oldest submission first
     # First wrong subs, then right subs -> Correct Subs are counted for only once (in solved list)
     new_data = list(reversed(new_data))
-    # Here i skill_map.skill_map to get those recent submissions analysed and shown in recommendations
-    skill_map(new_data)
+    tag_skill_data = [] # Stores new submissions to update tag skill score
+    # Prevents double counting of same submissions
 
     for i in new_data:
         # Get or create the question
@@ -119,6 +128,8 @@ def add_recent_submissions(request):
                 existing_sub.timestamp = i["Timestamp"]
                 existing_sub.save()
         else:
+            tag_skill_data.append(i)
+            idx += 1
             # If no submission exists, create new one
             submission.objects.create(
                 solver=request.user,
@@ -126,6 +137,8 @@ def add_recent_submissions(request):
                 verdict=i["verdict"],
                 timestamp=i["Timestamp"]
             )
+    # Here i skill_map.skill_map to get those recent submissions analysed and shown in recommendations
+    get_user_skillmap(request, new_data)
     return JsonResponse({"ok": True})
 
 @login_required

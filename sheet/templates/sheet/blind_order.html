@@ -124,12 +124,14 @@
     // console.log(payload);
 
     const solvedArray = payload.solved_problem_list;
-    const problemsRawData = payload.problems;
+    // Step 1 : Loading the problems into the page's JS
+    const problemsRawData = payload.problems; 
     state.solved = new Set(solvedArray);  
 
-    console.log(payload.problems);
+    console.log(payload.problems); // For ref
     console.log(payload.solved_problem_list);
   
+    // 2. Step 2 Converting that data to systematic dict for building probs
     PROBLEMS = problemsRawData.map((p, index) => ({
         id : index + 1,
         ...p,
@@ -165,7 +167,7 @@ function render() {
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
   const search = state.search.toLowerCase();
-
+  // Step 3 Adding those problems into table
   const filtered = PROBLEMS.filter(p => {
     const matchSearch = !search || p.title.toLowerCase().includes(search) || p.code.toLowerCase().includes(search);
     if (!matchSearch) return false;

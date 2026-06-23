@@ -78,26 +78,45 @@ class UserTopicStats(models.Model):
     bitmasks        = models.IntegerField(default=0)
 
 class UserSkillTag(models.Model):
-    """Evaluates user's per tag proefficiency. """
-    TAG_CHOICES = [
-        ('graphs', 'Graphs'), ('dp', 'Dynamic Programming'), ('greedy', 'Greedy'),
-        ('binary_search', 'Binary Search'), ('data_structures', 'Data Structures'),
-        ('math', 'Math'), ('strings', 'Strings'), ('dfs', 'DFS/BFS'),
-        ('shortest_paths', 'Shortest Paths'), ('trees', 'Trees'),
-        ('two_pointer', 'Two Pointers'), ('sliding_window', 'Sliding Window'),
-        ('implementation', 'Implementation'), ('dsu', 'DSU'), ('bitmasks', 'Bitmasks')
-    ]
+    """topic_wise counts questions solved per tag"""
+    user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='tag_skill')
+    
+    dp              = models.IntegerField(default= 800)
+    graphs          = models.IntegerField(default= 800)
+    greedy          = models.IntegerField(default= 800)
+    binary_search   = models.IntegerField(default= 800)
+    data_structures = models.IntegerField(default= 800)
+    math            = models.IntegerField(default= 800)
+    strings         = models.IntegerField(default= 800)
+    dfs             = models.IntegerField(default= 800)
+    shortest_paths  = models.IntegerField(default= 800)
+    trees           = models.IntegerField(default= 800)
+    two_pointer    = models.IntegerField(default= 800)
+    sliding_window  = models.IntegerField(default= 800)
+    implementation  = models.IntegerField(default= 800)
+    dsu             = models.IntegerField(default= 800)
 
-    user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='skill_tags')
-    tag = models.CharField(max_length=30, choices=TAG_CHOICES)
-    score = models.IntegerField(default=800) # default CF rating base
+# class UserSkillTag(models.Model):
+#     """Evaluates user's per tag proefficiency. """
+#     TAG_CHOICES = [
+#         ('graphs', 'Graphs'), ('dp', 'Dynamic Programming'), ('greedy', 'Greedy'),
+#         ('binary_search', 'Binary Search'), ('data_structures', 'Data Structures'),
+#         ('math', 'Math'), ('strings', 'Strings'), ('dfs', 'DFS/BFS'),
+#         ('shortest_paths', 'Shortest Paths'), ('trees', 'Trees'),
+#         ('two_pointer', 'Two Pointers'), ('sliding_window', 'Sliding Window'),
+#         ('implementation', 'Implementation'), ('dsu', 'DSU'), ('bitmasks', 'Bitmasks')
+#     ]
 
-    class Meta:
-        # Prevents duplicate rows for the same user and tag
-        unique_together = ('user', 'tag')
+#     user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='skill_tags')
+#     tag = models.CharField(max_length=30, choices=TAG_CHOICES)
+#     score = models.IntegerField(default=800) # default CF rating base
 
-    def __str__(self):
-        return f"{self.user.username} - {self.tag}: {self.score}"
+#     class Meta:
+#         # Prevents duplicate rows for the same user and tag
+#         unique_together = ('user', 'tag')
+
+#     def __str__(self):
+#         return f"{self.user.username} - {self.tag}: {self.score}"
 
 
 class UserDifficultyStats(models.Model):
@@ -135,6 +154,7 @@ def create_user_stats(sender,instance, created, **kwargs):
     if created:
         UserTopicStats.objects.create(user=instance)
         UserDifficultyStats.objects.create(user=instance)
+        UserSkillTag.objects.create(user=instance)
 
 
     

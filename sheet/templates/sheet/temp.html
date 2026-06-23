@@ -21,8 +21,24 @@
     <li>Grapes <button>Select</button></li>
 </ul>
 <script>
-    const subs = JSON.parse('{{submissions|safe}}');
-    console.log(subs);
+
+
+    async function fetch_user_skilltags() {
+        try{
+            console.log("Calling /Get User Skilltags...");
+            const res  = await fetch('/recent_submissions', {
+                method:  'GET',
+            });
+            const data = await res.json();
+            console.log("User's Skill tags", data);
+            }
+        catch(error){
+            console.log("Error Occured", error);
+        }
+        }
+    fetch_user_skilltags();
+    
+
 </script>
 </body>
 </html>

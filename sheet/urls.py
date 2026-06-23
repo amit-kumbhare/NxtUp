@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from . import services
 from . import essentials
+from . import skill_map
 
 urlpatterns = [
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path("profile_edit", views.profile_edit, name= "profile_edit"),
 
     # Blindorder and Topic Wise Sheets  Questions
+    # Gets user's solved / progress data
     path("fetch_sheet_questions", views.questions_data, name="fetch_sheet_questions"),
 
     # Problems Sheets
@@ -33,6 +35,7 @@ urlpatterns = [
     path("sheet/topic_wise", views.topic_wise, name="topic_wise"),
 
     # Recommendations
+    path("sheet/get_user_skillmap", skill_map.get_user_skillmap, name="recommendations"),
     path("sheet/recommendations", views.recommendations, name="recommendations"),
 
     # Notes
@@ -44,6 +47,7 @@ urlpatterns = [
 
     #api
     path("add_past_submissions", essentials.add_past_submissions, name="add_past_submissions"),
+    path("calc_skill", essentials.add_recent_submissions, name="add_past_submissions"),
     path("recent_submissions", services.recent_submissions, name="recent_submissions"),
     path("get_rating", essentials.update_ach, name="get_rating"),
 
@@ -56,6 +60,6 @@ urlpatterns = [
     # Control Panel 
     # Fetch Submission of a user
     path("error",views.error_occured, name="error"),
-    path("test", views.test, name="test")
+    path("test", skill_map.testing, name="test")
     
 ]

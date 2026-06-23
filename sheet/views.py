@@ -335,6 +335,7 @@ def tour(request):
 
 @login_required # This decorator only allows blind_order to run if loggedin
 def questions_data(request):
+    """Gets user's progress data from both sheets"""
     user_handle = request.user.handle
 
     # Firstly fetch sheet_problems
