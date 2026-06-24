@@ -35,7 +35,7 @@ urlpatterns = [
     path("sheet/topic_wise", views.topic_wise, name="topic_wise"),
 
     # Recommendations
-    path("sheet/get_user_skillmap", skill_map.get_user_skillmap, name="recommendations"),
+    path("get_user_skillmap", skill_map.get_user_skillmap, name="get_user_skillmap"),
     path("sheet/recommendations", views.recommendations, name="recommendations"),
 
     # Notes

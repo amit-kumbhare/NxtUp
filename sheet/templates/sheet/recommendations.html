@@ -27,7 +27,7 @@
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L6 8l3 3 5-7"/></svg>
           Your Skill Map
         </div>
-        <div class="snapshot-subtitle">Based on you're past 200 submissions</div>
+        <div class="snapshot-subtitle">Based on you're past submissions</div>
       </div>
       <div style="font-size:12px;color:var(--text-muted)">Skill score per tag</div>
     </div>
@@ -671,28 +671,56 @@ document.getElementById('themeBtn').addEventListener('click', function() {
 });
 
   const TAG_MAP = {
-        "two pointers":   "two_pointer",
-        "binary search":  "binary_search",
-        "data structures":"data_structures",
-        "shortest paths": "shortest_paths",
-        "sliding window": "sliding_window",
-        "dfs and similar":"dfs",
-        "graphs":         "graphs",
-        "dp":             "dp",
-        "greedy":         "greedy",
-        "math":           "math",
-        "strings":        "strings",
-        "trees":          "trees",
-        "dsu":            "dsu",
-        "bitmasks":       "bitmasks",
-        "implementation": "implementation",
-    }
+        "two_pointer":   "Two Pointer",
+        "binary_search":  "Binary Search",
+        "data_structures":"Data Structures",
+        "shortest_paths": "Shortest Paths",
+        "sliding_window": "Sliding Window",
+        "dfs":            "DFS and similar",
+        "graphs":         "Graphs",
+        "dp":             "Dynamic Programming",
+        "greedy":         "Greedy",
+        "math":           "Math",
+        "strings":        "Strings",
+        "trees":          "Trees",
+        "dsu":            "DSU",
+        "bitmasks":       "Bitmasks",
+        "implementation": "Implementation",
+    };
   
   async function get_skillmap_data() {
     try{
-      const res = await fetch("/")
+      const res = await fetch("/get_user_skillmap",{
+        method: 'GET',
+      });
+      const payload = await res.json();
+      const skilldata = payload.data;
+      const dataArray = JSON.parse(skilldata);
+      const final_data = dataArray[0].fields;
+      console.log(payload);
+      console.log(skilldata);
+      console.log(dataArray[0].fields);
+      const {user, ...tags} = final_data;
+      skill_map = {};
+
+      Object.entries(tags).forEach(([tag, score]) => {
+        skill_map[tag] = score;
+        // console.log(`Tag ${tag}, Score ${score}`);
+      });
+
+      // tag_skills = skilldata.filter().map((p, index) => ({
+      //   id : index + 1,
+      //   tag_name : TAG_MAP["p"]
+      // }));
+      console.log(skill_map);
+      render();
+
+    }
+    catch(error){
+      console.log("Error in fetching skillmap data", error);
     }
   }
+  get_skillmap_data();
 
 /* STAR TOGGLE */
 function toggleStar(btn) {
@@ -701,7 +729,44 @@ function toggleStar(btn) {
   btn.querySelector('svg').setAttribute('fill', on ? 'currentColor' : 'none');
   showToast(on ? '⭐ Starred' : 'Unstarred');
 }
+function toFluency(skillScore) {
+    return Math.min(100, Math.max(0, (skillScore - 800) / 16));
+}
+function getFluencyColor(pct) {
+    if (pct >= 60) return "strong";  // Strong
+    if (pct >= 35) return "mid";       // Mid
+    return "weak";   // Weak
+}
 
+function render(){
+  const mapbody = document.getElementsByClassName('skill-grid')[0]; // First elem with this class
+  mapbody.innerHTML = ''; // Removes all previous entries
+  Object.entries(skill_map).forEach(([tag, score]) =>{
+    const tag_name = TAG_MAP[tag];
+    // const skill_score = toFluency(score);
+    const skill_score = Math.round(toFluency(score));
+    const skill_color = getFluencyColor(skill_score);
+    const skill_entry = document.createElement("div");
+    skill_entry.innerHTML = `
+      <div class="skill-item">
+        <div class="skill-row">
+          <span class="skill-name">${tag_name}</span>
+          <span class="skill-pct ${skill_color}">${skill_score}%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill ${skill_color}" style="width:${skill_score}%"></div></div>
+      </div> 
+    `
+    mapbody.appendChild(skill_entry);
+  });
+}
+
+      //     <!-- <div class="skill-item">
+      //   <div class="skill-row">
+      //     <span class="skill-name">Graphs</span>
+      //     <span class="skill-pct strong">74%</span>
+      //   </div>
+      //   <div class="skill-bar"><div class="skill-fill strong" style="width:74%"></div></div>
+      // </div> -->
 
 /* OPEN CF */
 function openCF(path) {

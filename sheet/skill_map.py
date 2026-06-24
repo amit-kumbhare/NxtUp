@@ -11,17 +11,20 @@ from django.shortcuts import render
 {"ok": true, "data": "[{\"model\": \"sheet.userskilltag\", \"pk\": 9, \"fields\": {\"user\": 6, \"dp\": 803, \"graphs\": 800, \"greedy\": 800, \"binary_search\": 800, \"data_structures\": 800, \"math\": 787, \"strings\": 803, \"dfs\": 800, \"shortest_paths\": 800, \"trees\": 813, \"two_pointer\": 800, \"sliding_window\": 800, \"implementation\": 800, \"dsu\": 795}}]\n"}"""
 # Run by 
 @login_required
-def get_user_skillmap(request, new_data):
+def get_user_skillmap(request):
     """Activated via recent_submissions CRON Job, it gets me user skillmap updated on the last"""
-    prob_list = new_data
-    skill_map(request, prob_list)
+    # prob_list = new_data
+    # skill_map(request, prob_list)
+    skills = UserSkillTag.objects.get(user = request.user)
+    skills_json = serializers.serialize('json', [skills])
+    return JsonResponse({"data":skills_json})
+
+@login_required
+def testing(request):
+    # return JsonResponse({"CODE TESTING ZONE"})
     skills = UserSkillTag.objects.get(user = request.user)
     skills_json = serializers.serialize('json', [skills])
     return JsonResponse({"ok": True, "data":skills_json})
-
-@login_required
-def testing():
-    return JsonResponse({"CODE TESTING ZONE"})
 
 
 # CHECK IF NEW SUBMISSIONS WERE MADE
@@ -64,7 +67,7 @@ def delta(request, rating, skill, outcome):
     curr_skill = getattr(topics, tag_name, 800)
     val =  octs[outcome] * (1 + (rating - curr_skill)/100)
     new_val = curr_skill + val
-    setattr(topics, skill, new_val)
+    setattr(topics, tag_name, new_val)
     topics.save()
 
 
