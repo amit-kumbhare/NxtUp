@@ -3,6 +3,7 @@ from . import views
 from . import services
 from . import essentials
 from . import skill_map
+from . import selected_questions
 
 urlpatterns = [
 
@@ -37,19 +38,20 @@ urlpatterns = [
     # Recommendations
     path("get_user_skillmap", skill_map.get_user_skillmap, name="get_user_skillmap"),
     path("sheet/recommendations", views.recommendations, name="recommendations"),
+    path("list_of_solved_tags", essentials.list_of_solved_tags, name="list_of_solved_tags"),
 
     # Notes
     path("sheet/notes", views.notes, name="notes"),
-    path("create_note", essentials.create_note, name="notes"),
+    path("create_note", essentials.create_note, name="notes_create"),
 
     # Star
     path("create_star", essentials.create_star, name="create_star"),
 
     #api
     path("add_past_submissions", essentials.add_past_submissions, name="add_past_submissions"),
-    path("calc_skill", essentials.add_recent_submissions, name="add_past_submissions"),
+    path("calc_skill", essentials.add_recent_submissions, name="create_skill_score"),
     path("recent_submissions", services.recent_submissions, name="recent_submissions"),
-    path("get_rating", essentials.update_ach, name="get_rating"),
+    path("get_rating", essentials.create_user_ach, name="get_rating"),
 
     # DB
     path("calc_stats", essentials.create_user_ach, name="calc_stats"),
@@ -60,6 +62,6 @@ urlpatterns = [
     # Control Panel 
     # Fetch Submission of a user
     path("error",views.error_occured, name="error"),
-    path("test", skill_map.testing, name="test")
+    path("test", selected_questions.subs_weak_tags, name="test")
     
 ]

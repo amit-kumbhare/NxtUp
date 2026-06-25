@@ -272,9 +272,6 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
             Solve on CF
           </a>
-          <button class="star-btn" onclick="toggleStar(this)">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -308,9 +305,6 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
             Solve on CF
           </a>
-          <button class="star-btn" onclick="toggleStar(this)">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -344,9 +338,6 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
             Solve on CF
           </a>
-          <button class="star-btn" onclick="toggleStar(this)">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -380,9 +371,6 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
             Solve on CF
           </a>
-          <button class="star-btn" onclick="toggleStar(this)">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -416,9 +404,6 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
             Solve on CF
           </a>
-          <button class="star-btn" onclick="toggleStar(this)">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -452,9 +437,6 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
             Solve on CF
           </a>
-          <button class="star-btn" onclick="toggleStar(this)">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 3.9L8 10.4l-3.6 1.9.7-3.9L2.2 5.7l4-.6z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -669,7 +651,7 @@ document.getElementById('themeBtn').addEventListener('click', function() {
   document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
   this.textContent = dark ? '☀' : '☽';
 });
-
+  
   const TAG_MAP = {
         "two_pointer":   "Two Pointer",
         "binary_search":  "Binary Search",
@@ -713,6 +695,19 @@ document.getElementById('themeBtn').addEventListener('click', function() {
       //   tag_name : TAG_MAP["p"]
       // }));
       console.log(skill_map);
+
+      // Getting list of all tags solved by user.
+      const res2 = await fetch("/list_of_solved_tags",{
+        method: 'GET',
+      });
+      solved_tags = []; // Initialization
+      solve_count = {};
+      const payload2 = await res2.json();
+      solved_tags = payload2.data;
+      solve_count = payload2.with_count;
+      console.log("Hello");
+      console.log(solved_tags);
+      console.log(solve_count);
       render();
 
     }
@@ -722,30 +717,49 @@ document.getElementById('themeBtn').addEventListener('click', function() {
   }
   get_skillmap_data();
 
-/* STAR TOGGLE */
-function toggleStar(btn) {
-  btn.classList.toggle('starred');
-  const on = btn.classList.contains('starred');
-  btn.querySelector('svg').setAttribute('fill', on ? 'currentColor' : 'none');
-  showToast(on ? '⭐ Starred' : 'Unstarred');
-}
-function toFluency(skillScore) {
-    return Math.min(100, Math.max(0, (skillScore - 800) / 16));
-}
+// function toFluency(skillScore) {
+//     return Math.min(100, Math.max(0, (skillScore - 800) / 16));
+// }
 function getFluencyColor(pct) {
     if (pct >= 60) return "strong";  // Strong
     if (pct >= 35) return "mid";       // Mid
     return "weak";   // Weak
 }
+function toFluency(skillScore) {
+    const baselineScore = 800;  // This score will map to 20%
+    const maxScore = 1100;       // This score will map to 100%
+    
+    // If the score is below the baseline, clamp it to 20%
+    if (skillScore <= baselineScore) {
+        return 20;
+    }
+    
+    // Map the remaining range (800 to 1100) across the 20% to 100% percentage span
+    const scoreRange = maxScore - baselineScore;
+    const percentageSpan = 100 - 20; // 80% dynamic range
+    
+    const percentage = 20 + ((skillScore - baselineScore) / scoreRange) * percentageSpan;
+    
+    return Math.min(100, percentage);
+}
+// function toFluency(skillScore) {
+//     // 600 or below gives 0%. 1000 or above gives 100%.
+//     const baseline = 600;
+//     const maxScore = 1000;
+//     const percentage = ((skillScore - baseline) / (maxScore - baseline)) * 100;
+    
+//     return Math.min(100, Math.max(0, percentage));
+// }
 
 function render(){
   const mapbody = document.getElementsByClassName('skill-grid')[0]; // First elem with this class
   mapbody.innerHTML = ''; // Removes all previous entries
   Object.entries(skill_map).forEach(([tag, score]) =>{
-    const tag_name = TAG_MAP[tag];
+    const tag_name = TAG_MAP[tag] || tag.replace('_', ' ');
     // const skill_score = toFluency(score);
-    const skill_score = Math.round(toFluency(score));
-    const skill_color = getFluencyColor(skill_score);
+    const isSolved = solved_tags.includes(tag);
+    const skill_score = isSolved ? Math.round(toFluency(score)) : 0;
+    const skill_color = isSolved ? getFluencyColor(skill_score) : "weak";
     const skill_entry = document.createElement("div");
     skill_entry.innerHTML = `
       <div class="skill-item">

@@ -1178,20 +1178,7 @@ async function calc_stats() {
   console.log("/calc_stats response:", data);
 }
 
-async function build_skilltag(){
-  console.log("Calling /recent_submissions");
-  const res = await fetch('/recent_submissions',{
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': CSRF
-    },
-    body: JSON.stringify({})
-    
-  })
-  const data = await res.json();
-  console.log("recent submissions added");
-}
+
 
 async function waiting() {
   await sleep(5000);
@@ -1201,6 +1188,7 @@ async function waiting() {
 async function sync_all() {
   console.log("Fetching submissions...");
   await fetch_submissions();
+  // all_submissions, also calls 
   
   console.log("Waiting for submissions to save...");
   await waiting();
@@ -1210,9 +1198,6 @@ async function sync_all() {
   
   console.log("Calculating stats...");
   await calc_stats();
-
-  console.log("Generating Skill Tags...");
-  await build_skilltag();
   
   console.log("All done!");
 }

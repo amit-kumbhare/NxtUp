@@ -22,7 +22,7 @@ def verify_handle(handle):
         user_data = data["result"][0]
         return user_data
     except Exception as e:
-        return redirect("error")
+        return None
 
 # def get_user_data(request):
 #     url = f"https://codeforces.com/api/user.info?handles={handle}&checkHistoricHandles=true"

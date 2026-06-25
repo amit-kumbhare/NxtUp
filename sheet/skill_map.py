@@ -75,7 +75,8 @@ def delta(request, rating, skill, outcome):
 # OUTPUT -> New_data Entries = {"name","tags","rating","id","index","verdict","Timestamp"}
 @login_required
 def skill_map(request, new_data):
-    """calculates a rating point for every tag. Updates with every recent_submissions API Call"""
+    """calculates a rating point for every tag. Updates with every recent_submissions API Call.
+       takes in new_data as submission either all_submissions for creating or recent_submissions for updating"""
     recent_problems = new_data
     for subs in recent_problems:
         all_tags = subs["tags"]

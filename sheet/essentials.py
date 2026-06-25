@@ -16,12 +16,44 @@ def checking_new_submissions(request):
 
 #--------------------------------------------------------------------------------------
 
+TAG_MAP = {
+        "two pointers":   "two_pointer",
+        "binary search":  "binary_search",
+        "data structures":"data_structures",
+        "shortest paths": "shortest_paths",
+        "sliding window": "sliding_window",
+        "dfs and similar":"dfs",
+        "graphs":         "graphs",
+        "dp":             "dp",
+        "greedy":         "greedy",
+        "math":           "math",
+        "strings":        "strings",
+        "trees":          "trees",
+        "dsu":            "dsu",
+        "bitmasks":       "bitmasks",
+        "implementation": "implementation",
+    }
+
+@login_required
+def list_of_solved_tags(request):
+    """Returns a list of all tags solved by user. JSON Resp"""
+    tags = UserTopicStats.objects.get(user=request.user)
+    solved_tags = []
+    tag_with_scores = {}
+    for k,v in TAG_MAP.items():
+        solved = getattr(tags, v)
+        if solved > 0:
+            solved_tags.append(v)
+            tag_with_scores[k] = v
+    
+    return JsonResponse({"data":solved_tags, "with_count":tag_with_scores})
+
 @login_required
 def update_ach(request):
     """Updates user acheivements like rating (max also), and his rank"""
     ach = rating_maxrating(request)
-    if not ach: # Now redirect to error page
-        return redirect("error")
+    if not ach: 
+        return JsonResponse({"ok": False})
     # Now update the user instance
     request.user.rating = ach["Rating"]
     request.user.MaxRating = ach["MaxRating"]
@@ -41,8 +73,10 @@ def user_solve_count(request):
 @login_required
 def add_past_submissions(request):
     """
-    Creates submission object, showing questions solved by user."""
+    Creates submission object, showing questions solved by user. Adds all_submissions (limit 10k)"""
     new_data = all_submissions(request)
+    if not new_data:
+        return JsonResponse({"ok": False})
     # here Reverse to process oldest submission first
     new_data = list(reversed(new_data))
 
@@ -80,7 +114,7 @@ def add_past_submissions(request):
                 verdict=i["verdict"],
                 timestamp=i["Timestamp"]
             )
-
+    skill_map(request, new_data) # This is for  CREATING skill maps
 
     return JsonResponse({"ok": True})
 
@@ -94,7 +128,7 @@ def add_past_submissions(request):
 @login_required
 def add_recent_submissions(request):
     """
-    Creates submission object, showing questions solved by user."""
+    Creates submission object, showing questions solved by user. Runs recent_submissions (Limit 200)."""
     new_data = recent_submissions(request)
     if not new_data:
         return JsonResponse({"ok": False})
@@ -138,11 +172,12 @@ def add_recent_submissions(request):
                 timestamp=i["Timestamp"]
             )
     # Here i skill_map.skill_map to get those recent submissions analysed and shown in recommendations
-    get_user_skillmap(request, new_data)
+    skill_map(request, new_data) # This is for updating skill maps
     return JsonResponse({"ok": True})
 
 @login_required
 def create_user_ach(request):
+    update_ach(request)
     """Gets all submission data and creates fresh user statistics"""
     # Get all OK submissions with full problem data
     all_subs = (

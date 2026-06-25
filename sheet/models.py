@@ -157,6 +157,7 @@ def create_user_stats(sender,instance, created, **kwargs):
         UserSkillTag.objects.create(user=instance)
 
 
+
     
 
 
