@@ -230,7 +230,8 @@ def query_on_subs(request):
                 key = f"{metadata['contestId']}/{metadata['index']}"
                 if key not in solved_ids and key not in recommend:
                     recommend[key] = metadata
-    return recommend
+    return JsonResponse({"len": len(recommend), "raw_metadatas":list(recommend.values())})
+    # print(list(recommend.values()))
     
 @login_required
 def saved_state_of_ques(request):
@@ -248,18 +249,20 @@ def saved_state_of_ques(request):
 def prompt_data(request):
     """Strips data for prompt ["id", "tags", "rating", "core_math_logic"]"""
     data = query_on_subs(request)
-    # json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
-    # resp = json.loads(json_data)
-    # data = resp.get("raw_metadatas")
+    json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
+    resp = json.loads(json_data)
+    data = resp.get("raw_metadatas")
     count = 1
     res = []
     for i in data:
         res.append({
             "id": count,
+            "title": i["title"],
             "tags": i["tags"],
             "rating": i["rating"],
             "core_math_logic": i["core_math_logic"]
         })
         count += 1
+    # return JsonResponse({"data":res})
     return res
 

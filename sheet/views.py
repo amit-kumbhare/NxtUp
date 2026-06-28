@@ -16,6 +16,7 @@ import json
 import datetime
 import time
 from .models import submission, user, sheet_question, star, notes
+from .getting_recommendations import nvidia_api
 
 def index(request):
     return render(request, "sheet/login.html")
@@ -434,41 +435,46 @@ tags = ["implementation", "math", "brute-force","greedy","binary-search",
         "dp-on-trees","shortest-paths"]
 
 
-@login_required
-def topic_analysis(request):
-    """Generates an accuracy percentage table, showing strong
-       weak topics of the user.
-       Formula => (ACs/total_submission) per topic"""
-    data = recent_submissions(request)
-    topic_stats = defaultdict(lambda : {"total":0 ,"OK":0})
+# @login_required
+# def topic_analysis(request):
+#     """Generates an accuracy percentage table, showing strong
+#        weak topics of the user.
+#        Formula => (ACs/total_submission) per topic"""
+#     data = recent_submissions(request)
+#     topic_stats = defaultdict(lambda : {"total":0 ,"OK":0})
 
-    for prob in data:
-        tags = prob["tags"]
-        for tag in tags:
-            topic_stats[tag]["total"] += 1 # This counts every submission
-            if prob["verdict"] == "OK":
-                topic_stats[tag]["OK"] += 1 # No. of ACs
-    result = []
-    for tag, stats in topic_stats.items():
-        accuracy = int((stats["OK"]/stats["total"]) * 100)
-        result.append({
-            "Tag":tag,
-            "Submissions":stats["total"],
-            "Accuracy" : accuracy
-        })
-    result.sort(key = lambda x : x["Accuracy"])
-    return result
+#     for prob in data:
+#         tags = prob["tags"]
+#         for tag in tags:
+#             topic_stats[tag]["total"] += 1 # This counts every submission
+#             if prob["verdict"] == "OK":
+#                 topic_stats[tag]["OK"] += 1 # No. of ACs
+#     result = []
+#     for tag, stats in topic_stats.items():
+#         accuracy = int((stats["OK"]/stats["total"]) * 100)
+#         result.append({
+#             "Tag":tag,
+#             "Submissions":stats["total"],
+#             "Accuracy" : accuracy
+#         })
+#     result.sort(key = lambda x : x["Accuracy"])
+#     return result
 
 def weak_topic_analysis(request):
     pass
 
+@login_required
 def recommendations(request):
-    # tags_accuracy = topic_analysis(request)
-    return render(request, "sheet/recommendations.html",{
-        "no_of_submissions_analysed" : 200,
-        "last_synced": 2,
-        "tags_accuracy" : []
-    })
+    result = nvidia_api(request)
+    print(type(result))
+    print(result)
+
+    return JsonResponse(result)
+
+@login_required
+def saved_recommendations(request):
+    pass
+
 
 ####################################################################################
 # TESTING AREA
