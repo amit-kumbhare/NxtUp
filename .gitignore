@@ -9,3 +9,10 @@ chroma_db/
 codeforces_train.csv
 sheet/temp.html
 migrations/
+test_csv.py
+test_filter.py
+test_tags.py
+verify_tags.py
+test_profile_data.py
+check_raw.py
+check_regex.py

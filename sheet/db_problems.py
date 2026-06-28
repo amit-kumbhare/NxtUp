@@ -7,10 +7,11 @@ import os
 import time
 from dotenv import load_dotenv
 load_dotenv()
+import regex as re
 
 client = chromadb.PersistentClient(path="./chroma_db") # PersistentDB -> Stays on HD without erasing anything
-collection = client.get_or_create_collection(name="db_questions_final")
-collection_to_get = client.get_collection(name="db_questions")
+collection = client.get_or_create_collection(name="db_questions_v7")
+collection_to_get = client.get_collection(name="db_questions_final_with_titles_fixed_tags")
 
 sys.set_int_max_str_digits(1000000) 
 csv.field_size_limit(sys.maxsize) 
@@ -79,7 +80,9 @@ with open ("codeforces_train.csv", mode="r") as f:
         tracker += 1
         rating = int(float(row[18])) if row[18] else 0
         # Converting str of tags to actual list of tags
-        tags = row[19].replace('[', '').replace(']', '').replace('"', '').strip()
+        # tags = row[19].replace('[', '').replace(']', '').replace('"', '').strip()
+        # tags = json.dumps(ast.literal_eval(row[19])) 
+        tags = json.dumps(re.findall(r"'([^']+)'", row[19]))
         # CML = get_cml(row[11])
         CML = collection_to_get.get(ids=[row[0]])
         core_math_logic = ""
@@ -96,6 +99,7 @@ with open ("codeforces_train.csv", mode="r") as f:
             metadatas = [{
                 "contestId": row[2],
                 "index": row[7],
+                "title": row[10],
                 "tags" : tags,
                 "rating": rating,
                 "core_math_logic" : core_math_logic

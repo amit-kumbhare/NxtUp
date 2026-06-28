@@ -62,6 +62,6 @@ urlpatterns = [
     # Control Panel 
     # Fetch Submission of a user
     path("error",views.error_occured, name="error"),
-    path("test", selected_questions.subs_weak_tags, name="test")
+    path("test", selected_questions.query_on_subs, name="test")
     
 ]

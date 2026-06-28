@@ -83,11 +83,17 @@ def add_past_submissions(request):
     for i in new_data:
 
         # Now update the count of question rating and tags for user
-
+        # Update the solved_id sets
+        if i["verdict"] == 'OK':
+            obj = user.objects.get(handle = request.user.handle)
+            obj.solved_ids.add(f"{i['id']}/{i['index']}")
+            obj.save()
         # Get or create the question
         prob, _ = question.objects.get_or_create(
             problem_id=f"{i['id']}{i['index']}",
             defaults={
+                'contestId' : i['id'],
+                'index': i['index'],
                 'title': i["name"],
                 'rating': i["rating"],
                 'tags': i["tags"]
@@ -139,10 +145,18 @@ def add_recent_submissions(request):
     # Prevents double counting of same submissions
 
     for i in new_data:
+
+        # Update the solved_id sets
+        if i["verdict"] == 'OK':
+            obj = user.objects.get(handle = request.user.handle)
+            obj.solved_ids.add(f"{i['id']}/{i['index']}")
+            obj.save()
         # Get or create the question
         prob, _ = question.objects.get_or_create(
             problem_id=f"{i['id']}{i['index']}",
             defaults={
+                'contestId' : i['id'],
+                'index': i['index'],
                 'title': i["name"],
                 'rating': i["rating"],
                 'tags': i["tags"]
@@ -367,6 +381,8 @@ def update_user_data(request):
                 problem_id = f"{i['id']}{i['index']}",
                 defaults={
                     'problem_id' : f"{i['id']}{i['index']}",
+                    'contestId' : i['id'],
+                    'index' : i['index'],
                     'title' : i["name"],
                     'rating' : i["rating"],
                     'tags' : i["tags"]
@@ -381,6 +397,7 @@ def update_user_data(request):
 def update_user_field(request):
     pass
 
+@login_required
 def create_questions(request):
     """
     For creating question instances from json data
@@ -400,6 +417,7 @@ def create_questions(request):
         new_ques.save()
     return redirect("profile")
 
+@login_required
 def create_questions_2(request):
     """
     For creating question instances from json data

@@ -708,7 +708,7 @@ document.getElementById('themeBtn').addEventListener('click', function() {
       console.log("Hello");
       console.log(solved_tags);
       console.log(solve_count);
-      render();
+      render_skillmap();
 
     }
     catch(error){
@@ -751,12 +751,13 @@ function toFluency(skillScore) {
 //     return Math.min(100, Math.max(0, percentage));
 // }
 
-function render(){
+function render_skillmap(){
   const mapbody = document.getElementsByClassName('skill-grid')[0]; // First elem with this class
   mapbody.innerHTML = ''; // Removes all previous entries
   Object.entries(skill_map).forEach(([tag, score]) =>{
     const tag_name = TAG_MAP[tag] || tag.replace('_', ' ');
     // const skill_score = toFluency(score);
+    console.log(tag, score);
     const isSolved = solved_tags.includes(tag);
     const skill_score = isSolved ? Math.round(toFluency(score)) : 0;
     const skill_color = isSolved ? getFluencyColor(skill_score) : "weak";

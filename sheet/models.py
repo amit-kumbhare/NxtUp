@@ -28,6 +28,7 @@ class user(AbstractUser):
 
     # User Stats
     solved_count = models.IntegerField(default=0)
+    solved_ids = models.ManyToManyField('question', blank=True)
     
     # Other profile Data
     leetcode_handle = models.CharField(max_length=20, unique=True, blank=True,null=True)
@@ -95,28 +96,6 @@ class UserSkillTag(models.Model):
     sliding_window  = models.IntegerField(default= 800)
     implementation  = models.IntegerField(default= 800)
     dsu             = models.IntegerField(default= 800)
-
-# class UserSkillTag(models.Model):
-#     """Evaluates user's per tag proefficiency. """
-#     TAG_CHOICES = [
-#         ('graphs', 'Graphs'), ('dp', 'Dynamic Programming'), ('greedy', 'Greedy'),
-#         ('binary_search', 'Binary Search'), ('data_structures', 'Data Structures'),
-#         ('math', 'Math'), ('strings', 'Strings'), ('dfs', 'DFS/BFS'),
-#         ('shortest_paths', 'Shortest Paths'), ('trees', 'Trees'),
-#         ('two_pointer', 'Two Pointers'), ('sliding_window', 'Sliding Window'),
-#         ('implementation', 'Implementation'), ('dsu', 'DSU'), ('bitmasks', 'Bitmasks')
-#     ]
-
-#     user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='skill_tags')
-#     tag = models.CharField(max_length=30, choices=TAG_CHOICES)
-#     score = models.IntegerField(default=800) # default CF rating base
-
-#     class Meta:
-#         # Prevents duplicate rows for the same user and tag
-#         unique_together = ('user', 'tag')
-
-#     def __str__(self):
-#         return f"{self.user.username} - {self.tag}: {self.score}"
 
 
 class UserDifficultyStats(models.Model):
