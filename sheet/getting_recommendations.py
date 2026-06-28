@@ -113,6 +113,7 @@ def read_b64(path):
   with open(path, "rb") as f:
     return base64.b64encode(f.read()).decode()
 
+# model -> -it  => Instruction Tuned -> Better for following prompts
 
 @login_required
 def nvidia_api(request):

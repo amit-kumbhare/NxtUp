@@ -28,7 +28,15 @@ class user(AbstractUser):
 
     # User Stats
     solved_count = models.IntegerField(default=0)
-    solved_ids = models.ManyToManyField('question', blank=True)
+    solved_ids = models.JSONField( default=dict)
+    def add_solved_id(self, id:str): # For adding solved ids
+        if self.solved_ids is None:
+            self.solved_ids[id] = {} # coz dict keys have O(1) lookups 
+        self.solved_ids[id] = True
+    def has_solved(self, id:str) -> bool: # For checking if a question is solved
+        if not self.solved_ids:
+            return False
+        return self.solved_ids.get(id, False)
     
     # Other profile Data
     leetcode_handle = models.CharField(max_length=20, unique=True, blank=True,null=True)

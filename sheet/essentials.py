@@ -86,7 +86,7 @@ def add_past_submissions(request):
         # Update the solved_id sets
         if i["verdict"] == 'OK':
             obj = user.objects.get(handle = request.user.handle)
-            obj.solved_ids.add(f"{i['id']}/{i['index']}")
+            obj.add_solved_id(f"{i['id']}/{i['index']}")
             obj.save()
         # Get or create the question
         prob, _ = question.objects.get_or_create(
@@ -149,7 +149,7 @@ def add_recent_submissions(request):
         # Update the solved_id sets
         if i["verdict"] == 'OK':
             obj = user.objects.get(handle = request.user.handle)
-            obj.solved_ids.add(f"{i['id']}/{i['index']}")
+            obj.add_solved_id(f"{i['id']}/{i['index']}")
             obj.save()
         # Get or create the question
         prob, _ = question.objects.get_or_create(

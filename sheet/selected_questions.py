@@ -179,6 +179,9 @@ def query_on_subs(request):
     query_ids = defaultdict(list)
     avg_rating = defaultdict(int)
 
+    solved = user.objects.get(handle = request.user.handle)
+    solved_ids = solved.solved_ids or {}
+
     for sb in sub_ids:
         contestId = sb.get('problem__contestId')
         index = sb.get('problem__index')
@@ -205,12 +208,12 @@ def query_on_subs(request):
         centroid = np.mean(np.array(embeds), axis=0).tolist() # point to rem -> axis = 0 (row average), axis = 1 (columns avg)
         centroid_to_query[k] = centroid
 
-    recommend = []
+    recommend = {}
     for k, v in centroid_to_query.items():
         avg = avg_rating[k]
         raw_matches = collection.query(
             query_embeddings=[v],
-            n_results=50,
+            n_results=200,
             # where={"tags": {"$contains": f'"{k}"'}},
             where={
                 "$and": [
@@ -220,17 +223,22 @@ def query_on_subs(request):
             },
             include=["metadatas"]
         )
-        return JsonResponse({
-            "raw_metadatas": raw_matches["metadatas"][0]
-        })
+        for metadata in raw_matches.get("metadatas", [[]])[0]:
+            if len(recommend) >= 50:
+                break # seals new fresh questions to 50
+            if metadata and f'"{k}"' in metadata.get("tags", ""):
+                key = f"{metadata['contestId']}/{metadata['index']}"
+                if key not in solved_ids and key not in recommend:
+                    recommend[key] = metadata
+    return recommend
     
 @login_required
 def saved_state_of_ques(request):
     """A Saved state of 50 selected questions, for sending all data to frontend faster"""
     data = query_on_subs(request)
-    json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
-    resp = json.loads(json_data)
-    data = resp.get("raw_metadatas")
+    # json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
+    # resp = json.loads(json_data)
+    # data = resp.get("raw_metadatas")
     return JsonResponse({"status":"ok"})
     
     
@@ -240,9 +248,9 @@ def saved_state_of_ques(request):
 def prompt_data(request):
     """Strips data for prompt ["id", "tags", "rating", "core_math_logic"]"""
     data = query_on_subs(request)
-    json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
-    resp = json.loads(json_data)
-    data = resp.get("raw_metadatas")
+    # json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
+    # resp = json.loads(json_data)
+    # data = resp.get("raw_metadatas")
     count = 1
     res = []
     for i in data:
@@ -255,7 +263,3 @@ def prompt_data(request):
         count += 1
     return res
 
-
-@login_required
-def getting_recommendations(request):
-    pass

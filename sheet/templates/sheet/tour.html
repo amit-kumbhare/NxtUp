@@ -1137,17 +1137,23 @@ body {
 
   // Here first call the submissions and rating features, account is already built
 async function fetch_submissions() {
-  console.log("Calling /add_past_submissions...");
-  const res  = await fetch('/add_past_submissions', {
-    method:  'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken':  CSRF
-    },
-    body: JSON.stringify({}),
-  });
-  const data = await res.json();
-  console.log("/add_past_submissions response:", data);
+  try{
+    console.log("Calling /add_past_submissions...");
+    const res  = await fetch('/add_past_submissions', {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken':  CSRF
+      },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    console.log("/add_past_submissions response:", data);
+  }
+  catch(error){
+    console.log("error occured", error);
+  }
+
 }
 
 async function fetch_rating() {
