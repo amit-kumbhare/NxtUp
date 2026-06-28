@@ -6,13 +6,14 @@
 - Context compression for prompts to reduce "Lost in the Middle" phenomenon. Read More [Research Paper](https://cs.stanford.edu/~nfliu/papers/lost-in-the-middle.tacl2023.pdf)
 - Recommends 9  Practice problems (3+6), detecting WA/TLE patterns, past unsolved problems and even previously solved hard problems for revision.
 - Integrated live Codeforces API for submission tracking and rating updates.
+- Link to Video Documentation Playlist on YT [Link](https://youtube.com/playlist?list=PLkHIX4YjBbcfoa-Umc7mYKgEAq1Hi5OQx&si=fGXJGU6xvON_AnK8)
 
 ## Tech Stack Used (Currently being used)
 - Frontend : HTML, CSS, JavaScript
 - Backend : Python (Django)
 - Database : SQL
 - AI : ChromaDB (Vector Embeddings & Vector DB) and RAGs
-- APIs : Ollama 9B Instant (GroqCloud Hosted), GEMMA-4 31B IT (Nvidia Hosted), Codeforces API (platform hosted)
+- APIs : Ollama 9B Instant (GroqCloud Hosted), GEMMA-4 31B (Nvidia Hosted), Codeforces API (platform hosted)
 - Deployment : Yet to be made
 - Task Scheduling : Yet to be made
 
@@ -58,7 +59,10 @@
 - Contains approximately 10k problems ranging from all ratings across all tags. [Link to Dataset](https://huggingface.co/datasets/open-r1/codeforces)
 <img width="1477" height="894" alt="image" src="https://github.com/user-attachments/assets/6493d4af-59f4-4b26-97e7-16a914bafc0b" />
 
+### Work In Progress — Local Execution Only
 
+**This project is not expected to work on other devices yet.** 
+ To keep the repository lightweight, several **large databases** and **essential configuration files** have been omitted from this remote repository. The project currently relies on hardcoded local assets and environment structures.
 
-
+Watch Demo/Documentation [Link](https://youtube.com/playlist?list=PLkHIX4YjBbcfoa-Umc7mYKgEAq1Hi5OQx&si=fGXJGU6xvON_AnK8)
 
