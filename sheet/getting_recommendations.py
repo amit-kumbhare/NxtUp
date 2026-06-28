@@ -1,4 +1,110 @@
 import requests, base64
+import os
+import inspect
+from dotenv import load_dotenv
+from .selected_questions import prompt_data
+from django.contrib.auth.decorators import login_required
+load_dotenv()
+gemma_api_key = os.getenv("NVIDIA_API_KEY")
+
+
+@login_required
+def prompt(request):
+    prom = inspect.cleandoc(f'''
+    You are a Grandmaster-level competitive programming coach with deep expertise in problem-solving pedagogy across all skill levels — 
+    from absolute beginners to Candidate Masters and beyond.
+
+    You will receive:
+    1. A batch of 50 recommended problems (from a vector DB query based on the user's weakest topics)
+    2. The user's 3–5 most recently accepted problems (to avoid near-duplicate recommendations)
+    3. The user's current rating, solved count, and weak topic analysis
+
+    ---
+
+    ## YOUR TASK
+
+    Analyze the user's weak areas and select exactly **9 problems** total:
+
+    ### PART A — 3 Problems from the Weakest Topic (Bridge Curriculum)
+    From the 50 problems, identify the **single weakest subtopic** holding the user back.
+    Select 3 problems that form a deliberate learning ramp:
+
+    1. **Warmup** — Same or slightly lower rating (±100), simpler formulation, builds intuition  
+    2. **Bridge** — Same rating band, different angle or variant of the same concept  
+    3. **Stretch** — ~+200 rating, requires a deeper or combined application of the concept  
+
+    ### PART B — 6 Problems for General Growth
+    From the remaining problems in the 50 (not already selected in Part A), pick 6 problems that:
+    - Cover a **spread of different topics/subtopics** (no two problems should train the same skill)
+    - Are appropriate for the user's current level with slight upward pressure
+    - Complement Part A without overlapping its subtopic focus
+
+    ---
+
+    ## CRITICAL RULES
+
+    - **Never recommend a problem the user has already solved** (cross-check against recently accepted list)
+    - **Never recommend a near-duplicate** — if a problem in the 50 is structurally identical to a recently accepted one (same technique, near-same constraints), skip it
+    - All 9 picks **must come from the provided 50-problem list** — do not invent or suggest problems outside it
+    - Part A and Part B must be **mutually exclusive selections**
+
+    ---
+
+    ## OUTPUT FORMAT
+
+    Return a single valid JSON object. No markdown. No explanation outside the JSON. No trailing commas.
+
+    ```json
+    {{
+    "diagnostic": {{
+        "weakest_topic": "<main topic e.g. Dynamic Programming>",
+        "critical_subtopics": ["<subtopic 1>", "<subtopic 2>"],
+        "message": "Critical gap detected: <1–2 sentence precise diagnosis — name the exact subtopics failing the user and why it's a bottleneck at their level>"
+    }},
+    "bridge_curriculum": [
+        {{
+        "problem_id": "<ID from the 50-problem list>",
+        "role": "warmup",
+        "summary": "<20–30 words: why this problem, what it trains, what insight the user will gain, how it connects to their gap>",
+        "custom_tags": ["<specific subtopic tag>", "<optional second tag>"]
+        }},
+        {{
+        "problem_id": "<ID>",
+        "role": "bridge",
+        "summary": "<20–30 words>",
+        "custom_tags": ["<tag1>", "<tag2>"]
+        }},
+        {{
+        "problem_id": "<ID>",
+        "role": "stretch",
+        "summary": "<20–30 words>",
+        "custom_tags": ["<tag1>", "<tag2>"]
+        }}
+    ],
+    "general_practice": [
+        {{
+        "problem_id": "<ID>",
+        "header_summary": "<2-6 words guidance. Example : "For your rating", "One of your weak tags">",
+        "summary": "<20–30 words: why this problem, what it trains, how it helps the user's broader CP growth>",
+        "custom_tags": ["<tag1>", "<optional tag2>"]
+        }}
+        // repeat for all 6 problems
+    ]
+    }}
+    ```
+    {prompt_data(request)}
+    ---
+
+    ## TONE & CALIBRATION NOTES
+
+    - Summaries should feel like advice from a coach who has seen hundreds of students at this exact level — specific, actionable, and encouraging without being vague
+    - For beginners: emphasize what intuition to build, not just what algorithm to learn
+    - For advanced users (1800+): focus on the non-obvious angle, the edge case insight, or why this problem is a known pattern-breaker
+    - Tags must be **granular subtopics**, not broad labels — prefer `"dp on intervals"` over `"dp"`, prefer `"small-to-large merging"` over `"trees"`
+
+    ''')
+    return prom
+
 
 invoke_url = "https://integrate.api.nvidia.com/v1/chat/completions"
 stream = False
@@ -7,25 +113,29 @@ def read_b64(path):
   with open(path, "rb") as f:
     return base64.b64encode(f.read()).decode()
 
-headers = {
-  "Authorization": "Bearer $NVIDIA_API_KEY",
-  "Accept": "text/event-stream" if stream else "application/json"
-}
 
-payload = {
-  "model": "google/gemma-4-31b-it",
-  "messages": [{"role":"user","content":""}],
-  "max_tokens": 16384,
-  "temperature": 1.00,
-  "top_p": 0.95,
-  "stream": stream,
-  "chat_template_kwargs": {"enable_thinking":True},
-}
+@login_required
+def nvidia_api(request):
+    sending_prompt = prompt(request)
+    headers = {
+    "Authorization": f"Bearer {gemma_api_key}",
+    "Accept": "text/event-stream" if stream else "application/json"
+    }
 
-response = requests.post(invoke_url, headers=headers, json=payload, stream=stream)
-if stream:
-    for line in response.iter_lines():
-        if line:
-            print(line.decode("utf-8"))
-else:
-    print(response.json())
+    payload = {
+    "model": "google/gemma-4-31b-it",
+    "messages": [{"role":"user","content":sending_prompt}],
+    "max_tokens": 16384,
+    "temperature": 1.00,
+    "top_p": 0.95,
+    "stream": stream,
+    "chat_template_kwargs": {"enable_thinking":True},
+    }
+
+    response = requests.post(invoke_url, headers=headers, json=payload, stream=stream)
+    if stream:
+        for line in response.iter_lines():
+            if line:
+                print(line.decode("utf-8"))
+    else:
+        print(response.json())

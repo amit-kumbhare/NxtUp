@@ -253,7 +253,7 @@ def prompt_data(request):
             "core_math_logic": i["core_math_logic"]
         })
         count += 1
-    return JsonResponse({"data":res})
+    return res
 
 
 @login_required

@@ -4,6 +4,7 @@ from . import services
 from . import essentials
 from . import skill_map
 from . import selected_questions
+from . import getting_recommendations
 
 urlpatterns = [
 
@@ -39,6 +40,7 @@ urlpatterns = [
     path("get_user_skillmap", skill_map.get_user_skillmap, name="get_user_skillmap"),
     path("sheet/recommendations", views.recommendations, name="recommendations"),
     path("list_of_solved_tags", essentials.list_of_solved_tags, name="list_of_solved_tags"),
+    path("getting_recommendations", getting_recommendations.nvidia_api, name="getting_prompts"),
 
     # Notes
     path("sheet/notes", views.notes, name="notes"),
