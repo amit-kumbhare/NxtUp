@@ -59,13 +59,10 @@
 - Contains approximately 10k problems ranging from all ratings across all tags. [Link to Dataset](https://huggingface.co/datasets/open-r1/codeforces)
 <img width="1477" height="894" alt="image" src="https://github.com/user-attachments/assets/6493d4af-59f4-4b26-97e7-16a914bafc0b" />
 
-##
-> [!WARNING]
-> ### ⚠️ Work In Progress — Local Execution Only
-> 
-> **This project is not expected to work on other devices yet.** 
-> 
-> To keep the repository lightweight, several **large databases** and **essential configuration files** have been omitted from this remote repository. The project currently relies on hardcoded local assets and environment structures.
+### Work In Progress — Local Execution Only
+
+**This project is not expected to work on other devices yet.** 
+ To keep the repository lightweight, several **large databases** and **essential configuration files** have been omitted from this remote repository. The project currently relies on hardcoded local assets and environment structures.
 
 Watch Demo/Documentation [Link](https://youtube.com/playlist?list=PLkHIX4YjBbcfoa-Umc7mYKgEAq1Hi5OQx&si=fGXJGU6xvON_AnK8)
 
