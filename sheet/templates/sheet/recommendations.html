@@ -155,7 +155,7 @@
         Bridge Curriculum
         <span class="section-count">3 problems</span>
       </div>
-      <div style="font-size:12px;color:var(--text-muted)">Closes your dp transitions gap in this session</div>
+      <div style="font-size:12px;color:var(--text-muted)">Complete in order for best results.</div>
     </div>
 
     <div class="bridge-strip">
@@ -164,8 +164,8 @@
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14c0-4.4 3.6-8 8-8M14 2c0 4.4-3.6 8-8 8"/><circle cx="2" cy="14" r="1.5" fill="currentColor"/><circle cx="14" cy="2" r="1.5" fill="currentColor"/></svg>
         </div>
         <div>
-          <div class="bridge-title">Today's Bridge — dp transitions → dp on trees</div>
-          <div class="bridge-desc">Warm up → close the gap → stretch. Complete in order for best results.</div>
+          <div class="bridge-title">Today's Bridge Curriculum</div>
+          <div class="bridge-desc">Warm up → close the gap → stretch. </div>
         </div>
       </div>
       <div class="bridge-cards">
@@ -208,7 +208,7 @@
           </a>
         </div>
 
-        <div class="bridge-card" onclick="openCF('1349/problem/B')" style="border-color:color-mix(in srgb,var(--purple) 30%,transparent)">
+        <div class="bridge-card" onclick="openCF('1349/B')" style="border-color:color-mix(in srgb,var(--purple) 30%,transparent)">
           <div class="bridge-card-num" style="background:var(--purple-soft);color:var(--purple)">3</div>
           <div class="bridge-card-type stretch">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 14V2M4 10l4 4 4-4"/></svg>
@@ -684,6 +684,7 @@ document.getElementById('themeBtn').addEventListener('click', function() {
       console.log(dataArray[0].fields);
       const {user, ...tags} = final_data;
       skill_map = {};
+      
 
       Object.entries(tags).forEach(([tag, score]) => {
         skill_map[tag] = score;
@@ -709,6 +710,11 @@ document.getElementById('themeBtn').addEventListener('click', function() {
       console.log(solved_tags);
       console.log(solve_count);
       render_skillmap();
+      render_bridge_curriculum();
+      render_critical_gap();
+      render_curated_list();
+
+
 
     }
     catch(error){
@@ -716,15 +722,24 @@ document.getElementById('themeBtn').addEventListener('click', function() {
     }
   }
   get_skillmap_data();
+  get_bridge_curriculum();
 
-  // async function get_bridge_curriculum(){
-  //   try{
-  //     const res = await fetch("/getting_recommendations",{
-  //       method : 'GET',
-  //     });
-  //     const payload = await res.json
-  //   }
-  // }
+  async function get_bridge_curriculum(){
+    try{
+      const res = await fetch("/fetching_recommendations",{
+        method : 'GET',
+      });
+      const payload = await res.json();
+      console.log("Data Below");
+      console.log(payload);
+      bridge_curriculum = payload.data;
+      console.log("Bhai");
+      console.log(bridge_curriculum);
+    }
+    catch(error){
+      console.log("error occured", error);
+    }
+  }
 
 // function toFluency(skillScore) {
 //     return Math.min(100, Math.max(0, (skillScore - 800) / 16));
@@ -797,6 +812,165 @@ function openCF(path) {
   window.open('https://codeforces.com/problemset/problem/' + path, '_blank');
 }
 
+// <div class="bridge-card" onclick="openCF('1349/problem/B')" style="border-color:color-mix(in srgb,var(--purple) 30%,transparent)">
+//   <div class="bridge-card-num" style="background:var(--purple-soft);color:var(--purple)">3</div>
+//   <div class="bridge-card-type stretch">
+//     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 14V2M4 10l4 4 4-4"/></svg>
+//     Stretch
+//   </div>
+//   <div class="bridge-card-name">Orac and Medians</div>
+//   <div class="bridge-card-meta">
+//     <span class="rating-chip">1800</span>
+//     <span class="tag-chip">greedy</span>
+//     <span class="tag-chip highlight">dp transitions</span>
+//   </div>
+//   <div class="bridge-card-why">Combines <b>greedy with the DP insight</b> from problem 2. If you understood the bridge, this becomes tractable. Your stretch goal for the session.</div>
+//   <a class="solve-btn" href="https://codeforces.com/problemset/problem/1349/B" target="_blank" onclick="e=>e.stopPropagation()">
+//     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+//     Solve on CF
+//   </a>
+// </div>
+
+function render_critical_gap(){
+      // Critical Gap
+      gap_obj = document.getElementsByClassName("gap-alert")[0]
+      gap_obj.innerHTML = `
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/><path d="M8 6v3M8 11v.5"/></svg>
+      <span>${bridge_curriculum.critical_gap}</span>
+      `;
+}
+
+
+function render_bridge_curriculum(){
+  bridge_container = document.getElementsByClassName('bridge-cards')[0];
+
+  warmup_data = bridge_curriculum.warmup;
+  let tags_html = (warmup_data.tags || [])
+  .map(tag => `<span class="tag-chip">${tag}</span>`)
+  .join('');
+
+
+  bridge_data = bridge_curriculum.bridge;
+  let tags_html2 = (bridge_data.tags || [])
+  .map(tag => `<span class="tag-chip">${tag}</span>`)
+  .join('');
+
+
+  stretch_data = bridge_curriculum.stretch;
+  let tags_html3 = (stretch_data.tags || [])
+  .map(tag => `<span class="tag-chip">${tag}</span>`)
+  .join('');
+
+  bridge_container.innerHTML = `
+    <div class="bridge-card" onclick="openCF('${warmup_data.contestId}/${warmup_data.index}')">
+      <div class="bridge-card-num">1</div>
+      <div class="bridge-card-type warmup">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
+        Warm-up
+      </div>
+      <div class="bridge-card-name">${warmup_data.title}</div>
+      <div class="bridge-card-meta">
+        <span class="rating-chip">${warmup_data.rating}</span>
+        ${tags_html}
+      </div>
+      <div class="bridge-card-why">${warmup_data.summary}</div>
+      <a class="solve-btn" href="https://codeforces.com/problemset/problem/${warmup_data.contestId}/${warmup_data.index}" target="_blank" onclick="e=>e.stopPropagation()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+        Solve on CF
+      </a>
+    </div>
+
+    <div class="bridge-card" onclick="openCF('${bridge_data.contestId}/${bridge_data.index}')" style="border-color:color-mix(in srgb,var(--accent) 35%,transparent)">
+      <div class="bridge-card-num" style="background:var(--accent);color:white">2</div>
+      <div class="bridge-card-type bridge">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 14c0-4.4 3.6-8 8-8M14 2c0 4.4-3.6 8-8 8"/></svg>
+        Bridge
+      </div>
+      <div class="bridge-card-name">${bridge_data.title}</div>
+      <div class="bridge-card-meta">
+        <span class="rating-chip">${bridge_data.rating}</span>
+        ${tags_html2}
+      </div>
+      <div class="bridge-card-why">${bridge_data.summary}</div>
+      <a class="solve-btn" href="https://codeforces.com/problemset/problem/${bridge_data.contestId}/${bridge_data.index}" target="_blank" onclick="e=>e.stopPropagation()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+        Solve on CF
+      </a>
+    </div>
+
+    <div class="bridge-card" onclick="openCF('${stretch_data.contestId}/${stretch_data.index}')" style="border-color:color-mix(in srgb,var(--purple) 30%,transparent)">
+      <div class="bridge-card-num" style="background:var(--purple-soft);color:var(--purple)">3</div>
+      <div class="bridge-card-type stretch">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 14V2M4 10l4 4 4-4"/></svg>
+        Stretch
+      </div>
+      <div class="bridge-card-name">${stretch_data.title}</div>
+      <div class="bridge-card-meta">
+        <span class="rating-chip">${stretch_data.rating}</span>
+        ${tags_html3}
+      </div>
+      <div class="bridge-card-why">${stretch_data.summary}</div>
+      <a class="solve-btn" href="https://codeforces.com/problemset/problem/${stretch_data.contestId}/${stretch_data.index}" target="_blank" onclick="e=>e.stopPropagation()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+        Solve on CF
+      </a>
+    </div>
+  `;
+  }
+
+function curated_color(rating){
+  if(rating < 1000) return 'easy';
+  if(rating < 1700) return 'medium';
+  return 'hard';
+}
+function curated_color_second(rating){
+    if(rating < 1000) return 'rated';
+    if(rating < 1700) return 'attempt';
+    return 'tag';
+}
+
+function render_curated_list(){
+  curated_body = document.getElementsByClassName("rec-grid")[0];
+  curated_body.innerHTML = ``;
+  Object.values(bridge_curriculum.curated_list).forEach((value) =>{
+    curated_entry = document.createElement("div");
+    let color = curated_color(value.rating);
+    let color_second = curated_color_second(value.rating);
+    let tags_curated = (value.tags || [])
+    .map(tag => `<span class="tag-chip">${tag}</span>`)
+    .join('');
+    curated_entry.innerHTML = `
+    <div class="rec-card">
+      <div class="rec-card-top">
+        <div class="rec-card-left">
+          <div class="rec-reason ${color_second}">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2z"/><path d="M8 6v3M8 11v.5"/></svg>
+            ${value.header_summary}
+          </div>
+          <div class="rec-name">${value.title}</div>
+
+        </div>
+        <div class="rec-card-right">
+          <div class="rec-rating ${color}">${value.rating}</div>
+          <div class="similarity-score">${value.contestId}/${value.index}</div>
+        </div>
+      </div>
+      <div class="rec-tags">
+        ${tags_curated}
+      </div>
+      <div class="rec-why ${color_second}-why">${value.summary}</div>
+      <div class="rec-card-actions">
+        <a class="solve-btn" href="https://codeforces.com/problemset/problem/${value.contestId}/${value.index}" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+          Solve on CF
+        </a>
+      </div>
+    </div>
+    `;
+    curated_body.appendChild(curated_entry);
+  });
+}
+
 /* TOAST */
 let toastTimer;
 function showToast(msg) {
@@ -817,7 +991,28 @@ window.addEventListener('load', () => {
     });
   }, 200);
 });
+
+    // <div class="bridge-card" onclick="openCF('476/C')">
+    //   <div class="bridge-card-num">1</div>
+    //   <div class="bridge-card-type warmup">
+    //     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
+    //     Warm-up
+    //   </div>
+    //   <div class="bridge-card-name">Dreamoon and Sums</div>
+    //   <div class="bridge-card-meta">
+    //     <span class="rating-chip">1400</span>
+    //     <span class="tag-chip">math</span>
+    //     <span class="tag-chip">binary search</span>
+    //   </div>
+    //   <div class="bridge-card-why">Gets your brain into problem mode. Math + binary search — two of your strong tags. Should be a clean solve to build momentum.</div>
+    //   <a class="solve-btn" href="https://codeforces.com/problemset/problem/476/C" target="_blank" onclick="e=>e.stopPropagation()">
+    //     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3M10 2h4v4M14 2L7 9"/></svg>
+    //     Solve on CF
+    //   </a>
+    // </div>
 </script>
 </body>
+
+
 
 {% endblock %}

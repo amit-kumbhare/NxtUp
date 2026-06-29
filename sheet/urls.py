@@ -40,7 +40,8 @@ urlpatterns = [
     path("get_user_skillmap", skill_map.get_user_skillmap, name="get_user_skillmap"),
     path("sheet/recommendations", views.recommendations, name="recommendations"),
     path("list_of_solved_tags", essentials.list_of_solved_tags, name="list_of_solved_tags"),
-    path("getting_recommendations", views.recommendations, name="getting_prompts"),
+    path("getting_recommendations", views.getting_recommendations, name="getting_recommendations"),
+    path("fetching_recommendations", views.saved_recommendations, name="fetching_recommendations"),
 
     # Notes
     path("sheet/notes", views.notes, name="notes"),

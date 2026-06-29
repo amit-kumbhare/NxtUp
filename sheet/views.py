@@ -15,7 +15,7 @@ from django.db.models import Count,Max
 import json
 import datetime
 import time
-from .models import submission, user, sheet_question, star, notes
+from .models import submission, user, sheet_question, star, notes, Recommendations
 from .getting_recommendations import nvidia_api
 
 def index(request):
@@ -465,15 +465,70 @@ def weak_topic_analysis(request):
 
 @login_required
 def recommendations(request):
-    result = nvidia_api(request)
-    print(type(result))
-    print(result)
-
-    return JsonResponse(result)
+    return render(request, "sheet/recommendations.html")
 
 @login_required
+def getting_recommendations(request):
+    """Creating or updating recommendations."""
+    result = nvidia_api(request) # Returns decoded json data
+    print(type(result))
+    print(result)
+    saved_data = Recommendations.objects.get(user = request.user)
+    raw_state = getattr(saved_data, 'saved_state')
+
+    if isinstance(raw_state, str):
+        questions_data = json.loads(raw_state)
+    else:
+        questions_data = raw_state or {}
+
+    # BRIDGE CURRICULUM
+    brid = result.get("bridge_curriculum")
+    for ques in brid:
+        ques_data = questions_data.get(ques.get("problem_id")) # Rest of the data of question
+        # Where to save ?
+        obj = {
+            "title" : ques_data.get("title"),
+            "index" : ques_data.get("index"),
+            "contestId": ques_data.get("contestId"),
+            "tags": ques.get("custom_tags"),
+            "rating": ques_data.get("rating"),
+            "summary" : ques.get("summary")
+        }
+        setattr(saved_data, ques.get("role"), obj ) # save
+        saved_data.save()
+
+    # # CURATED 6 PROBLEMS
+    curated = {}
+    count = 1
+    cura = result.get("general_practice")
+    for ques in cura:
+        ques_data = questions_data.get(ques.get("problem_id"))
+        curated[count] = {
+            "title" : ques_data.get("title"),
+            "index" : ques_data.get("index"),
+            "contestId": ques_data.get("contestId"),
+            "tags": ques.get("custom_tags"),
+            "rating": ques_data.get("rating"),
+            "summary" : ques.get("summary"),
+            "header_summary" : ques.get("header_summary")
+        }
+        count += 1
+    setattr(saved_data, "curated_list", curated) # save
+    # gap = result["diagnostic"]["message"]
+    gap = result.get("diagnostic").get("message")
+    setattr(saved_data, "critical_gap", gap)
+    saved_data.save()
+
+    return JsonResponse(result)
+from django.forms.models import model_to_dict
+@login_required
 def saved_recommendations(request):
-    pass
+    """Fetching already saved recommendations from DB"""
+    content = Recommendations.objects.get(
+        user = request.user
+    )
+    data = model_to_dict(content) # This converts model's complex struc tu parsable dict to frontend JS
+    return JsonResponse({"data": data})
 
 
 ####################################################################################
@@ -489,7 +544,50 @@ def print_date(request):
 
 
 
+    # # first get the saved data of the selected files
+    # saved_data = Recommendations.objects.get(user = request.user)
+    # questions_data = getattr(saved_data, 'saved_state')
 
+
+    # # BRIDGE CURRICULUM
+    # brid = result.get("bridge_curriculum")
+    # for ques in brid:
+    #     ques_data = saved_data.saved_state[int(ques["problem_id"])] # Rest of the data of question
+    #     # Where to save ?
+    #     obj = {
+    #         "title" : ques_data["title"],
+    #         "index" : ques_data["index"],
+    #         "contestId": ques_data["contestId"],
+    #         "tags": ques["custom_tags"],
+    #         "rating": ques_data["rating"],
+    #         "summary" : ques["summary"]
+            
+    #     }
+    #     setattr(saved_data, ques["role"], obj ) # save
+
+    # # CURATED 6 PROBLEMS
+    # curated = {}
+    # count = 1
+    # for ques in result["general_practice"]:
+    #     ques_data = saved_data.saved_state[ques["problem_id"]]
+    #     curated[count] = {
+    #         "title": ques_data["title"],
+    #         "index": ques_data["index"],
+    #         "contestId":ques_data["contestId"],
+    #         "tags" : ques["custom_tags"],
+    #         "rating": ques_data["rating"],
+    #         "summary": ques["summary"],
+    #         "header_summary" : ques["header_summary"]
+    #     }
+    #     count += 1
+    # setattr(saved_data, "curated_list", curated) # save
+    
+    # Recommendations.objects.update_or_create(
+    #     user=request.user,
+    #     defaults = {
+    #         "critical_gap": result["diagnostic"]["message"]
+    #     }
+    # )
 
 
 

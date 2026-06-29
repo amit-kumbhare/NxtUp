@@ -1,4 +1,4 @@
-from .models import user,submission,question,UserDifficultyStats,UserTopicStats, sheet_question, notes, star, UserSkillTag
+from .models import user,submission,question,UserDifficultyStats,UserTopicStats, sheet_question, notes, star, UserSkillTag, Recommendations
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse
@@ -234,34 +234,47 @@ def query_on_subs(request):
     # print(list(recommend.values()))
     
 @login_required
-def saved_state_of_ques(request):
+def saved_state_of_ques(request, data):
     """A Saved state of 50 selected questions, for sending all data to frontend faster"""
-    data = query_on_subs(request)
-    # json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
-    # resp = json.loads(json_data)
-    # data = resp.get("raw_metadatas")
+    Recommendations.objects.update_or_create(
+        user = request.user,
+        defaults= {
+            "saved_state" : data
+        }
+    )
     return JsonResponse({"status":"ok"})
     
     
 # While the data fwd ed to prompt would be cut down significantly, maintain a separate state of those
 # 50 questions so we can instantly send selected question's data to frontend.
+
 @login_required
 def prompt_data(request):
     """Strips data for prompt ["id", "tags", "rating", "core_math_logic"]"""
     data = query_on_subs(request)
     json_data = data.content.decode('utf-8') # utf-8 is decoding format (standard)
     resp = json.loads(json_data)
-    data = resp.get("raw_metadatas")
+    full_data = resp.get("raw_metadatas")
+    saving = {}
+    id_count = 1
+    for id_count, i in enumerate(full_data, start = 1):
+        saving[id_count] = {
+            "index": i["index"],
+            "contestId": i["contestId"],
+            "title": i["title"],
+            "rating": i["rating"],
+            "tags": json.loads(i["tags"])
+        }
+    saved_state_of_ques(request, saving) # Saving data for question's other data
     count = 1
     res = []
-    for i in data:
-        res.append({
-            "id": count,
+    for i in full_data:
+        res.append( {count : {
             "title": i["title"],
             "tags": i["tags"],
             "rating": i["rating"],
             "core_math_logic": i["core_math_logic"]
-        })
+        }})
         count += 1
     # return JsonResponse({"data":res})
     return res

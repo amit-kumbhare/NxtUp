@@ -66,6 +66,23 @@ class sheet_question(models.Model):
     rating = models.IntegerField()
     tags = models.JSONField(default=list,blank=True)
 
+class Recommendations(models.Model):
+    user = models.OneToOneField(user, on_delete=models.CASCADE, related_name="recommendations")
+
+    critical_gap = models.JSONField(null=True)
+
+    # {"title": "", "index": "A", "contestId": "1925", "tags": [], "rating": 800, "summary": ""}
+    warmup = models.JSONField(null=True)
+    bridge = models.JSONField(null=True)
+    stretch = models.JSONField(null=True)
+
+    # {"1": {"title": "", "index": "A", "contestId": "196", "tags": [""], "rating": 1100, "summary": "", "header_summary": ""}}
+    curated_list = models.JSONField(null=True)
+
+    saved_state = models.JSONField(blank=True)
+    # recommendations = models.JSONField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 class UserTopicStats(models.Model):
     """topic_wise counts questions solved per tag"""
     user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='topic_wise')

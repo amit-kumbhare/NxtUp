@@ -338,6 +338,9 @@ nav {
   border-radius: var(--radius); padding: 18px 20px;
   box-shadow: var(--shadow); transition: all .22s; cursor: pointer;
   position: relative;
+  /* Temporary -> for alignment */
+  display: flex;
+  flex-direction: column;
 }
 .rec-card:hover {
   border-color: var(--accent);
@@ -406,6 +409,9 @@ nav {
   padding: 10px 12px; border-radius: 8px;
   background: var(--surface2);
   border-left: 3px solid var(--border);
+  /* Temp */
+  flex: 1; 
+
 }
 .rec-why.gap-why     { border-left-color: var(--hard); }
 .rec-why.rated-why   { border-left-color: var(--blue); }
@@ -414,7 +420,12 @@ nav {
 .rec-why.attempt-why { border-left-color: var(--accent); }
 .rec-why b { color: var(--text); font-weight: 500; }
 
-.rec-card-actions { display: flex; align-items: center; gap: 8px; }
+.rec-card-actions { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  margin-top: auto;
+}
 .star-btn {
   background: none; border: 1px solid var(--border);
   border-radius: 7px; cursor: pointer; padding: 6px 8px;

@@ -86,19 +86,19 @@ def nvidia_api(request):
                     {
                     "problem_id": "<ID from the 50-problem list>",
                     "role": "warmup",
-                    "summary": "<20–30 words: why this problem, what it trains, what insight the user will gain, how it connects to their gap>",
+                    "summary": "<20–25 words: why this problem, what it trains, what insight the user will gain, how it connects to their gap>",
                     "custom_tags": ["<specific subtopic tag>", "<optional subtopic second tag>"]
                     },
                     {
                     "problem_id": "<ID>",
                     "role": "bridge",
-                    "summary": "<20–30 words>",
+                    "summary": "<20–25 words>",
                     "custom_tags": ["<tag1>", "<tag2>"]
                     },
                     {
                     "problem_id": "<ID>",
                     "role": "stretch",
-                    "summary": "<20–30 words>",
+                    "summary": "<20–25 words>",
                     "custom_tags": ["<tag1>", "<tag2>"]
                     }
                 ],
@@ -106,7 +106,7 @@ def nvidia_api(request):
                     {
                     "problem_id": "<ID>",
                     "header_summary": "<2-6 words guidance. Example : "For your rating", "One of your weak tags">",
-                    "summary": "<20–30 words: why this problem, what it trains, how it helps the user's broader CP growth>",
+                    "summary": "<15-20 words: why this problem, what it trains, how it helps the user's broader CP growth>",
                     "custom_tags": ["<tag1>", "<optional tag2>"]
                     }
                     // repeat for all 6 problems
