@@ -29,13 +29,15 @@
 ### 1. Profile Page with your Codeforces Information
 - Synced to codeforces via API every 30 minutes
 - Two heatmaps for progress tracking
-<img width="1308" height="907" alt="image" src="https://github.com/user-attachments/assets/78a2eb33-1323-4d0a-b7ed-4bc0863f01e7" />
+<img width="1204" height="894" alt="image" src="https://github.com/user-attachments/assets/3ffa018d-3b54-43dc-8c35-9b5f923c9741" />
+<img width="1204" height="557" alt="image" src="https://github.com/user-attachments/assets/5c69e7e4-f14a-4b7e-8ab7-a100287b32e3" />
 
 ### 2. Blind Order Sheet
 - Approx 300 Questions from A2OJ Ladders integrated right into the platform, with synced progress.
 - Ability to filter questions effortlessly.
-<img width="1289" height="775" alt="image" src="https://github.com/user-attachments/assets/cb0bfbcb-5789-4606-948b-15f929cc4247" />
-<img width="1302" height="813" alt="image" src="https://github.com/user-attachments/assets/217a61d2-c03f-455a-bf34-ce06ab02b838" />
+
+<img width="1204" height="795" alt="image" src="https://github.com/user-attachments/assets/9569dd39-b10b-48c5-bcd8-4caa61ea6f3c" />
+<img width="1206" height="869" alt="image" src="https://github.com/user-attachments/assets/36ad3f81-9eb7-4238-a55f-c9d21b769b05" />
 
 ### 3. Recommendations
 - Skill Map, showing user's proficiency in each tag
@@ -43,8 +45,8 @@
 - 6 Curated Problems for general practice
 - Each problem also carries explanation to how it helps bridge the gap.
 - List of Unsolved Problems and Spaced Repetition
-<img width="1282" height="818" alt="image" src="https://github.com/user-attachments/assets/98ee6243-6c38-45f8-b7a8-bfb3a6afdcda" />
-<img width="1305" height="833" alt="image" src="https://github.com/user-attachments/assets/b5df1ae7-0326-4eb8-8c21-bbfff791bc9d" />
+<img width="1206" height="853" alt="image" src="https://github.com/user-attachments/assets/7c6d2c0d-1472-45c0-b289-5f0c1ba013dd" />
+<img width="1208" height="878" alt="image" src="https://github.com/user-attachments/assets/51d44482-d0cf-4400-b6c8-998091104e69" />
 
 ## Code for Vector Embeddings
 <img width="929" height="860" alt="image" src="https://github.com/user-attachments/assets/7470a10f-5a27-4198-bda1-ba774ccc0cf0" />
